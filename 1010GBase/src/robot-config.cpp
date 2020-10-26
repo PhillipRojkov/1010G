@@ -11,16 +11,16 @@ brain  Brain;
 //Controller
 controller Controller1 = controller(primary);
 //Drive motors
-motor DriveFL = motor(PORT1, ratio18_1, true); //Front left drive - Reversed
-motor DriveFR = motor(PORT2, ratio18_1, false); //Front right drive
-motor DriveBL = motor(PORT3, ratio18_1, true); //Back left drive - Reversed
-motor DriveBR = motor(PORT4, ratio18_1, false); //Back right drive
+motor DriveFL = motor(PORT20, ratio18_1, false); //Front left drive
+motor DriveFR = motor(PORT8, ratio18_1, true); //Front right drive - Reversed
+motor DriveBL = motor(PORT19, ratio18_1, false); //Back left drive
+motor DriveBR = motor(PORT9, ratio18_1, true); //Back right drive - Reversed
 //Intake motors
-motor IntakeL = motor(PORT5, ratio18_1, false); //Left intake
-motor IntakeR = motor(PORT6, ratio18_1, true); //Right intake - Reversed
+motor IntakeL = motor(PORT12, ratio18_1, false); //Left intake
+motor IntakeR = motor(PORT2, ratio18_1, true); //Right intake - Reversed
 //Indexer motors
-motor IndexerL = motor(PORT7, ratio18_1, false); //Left indexer
-motor IndexerR = motor(PORT8, ratio18_1, true); //Right indexer - Reversed
+motor IndexerL = motor(PORT11, ratio6_1, true); //Left indexer - Reversed
+motor IndexerR = motor(PORT1, ratio6_1, false); //Right indexer
 
 // VEXcode generated functions
 

@@ -11,14 +11,14 @@
 // Robot Configuration:
 // [Name]               [Type]        [Port(s)]
 // Controller1           Controller
-// DriveFL              Motor         1
-// DriveFR              Motor         2
-// DriveBL              Motor         3
-// DriveBR              Motor         4
-// IntakeL              Motor         5
-// IntakeR              Motor         6
-// IndexerL             Motor         7
-// IndexerR             Motor         8
+// DriveFL              Motor         20
+// DriveFR              Motor         8
+// DriveBL              Motor         19
+// DriveBR              Motor         9
+// IntakeL              Motor         12
+// IntakeR              Motor         2
+// IndexerL             Motor         11
+// IndexerR             Motor         1
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"
@@ -87,15 +87,15 @@ void usercontrol(void) {
 
     //Simple linear mecanum drive
     DriveFL.spin(forward, Controller1.Axis2.value() + Controller1.Axis1.value() + Controller1.Axis4.value(), vex::velocityUnits::pct);
-    DriveFR.spin(forward, Controller1.Axis2.value() - Controller1.Axis1.value() + Controller1.Axis4.value(), vex::velocityUnits::pct);
+    DriveFR.spin(forward, Controller1.Axis2.value() - Controller1.Axis1.value() - Controller1.Axis4.value(), vex::velocityUnits::pct);
     DriveBL.spin(forward, Controller1.Axis2.value() + Controller1.Axis1.value() - Controller1.Axis4.value(), vex::velocityUnits::pct);
-    DriveBR.spin(forward, Controller1.Axis2.value() - Controller1.Axis1.value() - Controller1.Axis4.value(), vex::velocityUnits::pct);
+    DriveBR.spin(forward, Controller1.Axis2.value() - Controller1.Axis1.value() + Controller1.Axis4.value(), vex::velocityUnits::pct);
 
     //Simple intake on top right bumper
     if (Controller1.ButtonR1.pressing()) {
       IntakeL.spin(forward, 100, vex::velocityUnits::pct);
       IntakeR.spin(forward, 100, vex::velocityUnits::pct);
-    } else if(Controller1.ButtonR1.pressing()) { //Simple outtake on bottom right bumper
+    } else if(Controller1.ButtonR2.pressing()) { //Simple outtake on bottom right bumper
       IntakeL.spin(reverse, 100, vex::velocityUnits::pct);
       IntakeR.spin(reverse, 100, vex::velocityUnits::pct);  
     } else {
@@ -106,11 +106,11 @@ void usercontrol(void) {
     //TODO indexer speed set to low value for testing so we don't break axles
     //Simple indexer up on top left bumper
     if (Controller1.ButtonL1.pressing()) {
-      IndexerL.spin(forward, 1, vex::velocityUnits::pct);
-      IndexerR.spin(forward, 1, vex::velocityUnits::pct);
-    } else if(Controller1.ButtonL1.pressing()) { //Simple indexer down on bottom left bumper
-      IndexerL.spin(reverse, 1, vex::velocityUnits::pct);
-      IndexerR.spin(reverse, 1, vex::velocityUnits::pct);  
+      IndexerL.spin(forward, 127, vex::velocityUnits::pct);
+      IndexerR.spin(forward, 127, vex::velocityUnits::pct);
+    } else if(Controller1.ButtonL2.pressing()) { //Simple indexer down on bottom left bumper
+      IndexerL.spin(reverse, 100, vex::velocityUnits::pct);
+      IndexerR.spin(reverse, 100, vex::velocityUnits::pct);  
     } else {
       IndexerL.stop(vex::brakeType::hold);
       IndexerR.stop(vex::brakeType::hold);
