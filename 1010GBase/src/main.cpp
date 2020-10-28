@@ -60,11 +60,16 @@ void pre_auton(void) {
 
 double initialSpeed = 10; //Speed from which a robot accelerates in autonomous functions
 
+//Autonomous master functions
 void RedLeftCorner () {
 
 }
 
-void resetDriveEncoder() { //Resets all driver encoder positions to zero
+void BlueLeftCorner () {
+
+}
+
+void resetDriveEncoders() { //Resets all driver encoder positions to zero
   DriveBL.resetPosition();
   DriveBR.resetPosition();
   DriveFL.resetPosition();
@@ -72,17 +77,31 @@ void resetDriveEncoder() { //Resets all driver encoder positions to zero
 }
 
 double avgDriveEncoder() { //Returns average of all driver encoder positions
-  return (DriveBL.position(vex::rotationUnits::deg) + 
-        DriveBR.position(vex::rotationUnits::deg) +
-        DriveFL.position(vex::rotationUnits::deg) +
-        DriveBR.position(vex::rotationUnits::deg)) /4;
+  return (DriveBL.position(vex::deg) + 
+        DriveBR.position(vex::deg) +
+        DriveFL.position(vex::deg) +
+        DriveBR.position(vex::deg)) /4;
+}
+
+double absAvgDriveEncoder() { //Returns average of all drive encoder abs positions
+ return (fabs(DriveBL.position(vex::deg)) + 
+        fabs(DriveBR.position(vex::deg)) +
+        fabs(DriveFL.position(vex::deg)) +
+        fabs(DriveBR.position(vex::deg))) /4;
 }
 
 void drive(int dir, double speed) { //Drive forward (dir = 1) or backward (dir = -1)
-    DriveBL.spin(forward, speed * dir, vex::velocityUnits::pct);
-    DriveBR.spin(forward, speed * dir, vex::velocityUnits::pct);
-    DriveFL.spin(forward, speed * dir, vex::velocityUnits::pct);
-    DriveFR.spin(forward, speed * dir, vex::velocityUnits::pct);
+    DriveBL.spin(forward, speed * dir, vex::pct);
+    DriveBR.spin(forward, speed * dir, vex::pct);
+    DriveFL.spin(forward, speed * dir, vex::pct);
+    DriveFR.spin(forward, speed * dir, vex::pct);
+}
+
+void turn(int dir, double speed) { //Turn right (dir = 1) or left (dir = -1)
+    DriveBL.spin(forward, speed * dir, vex::pct);
+    DriveBR.spin(forward, speed * dir, vex::pct);
+    DriveFL.spin(forward, speed * -dir, vex::pct);
+    DriveFR.spin(forward, speed * -dir, vex::pct);
 }
 
 void brakeDrive() { //Stop the drive using brake mode brake
@@ -93,7 +112,7 @@ void brakeDrive() { //Stop the drive using brake mode brake
 }
 
 void autoForward(double degrees, double iDeg, double fDeg, double speed) { //Forward auto function. degrees > iDeg + fDeg
- resetDriveEncoder();
+ resetDriveEncoders();
  
  while (avgDriveEncoder() < iDeg) { //Accelerate for the initial degrees (iDeg)
     double accelerate = speed * avgDriveEncoder() / iDeg;
@@ -131,7 +150,7 @@ void autoForward(double degrees, double iDeg, double fDeg, double speed) { //For
 }
 
 void autoBackward(double degrees, double iDeg, double fDeg, double speed) { //Backward auto function. degrees > iDeg + fDeg
- resetDriveEncoder();
+ resetDriveEncoders();
  
  while (fabs(avgDriveEncoder()) < iDeg) { //Accelerate for the initial degrees (iDeg)
     double accelerate = speed * avgDriveEncoder() / iDeg;
@@ -168,11 +187,81 @@ void autoBackward(double degrees, double iDeg, double fDeg, double speed) { //Ba
   brakeDrive();
 }
 
+void autoTurnLeft(double degrees, double iDeg, double fDeg, double speed) {
+  resetDriveEncoders();
+  
+  //accelerate from initialSpeed to speed while turning through iDeg
+  while (absAvgDriveEncoder() < iDeg) {
+    double accelerate = speed * absAvgDriveEncoder() / iDeg;
+
+    if (accelerate < initialSpeed) { //Make sure that the motors never move slower than initalSpeed
+      accelerate = initialSpeed;
+    }
+    turn(-1, accelerate);
+
+    wait(10, msec);
+  }
+   while (absAvgDriveEncoder() < degrees - fDeg) { //turn until fDeg at speed
+    turn(-1, speed);
+
+    wait(10, msec);
+  }
+  while (absAvgDriveEncoder() < degrees) { //Decellerate while turning through fDeg
+    double deccelerate = speed - speed * absAvgDriveEncoder() / degrees;
+
+    if (deccelerate < initialSpeed) { //Make sure that the motors never move slower than initalSpeed
+      deccelerate = initialSpeed;
+    }
+    turn(-1, deccelerate);
+
+    wait(10, msec);
+  }
+  
+  //stop the drive
+  brakeDrive();
+}
+
+void autoTurnRight(double degrees, double iDeg, double fDeg, double speed) {
+  resetDriveEncoders();
+  
+  //accelerate from initialSpeed to speed while turning through iDeg
+  while (absAvgDriveEncoder() < iDeg) {
+    double accelerate = speed * absAvgDriveEncoder() / iDeg;
+
+    if (accelerate < initialSpeed) { //Make sure that the motors never move slower than initalSpeed
+      accelerate = initialSpeed;
+    }
+    turn(1, accelerate);
+
+    wait(10, msec);
+  }
+   while (absAvgDriveEncoder() < degrees - fDeg) { //turn until fDeg at speed
+    turn(1, speed);
+
+    wait(10, msec);
+  }
+  while (absAvgDriveEncoder() < degrees) { //Decellerate while turning through fDeg
+    double deccelerate = speed - speed * absAvgDriveEncoder() / degrees;
+
+    if (deccelerate < initialSpeed) { //Make sure that the motors never move slower than initalSpeed
+      deccelerate = initialSpeed;
+    }
+    turn(1, deccelerate);
+
+    wait(10, msec);
+  }
+  
+  //stop the drive
+  brakeDrive();
+}
+
 void autonomous(void) {
   // ..........................................................................
   // Insert autonomous user code here.
 
   autoForward(720, 180, 180, 100);
+  autoTurnLeft(360, 90, 90, 100);
+  autoTurnRight(360, 90, 90, 100);
   autoBackward(720, 180, 180, 100);
 
   // ..........................................................................
@@ -200,34 +289,33 @@ void usercontrol(void) {
     // update your motors, etc.
 
     //Simple linear mecanum drive
-    DriveFL.spin(forward, Controller1.Axis2.value() + Controller1.Axis1.value() + Controller1.Axis4.value(), vex::velocityUnits::pct);
-    DriveFR.spin(forward, Controller1.Axis2.value() - Controller1.Axis1.value() - Controller1.Axis4.value(), vex::velocityUnits::pct);
-    DriveBL.spin(forward, Controller1.Axis2.value() + Controller1.Axis1.value() - Controller1.Axis4.value(), vex::velocityUnits::pct);
-    DriveBR.spin(forward, Controller1.Axis2.value() - Controller1.Axis1.value() + Controller1.Axis4.value(), vex::velocityUnits::pct);
+    DriveFL.spin(forward, Controller1.Axis2.value() + Controller1.Axis1.value() + Controller1.Axis4.value(), vex::pct);
+    DriveFR.spin(forward, Controller1.Axis2.value() - Controller1.Axis1.value() - Controller1.Axis4.value(), vex::pct);
+    DriveBL.spin(forward, Controller1.Axis2.value() + Controller1.Axis1.value() - Controller1.Axis4.value(), vex::pct);
+    DriveBR.spin(forward, Controller1.Axis2.value() - Controller1.Axis1.value() + Controller1.Axis4.value(), vex::pct);
 
     //Simple intake on top right bumper
     if (Controller1.ButtonR1.pressing()) {
-      IntakeL.spin(forward, 127, vex::voltageUnits::volt);
-      IntakeR.spin(forward, 127, vex::voltageUnits::volt);
+      IntakeL.spin(forward, 127, vex::volt);
+      IntakeR.spin(forward, 127, vex::volt);
     } else if(Controller1.ButtonR2.pressing()) { //Simple outtake on bottom right bumper
-      IntakeL.spin(reverse, 127, vex::voltageUnits::volt);
-      IntakeR.spin(reverse, 127, vex::voltageUnits::volt);
+      IntakeL.spin(reverse, 127, vex::volt);
+      IntakeR.spin(reverse, 127, vex::volt);
     } else {
-      IntakeL.stop(vex::brakeType::hold);
-      IntakeR.stop(vex::brakeType::hold);
+      IntakeL.stop(vex::hold);
+      IntakeR.stop(vex::hold);
     }
     
-    //TODO indexer speed set to low value for testing so we don't break axles
     //Simple indexer up on top left bumper
     if (Controller1.ButtonL1.pressing()) {
-      IndexerL.spin(forward, 127, vex::voltageUnits::volt);
-      IndexerR.spin(forward, 127, vex::voltageUnits::volt);
+      IndexerL.spin(forward, 127, vex::volt);
+      IndexerR.spin(forward, 127, vex::volt);
     } else if(Controller1.ButtonL2.pressing()) { //Simple indexer down on bottom left bumper
-      IndexerL.spin(reverse, 127, vex::voltageUnits::volt);
-      IndexerR.spin(reverse, 127, vex::voltageUnits::volt);
+      IndexerL.spin(reverse, 127, vex::volt);
+      IndexerR.spin(reverse, 127, vex::volt);
     } else {
-      IndexerL.stop(vex::brakeType::hold);
-      IndexerR.stop(vex::brakeType::hold);
+      IndexerL.stop(vex::hold);
+      IndexerR.stop(vex::hold);
     }
 
     // ........................................................................
