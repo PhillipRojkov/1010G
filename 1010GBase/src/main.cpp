@@ -43,20 +43,7 @@ competition Competition;
 void pre_auton(void) {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
-
-  // All activities that occur before the competition starts
-  // Example: clearing encoders, setting servo positions, ...
 }
-
-/*---------------------------------------------------------------------------*/
-/*                                                                           */
-/*                              Autonomous Task                              */
-/*                                                                           */
-/*  This task is used to control your robot during the autonomous phase of   */
-/*  a VEX Competition.                                                       */
-/*                                                                           */
-/*  You must modify the code to add your own robot specific commands here.   */
-/*---------------------------------------------------------------------------*/
 
 double initialSpeed = 10; //Speed from which a robot accelerates in autonomous functions
 
@@ -377,34 +364,14 @@ void BlueLeftCorner () {
 
 void autonomous(void) {
   // ..........................................................................
-  // Insert autonomous user code here.
-
   Calibrate();
-
   // ..........................................................................
 }
-
-/*---------------------------------------------------------------------------*/
-/*                                                                           */
-/*                              User Control Task                            */
-/*                                                                           */
-/*  This task is used to control your robot during the user control phase of */
-/*  a VEX Competition.                                                       */
-/*                                                                           */
-/*  You must modify the code to add your own robot specific commands here.   */
-/*---------------------------------------------------------------------------*/
 
 void usercontrol(void) {
   // User control code here, inside the loop
   while (1) {
-    // This is the main execution loop for the user control program.
-    // Each time through the loop your program should update motor + servo
-    // values based on feedback from the joysticks.
-
     // ........................................................................
-    // Insert user code here. This is where you use the joystick values to
-    // update your motors, etc.
-
     //Simple linear mecanum drive
     DriveFL.spin(forward, Controller1.Axis2.value() + Controller1.Axis1.value() + Controller1.Axis4.value(), vex::pct);
     DriveFR.spin(forward, Controller1.Axis2.value() - Controller1.Axis1.value() - Controller1.Axis4.value(), vex::pct);
@@ -434,11 +401,8 @@ void usercontrol(void) {
       IndexerL.stop(vex::hold);
       IndexerR.stop(vex::hold);
     }
-
     // ........................................................................
-
-    wait(10, msec); // Sleep the task for a short amount of time to
-                    // prevent wasted resources.
+    wait(10, msec); // Sleep the task for a short amount of time to prevent wasted resources.
   }
 }
 
