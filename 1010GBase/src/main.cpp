@@ -60,15 +60,6 @@ void pre_auton(void) {
 
 double initialSpeed = 10; //Speed from which a robot accelerates in autonomous functions
 
-//Autonomous master functions
-void RedLeftCorner () {
-
-}
-
-void BlueLeftCorner () {
-
-}
-
 void resetDriveEncoders() { //Resets all driver encoder positions to zero
   DriveBL.resetPosition();
   DriveBR.resetPosition();
@@ -101,6 +92,13 @@ void turn(int dir, double speed) { //Turn right (dir = 1) or left (dir = -1)
     DriveBL.spin(forward, speed * dir, vex::pct);
     DriveBR.spin(forward, speed * dir, vex::pct);
     DriveFL.spin(forward, speed * -dir, vex::pct);
+    DriveFR.spin(forward, speed * -dir, vex::pct);
+}
+
+void strafe(int dir, double speed) { //Strafe right (dir = 1) or left (dir = -1)
+    DriveBL.spin(forward, speed * -dir, vex::pct);
+    DriveBR.spin(forward, speed * dir, vex::pct);
+    DriveFL.spin(forward, speed * dir, vex::pct);
     DriveFR.spin(forward, speed * -dir, vex::pct);
 }
 
@@ -187,7 +185,7 @@ void autoBackward(double degrees, double iDeg, double fDeg, double speed) { //Ba
   brakeDrive();
 }
 
-void autoTurnLeft(double degrees, double iDeg, double fDeg, double speed) {
+void autoTurnLeft(double degrees, double iDeg, double fDeg, double speed) { //Turn left auto function. degrees > iDeg + fDeg
   resetDriveEncoders();
   
   //accelerate from initialSpeed to speed while turning through iDeg
@@ -221,7 +219,7 @@ void autoTurnLeft(double degrees, double iDeg, double fDeg, double speed) {
   brakeDrive();
 }
 
-void autoTurnRight(double degrees, double iDeg, double fDeg, double speed) {
+void autoTurnRight(double degrees, double iDeg, double fDeg, double speed) { //Turn right auto function. degrees > iDeg + fDeg
   resetDriveEncoders();
   
   //accelerate from initialSpeed to speed while turning through iDeg
@@ -255,14 +253,133 @@ void autoTurnRight(double degrees, double iDeg, double fDeg, double speed) {
   brakeDrive();
 }
 
+void autoStrafeLeft (double degrees, double iDeg, double fDeg, double speed) { //Strafe left auto function. degrees > iDeg + fDeg) {
+  resetDriveEncoders();
+  
+  //accelerate from initialSpeed to speed while strafing through iDeg
+  while (absAvgDriveEncoder() < iDeg) {
+    double accelerate = speed * absAvgDriveEncoder() / iDeg;
+
+    if (accelerate < initialSpeed) { //Make sure that the motors never move slower than initalSpeed
+      accelerate = initialSpeed;
+    }
+    strafe(-1, accelerate);
+
+    wait(10, msec);
+  }
+   while (absAvgDriveEncoder() < degrees - fDeg) { //strafe until fDeg at speed
+    strafe(-1, speed);
+
+    wait(10, msec);
+  }
+  while (absAvgDriveEncoder() < degrees) { //Decellerate while strafing through fDeg
+    double deccelerate = speed - speed * absAvgDriveEncoder() / degrees;
+
+    if (deccelerate < initialSpeed) { //Make sure that the motors never move slower than initalSpeed
+      deccelerate = initialSpeed;
+    }
+    strafe(-1, deccelerate);
+
+    wait(10, msec);
+  }
+  
+  //stop the drive
+  brakeDrive();
+}
+
+void autoStrafeRight (double degrees, double iDeg, double fDeg, double speed) { //Strafe right auto function. degrees > iDeg + fDeg) {
+ resetDriveEncoders();
+  
+  //accelerate from initialSpeed to speed while strafing through iDeg
+  while (absAvgDriveEncoder() < iDeg) {
+    double accelerate = speed * absAvgDriveEncoder() / iDeg;
+
+    if (accelerate < initialSpeed) { //Make sure that the motors never move slower than initalSpeed
+      accelerate = initialSpeed;
+    }
+    strafe(1, accelerate);
+
+    wait(10, msec);
+  }
+   while (absAvgDriveEncoder() < degrees - fDeg) { //strafe until fDeg at speed
+    strafe(1, speed);
+
+    wait(10, msec);
+  }
+  while (absAvgDriveEncoder() < degrees) { //Decellerate while strafing through fDeg
+    double deccelerate = speed - speed * absAvgDriveEncoder() / degrees;
+
+    if (deccelerate < initialSpeed) { //Make sure that the motors never move slower than initalSpeed
+      deccelerate = initialSpeed;
+    }
+    strafe(1, deccelerate);
+
+    wait(10, msec);
+  }
+  
+  //stop the drive
+  brakeDrive();
+}
+
+void intake(double volts) {
+  IntakeL.spin(forward, volts, vex::volt);
+  IntakeR.spin(forward, volts, vex::volt);
+}
+
+void outake(double volts) {
+  IntakeL.spin(reverse, volts, vex::volt);
+  IntakeR.spin(reverse, volts, vex::volt);
+}
+
+void intakeBrake() {
+  IntakeL.stop(hold);
+  IntakeR.stop(hold);
+}
+
+void index(double volts) {
+  IndexerL.spin(forward, volts, vex::volt);
+  IndexerR.spin(forward, volts, vex::volt);
+}
+
+void outdex(double volts) {
+  IndexerL.spin(reverse, volts, vex::volt);
+  IndexerR.spin(reverse, volts, vex::volt);
+}
+
+void indexerBrake() {
+  IndexerL.stop(hold);
+  IndexerR.stop(hold);
+}
+
+//Autonomous master functions
+void Calibrate () { //Runs every single action
+  autoForward(720, 180, 180, 100);
+  intake(100);
+  autoTurnLeft(360, 90, 90, 100);
+  outake(100);
+  autoTurnRight(360, 90, 90, 100);
+  intakeBrake();
+  autoStrafeLeft(720, 180, 180, 100);
+  index(127);
+  autoStrafeRight(720, 180, 180, 100);
+  outdex(127);
+  autoBackward(720, 180, 180, 100);
+  indexerBrake();
+}
+
+void RedLeftCorner () {
+
+}
+
+void BlueLeftCorner () {
+
+}
+
 void autonomous(void) {
   // ..........................................................................
   // Insert autonomous user code here.
 
-  autoForward(720, 180, 180, 100);
-  autoTurnLeft(360, 90, 90, 100);
-  autoTurnRight(360, 90, 90, 100);
-  autoBackward(720, 180, 180, 100);
+  Calibrate();
 
   // ..........................................................................
 }
