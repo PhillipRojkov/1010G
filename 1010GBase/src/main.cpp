@@ -340,17 +340,39 @@ void indexerBrake() {
 
 //Autonomous master functions
 void Calibrate () { //Runs every single action
-  autoForward(720, 180, 180, 100);
+  autoForward(1200, 360, 360, 100);
+  wait(1000, msec);
+
   intake(100);
-  autoTurnLeft(360, 90, 90, 100);
+  wait(1000, msec);
+
+  autoTurnLeft(720, 90, 90, 100);
+  wait(1000, msec);
+
   outake(100);
-  autoTurnRight(360, 90, 90, 100);
+  wait(1000, msec);
+
+  autoTurnRight(720, 90, 90, 100);
+  wait(1000, msec);
+
   intakeBrake();
-  autoStrafeLeft(720, 180, 180, 100);
+  wait(1000, msec);
+
+  autoStrafeLeft(1200, 360, 360, 100);
+  wait(1000, msec);
+
   index(127);
-  autoStrafeRight(720, 180, 180, 100);
+  wait(1000, msec);
+
+  autoStrafeRight(1200, 360, 360, 100);
+  wait(1000, msec);
+
   outdex(127);
-  autoBackward(720, 180, 180, 100);
+  wait(1000, msec);
+
+  autoBackward(1200, 360, 360, 100);
+  wait(1000, msec);
+
   indexerBrake();
 }
 
@@ -379,10 +401,16 @@ void usercontrol(void) {
     DriveBR.spin(forward, Controller1.Axis2.value() - Controller1.Axis1.value() + Controller1.Axis4.value(), vex::pct);
 
     //Simple intake on top right bumper
-    if (Controller1.ButtonR1.pressing()) {
+    if (Controller2.ButtonR1.pressing()) {
       IntakeL.spin(forward, 127, vex::volt);
       IntakeR.spin(forward, 127, vex::volt);
-    } else if(Controller1.ButtonR2.pressing()) { //Simple outtake on bottom right bumper
+    } else if(Controller2.ButtonR2.pressing()) { //Simple outtake on bottom right bumper
+      IntakeL.spin(reverse, 127, vex::volt);
+      IntakeR.spin(reverse, 127, vex::volt);
+    } else if(Controller2.ButtonUp.pressing()) { //Simple outtake on bottom right bumper
+      IntakeL.spin(forward, 127, vex::volt);
+      IntakeR.spin(forward, 127, vex::volt);
+    } else if(Controller2.ButtonDown.pressing()) { //Simple outtake on bottom right bumper
       IntakeL.spin(reverse, 127, vex::volt);
       IntakeR.spin(reverse, 127, vex::volt);
     } else {
@@ -391,10 +419,16 @@ void usercontrol(void) {
     }
     
     //Simple indexer up on top left bumper
-    if (Controller1.ButtonL1.pressing()) {
+    if (Controller2.ButtonL1.pressing()) {
       IndexerL.spin(forward, 127, vex::volt);
       IndexerR.spin(forward, 127, vex::volt);
-    } else if(Controller1.ButtonL2.pressing()) { //Simple indexer down on bottom left bumper
+    } else if(Controller2.ButtonL2.pressing()) { //Simple indexer down on bottom left bumper
+      IndexerL.spin(reverse, 127, vex::volt);
+      IndexerR.spin(reverse, 127, vex::volt);
+    } else if(Controller2.ButtonUp.pressing()) { //Simple indexer down on bottom left bumper
+      IndexerL.spin(forward, 127, vex::volt);
+      IndexerR.spin(forward, 127, vex::volt);
+    } else if(Controller2.ButtonDown.pressing()) { //Simple indexer down on bottom left bumper
       IndexerL.spin(reverse, 127, vex::volt);
       IndexerR.spin(reverse, 127, vex::volt);
     } else {
