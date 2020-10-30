@@ -77,8 +77,8 @@ void drive(int dir, double speed) { //Drive forward (dir = 1) or backward (dir =
 
 void turn(int dir, double speed) { //Turn right (dir = 1) or left (dir = -1)
     DriveBL.spin(forward, speed * dir, vex::pct);
-    DriveBR.spin(forward, speed * dir, vex::pct);
-    DriveFL.spin(forward, speed * -dir, vex::pct);
+    DriveBR.spin(forward, speed * -dir, vex::pct);
+    DriveFL.spin(forward, speed * dir, vex::pct);
     DriveFR.spin(forward, speed * -dir, vex::pct);
 }
 
@@ -117,8 +117,9 @@ void autoForward(double degrees, double iDeg, double fDeg, double speed) { //For
 
     wait(10, msec);
   }
-  while (avgDriveEncoder() < degrees) { //Decellerate for the final degrees (fDeg)
-    double deccelerate = speed - speed * avgDriveEncoder() / degrees;
+  resetDriveEncoders();
+  while (avgDriveEncoder() < fDeg) { //Decellerate for the final degrees (fDeg)
+    double deccelerate = speed - speed * avgDriveEncoder() / fDeg;
 
     if (deccelerate < initialSpeed) { //Make sure that the motors never move slower than initalSpeed
       deccelerate = initialSpeed;
@@ -138,7 +139,7 @@ void autoBackward(double degrees, double iDeg, double fDeg, double speed) { //Ba
  resetDriveEncoders();
  
  while (fabs(avgDriveEncoder()) < iDeg) { //Accelerate for the initial degrees (iDeg)
-    double accelerate = speed * avgDriveEncoder() / iDeg;
+    double accelerate = speed * absAvgDriveEncoder() / iDeg;
 
     if (accelerate < initialSpeed) { //Make sure that the motors never move slower than initalSpeed
       accelerate = initialSpeed;
@@ -155,8 +156,9 @@ void autoBackward(double degrees, double iDeg, double fDeg, double speed) { //Ba
 
     wait(10, msec);
   }
-  while (fabs(avgDriveEncoder()) < degrees) { //Decellerate for the final degrees (fDeg)
-    double deccelerate = speed - speed * avgDriveEncoder() / degrees;
+  resetDriveEncoders();
+  while (fabs(avgDriveEncoder()) < fDeg) { //Decellerate for the final degrees (fDeg)
+    double deccelerate = speed - speed * absAvgDriveEncoder() / fDeg;
 
     if (deccelerate < initialSpeed) { //Make sure that the motors never move slower than initalSpeed
       deccelerate = initialSpeed;
@@ -191,8 +193,9 @@ void autoTurnLeft(double degrees, double iDeg, double fDeg, double speed) { //Tu
 
     wait(10, msec);
   }
-  while (absAvgDriveEncoder() < degrees) { //Decellerate while turning through fDeg
-    double deccelerate = speed - speed * absAvgDriveEncoder() / degrees;
+  resetDriveEncoders();
+  while (absAvgDriveEncoder() < fDeg) { //Decellerate while turning through fDeg
+    double deccelerate = speed - speed * absAvgDriveEncoder() / fDeg;
 
     if (deccelerate < initialSpeed) { //Make sure that the motors never move slower than initalSpeed
       deccelerate = initialSpeed;
@@ -225,8 +228,9 @@ void autoTurnRight(double degrees, double iDeg, double fDeg, double speed) { //T
 
     wait(10, msec);
   }
-  while (absAvgDriveEncoder() < degrees) { //Decellerate while turning through fDeg
-    double deccelerate = speed - speed * absAvgDriveEncoder() / degrees;
+  resetDriveEncoders();
+  while (absAvgDriveEncoder() < fDeg) { //Decellerate while turning through fDeg
+    double deccelerate = speed - speed * absAvgDriveEncoder() / fDeg;
 
     if (deccelerate < initialSpeed) { //Make sure that the motors never move slower than initalSpeed
       deccelerate = initialSpeed;
@@ -259,8 +263,9 @@ void autoStrafeLeft (double degrees, double iDeg, double fDeg, double speed) { /
 
     wait(10, msec);
   }
-  while (absAvgDriveEncoder() < degrees) { //Decellerate while strafing through fDeg
-    double deccelerate = speed - speed * absAvgDriveEncoder() / degrees;
+  resetDriveEncoders();
+  while (absAvgDriveEncoder() < fDeg) { //Decellerate while strafing through fDeg
+    double deccelerate = speed - speed * absAvgDriveEncoder() / fDeg;
 
     if (deccelerate < initialSpeed) { //Make sure that the motors never move slower than initalSpeed
       deccelerate = initialSpeed;
@@ -293,8 +298,9 @@ void autoStrafeRight (double degrees, double iDeg, double fDeg, double speed) { 
 
     wait(10, msec);
   }
-  while (absAvgDriveEncoder() < degrees) { //Decellerate while strafing through fDeg
-    double deccelerate = speed - speed * absAvgDriveEncoder() / degrees;
+  resetDriveEncoders();
+  while (absAvgDriveEncoder() < fDeg) { //Decellerate while strafing through fDeg
+    double deccelerate = speed - speed * absAvgDriveEncoder() / fDeg;
 
     if (deccelerate < initialSpeed) { //Make sure that the motors never move slower than initalSpeed
       deccelerate = initialSpeed;
@@ -340,47 +346,63 @@ void indexerBrake() {
 
 //Autonomous master functions
 void Calibrate () { //Runs every single action
-  autoForward(1200, 360, 360, 100);
-  wait(1000, msec);
+  autoForward(720, 180, 260, 100);
+
+  autoTurnLeft(360, 90, 90, 100);
+
+  autoTurnRight(360, 90, 90, 100);
+
+  autoStrafeLeft(720, 180, 180, 100);
+
+  autoStrafeRight(720, 180, 180, 100);
+
+  autoBackward(720, 180, 180, 100);
 
   intake(100);
-  wait(1000, msec);
-
-  autoTurnLeft(720, 90, 90, 100);
   wait(1000, msec);
 
   outake(100);
   wait(1000, msec);
 
-  autoTurnRight(720, 90, 90, 100);
-  wait(1000, msec);
-
   intakeBrake();
-  wait(1000, msec);
-
-  autoStrafeLeft(1200, 360, 360, 100);
   wait(1000, msec);
 
   index(127);
   wait(1000, msec);
 
-  autoStrafeRight(1200, 360, 360, 100);
-  wait(1000, msec);
-
   outdex(127);
-  wait(1000, msec);
-
-  autoBackward(1200, 360, 360, 100);
   wait(1000, msec);
 
   indexerBrake();
 }
 
-void RedLeftCorner () {
+void SkillsAuto() { //Start red, left of middle
+  outake(100);
+
+  autoForward(1000, 180, 180, 100);
+
+  intakeBrake();
+
+  autoStrafeRight(360, 90, 90, 80);
+
+  autoForward(500, 180, 1, 100);
+  
+  autoBackward(360, 90, 90, 100);
+
+  autoForward(360, 90, 1, 100);
+    
+  autoBackward(360, 90, 90, 100);
+
+  autoForward(360, 90, 1, 100);
+
+  autoBackward(360, 90, 90, 100);
+}
+
+void RedLeftCorner() {
 
 }
 
-void BlueLeftCorner () {
+void BlueLeftCorner() {
 
 }
 
@@ -395,10 +417,39 @@ void usercontrol(void) {
   while (1) {
     // ........................................................................
     //Simple linear mecanum drive
-    DriveFL.spin(forward, Controller1.Axis2.value() + Controller1.Axis1.value() + Controller1.Axis4.value(), vex::pct);
+    /*DriveFL.spin(forward, Controller1.Axis2.value() + Controller1.Axis1.value() + Controller1.Axis4.value(), vex::pct);
     DriveFR.spin(forward, Controller1.Axis2.value() - Controller1.Axis1.value() - Controller1.Axis4.value(), vex::pct);
     DriveBL.spin(forward, Controller1.Axis2.value() + Controller1.Axis1.value() - Controller1.Axis4.value(), vex::pct);
-    DriveBR.spin(forward, Controller1.Axis2.value() - Controller1.Axis1.value() + Controller1.Axis4.value(), vex::pct);
+    DriveBR.spin(forward, Controller1.Axis2.value() - Controller1.Axis1.value() + Controller1.Axis4.value(), vex::pct); */
+
+  if (abs(Controller1.Axis3.value()) > 10) { 
+    DriveFL.spin(vex::directionType::fwd, Controller1.Axis3.value(),vex::velocityUnits::pct);
+    DriveBL.spin(vex::directionType::fwd, Controller1.Axis3.value(),vex::velocityUnits::pct);
+  } else {
+    DriveFL.stop(coast);
+    DriveBL.stop(coast);
+  }
+  if (abs(Controller1.Axis2.value()) > 10) {
+    DriveBR.spin(vex::directionType::fwd, Controller1.Axis2.value(),vex::velocityUnits::pct);
+    DriveFR.spin(vex::directionType::fwd, Controller1.Axis2.value(),vex::velocityUnits::pct);
+  } else {
+    DriveFR.stop(coast);
+    DriveBR.stop(coast);
+  }
+
+  if(Controller1.ButtonL1.pressing()) {
+    DriveBL.spin(directionType::fwd, 100, velocityUnits::pct);
+    DriveFL.spin(directionType::rev, 100, velocityUnits::pct);
+    DriveBR.spin(directionType::rev, 100, velocityUnits::pct);
+    DriveFR.spin(directionType::fwd, 100, velocityUnits::pct);
+  }
+
+  if(Controller1.ButtonR1.pressing()) {
+    DriveBL.spin(directionType::rev, 100, velocityUnits::pct);
+    DriveFL.spin(directionType::fwd, 100, velocityUnits::pct);
+    DriveBR.spin(directionType::fwd, 100, velocityUnits::pct);
+    DriveFR.spin(directionType::rev, 100, velocityUnits::pct);
+  }
 
     //Simple intake on top right bumper
     if (Controller2.ButtonR1.pressing()) {
