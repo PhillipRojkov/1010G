@@ -346,15 +346,21 @@ void indexerBrake() {
 
 //Autonomous master functions
 void Calibrate () { //Runs every single action
-  autoForward(720, 180, 260, 100);
+  autoForward(720, 180, 360, 100);
 
-  autoTurnLeft(360, 90, 90, 100);
+  wait(500,msec);
 
-  autoTurnRight(360, 90, 90, 100);
+  autoTurnLeft(290, 90, 90, 50);
 
-  autoStrafeLeft(720, 180, 180, 100);
+  wait(500,msec);
 
-  autoStrafeRight(720, 180, 180, 100);
+  autoTurnRight(290, 90, 90, 50);
+
+  wait(500,msec);
+
+  autoStrafeLeft(720, 220, 180, 50);
+
+  autoStrafeRight(720, 220, 180, 50);
 
   autoBackward(720, 180, 180, 100);
 
@@ -365,7 +371,6 @@ void Calibrate () { //Runs every single action
   wait(1000, msec);
 
   intakeBrake();
-  wait(1000, msec);
 
   index(127);
   wait(1000, msec);
@@ -377,25 +382,25 @@ void Calibrate () { //Runs every single action
 }
 
 void SkillsAuto() { //Start red, left of middle
-  outake(100);
+  intake(100);
 
   autoForward(1000, 180, 180, 100);
 
   intakeBrake();
 
-  autoStrafeRight(360, 90, 90, 80);
+  autoStrafeRight(360, 180, 180, 70);
 
   autoForward(500, 180, 1, 100);
   
-  autoBackward(360, 90, 90, 100);
+  autoBackward(360, 90, 180, 100);
 
   autoForward(360, 90, 1, 100);
     
-  autoBackward(360, 90, 90, 100);
+  autoBackward(360, 90, 180, 100);
 
   autoForward(360, 90, 1, 100);
 
-  autoBackward(360, 90, 90, 100);
+  autoBackward(360, 90, 180, 100);
 }
 
 void RedLeftCorner() {
@@ -438,17 +443,17 @@ void usercontrol(void) {
   }
 
   if(Controller1.ButtonL1.pressing()) {
-    DriveBL.spin(directionType::fwd, 100, velocityUnits::pct);
-    DriveFL.spin(directionType::rev, 100, velocityUnits::pct);
-    DriveBR.spin(directionType::rev, 100, velocityUnits::pct);
-    DriveFR.spin(directionType::fwd, 100, velocityUnits::pct);
+    DriveBL.spin(directionType::fwd, 80, velocityUnits::pct);
+    DriveFL.spin(directionType::rev, 80, velocityUnits::pct);
+    DriveBR.spin(directionType::rev, 80, velocityUnits::pct);
+    DriveFR.spin(directionType::fwd, 80, velocityUnits::pct);
   }
 
   if(Controller1.ButtonR1.pressing()) {
-    DriveBL.spin(directionType::rev, 100, velocityUnits::pct);
-    DriveFL.spin(directionType::fwd, 100, velocityUnits::pct);
-    DriveBR.spin(directionType::fwd, 100, velocityUnits::pct);
-    DriveFR.spin(directionType::rev, 100, velocityUnits::pct);
+    DriveBL.spin(directionType::rev, 80, velocityUnits::pct);
+    DriveFL.spin(directionType::fwd, 80, velocityUnits::pct);
+    DriveBR.spin(directionType::fwd, 80, velocityUnits::pct);
+    DriveFR.spin(directionType::rev, 80, velocityUnits::pct);
   }
 
     //Simple intake on top right bumper
