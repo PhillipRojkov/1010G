@@ -348,15 +348,15 @@ void indexerBrake() {
 void Calibrate () { //Runs every single action
   autoForward(720, 180, 360, 100);
 
-  wait(500,msec);
+  wait(200,msec);
 
-  autoTurnLeft(290, 90, 90, 50);
+  autoTurnLeft(300, 100, 100, 70);
+  
+  wait(100,msec);
 
-  wait(500,msec);
+  autoTurnRight(300, 100, 100, 70);
 
-  autoTurnRight(290, 90, 90, 50);
-
-  wait(500,msec);
+  wait(100,msec);
 
   autoStrafeLeft(720, 220, 180, 50);
 
@@ -431,29 +431,31 @@ void usercontrol(void) {
     DriveFL.spin(vex::directionType::fwd, Controller1.Axis3.value(),vex::velocityUnits::pct);
     DriveBL.spin(vex::directionType::fwd, Controller1.Axis3.value(),vex::velocityUnits::pct);
   } else {
-    DriveFL.stop(coast);
-    DriveBL.stop(coast);
+    DriveFL.stop(brake);
+    DriveBL.stop(brake);
   }
   if (abs(Controller1.Axis2.value()) > 10) {
     DriveBR.spin(vex::directionType::fwd, Controller1.Axis2.value(),vex::velocityUnits::pct);
     DriveFR.spin(vex::directionType::fwd, Controller1.Axis2.value(),vex::velocityUnits::pct);
   } else {
-    DriveFR.stop(coast);
-    DriveBR.stop(coast);
+    DriveFR.stop(brake);
+    DriveBR.stop(brake);
   }
 
+  double multiplier = 0.6;
+
   if(Controller1.ButtonL1.pressing()) {
-    DriveBL.spin(directionType::fwd, 80, velocityUnits::pct);
-    DriveFL.spin(directionType::rev, 80, velocityUnits::pct);
-    DriveBR.spin(directionType::rev, 80, velocityUnits::pct);
-    DriveFR.spin(directionType::fwd, 80, velocityUnits::pct);
+    DriveBL.spin(directionType::fwd, 80 + Controller1.Axis3.value() * multiplier, velocityUnits::pct);
+    DriveFL.spin(directionType::rev, 80 - Controller1.Axis3.value() * multiplier , velocityUnits::pct);
+    DriveBR.spin(directionType::rev, 80 - Controller1.Axis2.value() * multiplier, velocityUnits::pct);
+    DriveFR.spin(directionType::fwd, 80  + Controller1.Axis2.value() * multiplier, velocityUnits::pct);
   }
 
   if(Controller1.ButtonR1.pressing()) {
-    DriveBL.spin(directionType::rev, 80, velocityUnits::pct);
-    DriveFL.spin(directionType::fwd, 80, velocityUnits::pct);
-    DriveBR.spin(directionType::fwd, 80, velocityUnits::pct);
-    DriveFR.spin(directionType::rev, 80, velocityUnits::pct);
+    DriveBL.spin(directionType::rev, 80 - Controller1.Axis3.value() * multiplier, velocityUnits::pct);
+    DriveFL.spin(directionType::fwd, 80 + Controller1.Axis3.value() * multiplier, velocityUnits::pct);
+    DriveBR.spin(directionType::fwd, 80 + Controller1.Axis2.value() * multiplier, velocityUnits::pct);
+    DriveFR.spin(directionType::rev, 80 - Controller1.Axis2.value() * multiplier, velocityUnits::pct);
   }
 
     //Simple intake on top right bumper
@@ -491,8 +493,20 @@ void usercontrol(void) {
       IndexerL.stop(vex::hold);
       IndexerR.stop(vex::hold);
     }
+
+    //Debug
+    Brain.Screen.setCursor(1, 0);
+    Brain.Screen.print(DriveFL.velocity(rpm));
+    Brain.Screen.setCursor(2, 0);
+    Brain.Screen.print(DriveFR.velocity(rpm));
+    Brain.Screen.setCursor(3, 0);
+    Brain.Screen.print(DriveBL.velocity(rpm));
+    Brain.Screen.setCursor(4, 0);
+    Brain.Screen.print(DriveBR.velocity(rpm));
+
+
     // ........................................................................
-    wait(10, msec); // Sleep the task for a short amount of time to prevent wasted resources.
+    wait(20, msec); // Sleep the task for a short amount of time to prevent wasted resources.
   }
 }
 
