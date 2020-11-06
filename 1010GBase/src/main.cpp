@@ -61,7 +61,11 @@ double turnkP = 0.001;
 double turnkD = 0;
 double turnkI = 0;
 
-int h = IMU.rotation(); //Heading in degrees. Rotation clockwise is positive, does not reset at 360
+double strafekP = 0;
+double strafekD = 0;
+double strafekI = 0;
+
+int h = 0; //Heading in degrees. Rotation clockwise is positive, does not reset at 360
 
 int error; //SensorValue - DesiredValue : Position
 int prevError = 0; //Position 10 msec ago
@@ -97,10 +101,10 @@ void drive(int dir, double speed) { //Drive forward (dir = 1) or backward (dir =
     totalError += error;
     prevError = error;
     
-    DriveBL.spin(forward, speed * dir - error * drivekP - derivative * drivekD - totalError * drivekI, vex::pct);
-    DriveBR.spin(forward, speed * dir + error * drivekP + derivative * drivekD + totalError * drivekI, vex::pct);
-    DriveFL.spin(forward, speed * dir - error * drivekP - derivative * drivekD - totalError * drivekI, vex::pct);
-    DriveFR.spin(forward, speed * dir + error * drivekP + derivative * drivekD + totalError * drivekI, vex::pct);
+    DriveBL.spin(forward, speed * dir - error * drivekP - totalError * drivekI - derivative * drivekD, vex::pct);
+    DriveBR.spin(forward, speed * dir + error * drivekP + totalError * drivekI + derivative * drivekD, vex::pct);
+    DriveFL.spin(forward, speed * dir - error * drivekP - totalError * drivekI - derivative * drivekD, vex::pct);
+    DriveFR.spin(forward, speed * dir + error * drivekP + totalError * drivekI + derivative * drivekD, vex::pct);
 }
 /*
 void turn(int dir, double speed) { //Turn right (dir = 1) or left (dir = -1)
@@ -111,10 +115,17 @@ void turn(int dir, double speed) { //Turn right (dir = 1) or left (dir = -1)
 }*/
 
 void strafe(int dir, double speed) { //Strafe right (dir = 1) or left (dir = -1)
-    DriveBL.spin(forward, speed * -dir, vex::pct);
-    DriveBR.spin(forward, speed * dir, vex::pct);
-    DriveFL.spin(forward, speed * dir, vex::pct);
-    DriveFR.spin(forward, speed * -dir, vex::pct);
+    //PID
+    //Used to make robot go straight
+    error = IMU.rotation() - h;
+    derivative = error - prevError;
+    totalError += error;
+    prevError = error;
+    
+    DriveBL.spin(forward, speed * -dir - error * drivekP - totalError * drivekI - derivative * drivekD, vex::pct);
+    DriveBR.spin(forward, speed * dir + error * drivekP + totalError * drivekI + derivative * drivekD, vex::pct);
+    DriveFL.spin(forward, speed * dir - error * drivekP - totalError * drivekI - derivative * drivekD, vex::pct);
+    DriveFR.spin(forward, speed * -dir + error * drivekP + totalError * drivekI + derivative * drivekD, vex::pct);
 }
 
 void brakeDrive() { //Stop the drive using brake mode brake
@@ -126,6 +137,8 @@ void brakeDrive() { //Stop the drive using brake mode brake
 
 void autoForward(double degrees, double iDeg, double fDeg, double speed) { //Forward auto function. degrees > iDeg + fDeg
  resetDriveEncoders();
+
+ h = IMU.rotation();
 
  while (avgDriveEncoder() < iDeg) { //Accelerate for the initial degrees (iDeg)
     double accelerate = speed * avgDriveEncoder() / iDeg;
@@ -166,6 +179,8 @@ void autoForward(double degrees, double iDeg, double fDeg, double speed) { //For
 void autoBackward(double degrees, double iDeg, double fDeg, double speed) { //Backward auto function. degrees > iDeg + fDeg
  resetDriveEncoders();
  
+ h = IMU.rotation();
+
  while (fabs(avgDriveEncoder()) < iDeg) { //Accelerate for the initial degrees (iDeg)
     double accelerate = speed * absAvgDriveEncoder() / iDeg;
 
@@ -203,9 +218,9 @@ void autoBackward(double degrees, double iDeg, double fDeg, double speed) { //Ba
 }
 
 void autoTurn(double degrees) { //+degrees turns right, -degrees turns left
-  int t = 0;
+  int t = 0; //Time variable
 
-  while(t < turnMargin) {
+  while(t < turnMargin) { //break when time exceeds the turnMargin
     //PID
     //Used to make robot go straight
     error = IMU.rotation() - degrees;
@@ -213,14 +228,14 @@ void autoTurn(double degrees) { //+degrees turns right, -degrees turns left
     totalError += error;
     prevError = error;
     
-    DriveBL.spin(forward, -error * turnkP - derivative * turnkD - totalError * turnkI, vex::pct);
-    DriveBR.spin(forward, error * turnkP + derivative * turnkD + totalError * turnkI, vex::pct);
-    DriveFL.spin(forward, -error * turnkP - derivative * turnkD - totalError * turnkI, vex::pct);
-    DriveFR.spin(forward, error * turnkP + derivative * turnkD + totalError * turnkI, vex::pct);
+    DriveBL.spin(forward, -error * turnkP - totalError * turnkI - derivative * turnkD, vex::pct);
+    DriveBR.spin(forward, error * turnkP + totalError * turnkI + derivative * turnkD, vex::pct);
+    DriveFL.spin(forward, -error * turnkP - totalError * turnkI - derivative * turnkD, vex::pct);
+    DriveFR.spin(forward, error * turnkP + totalError * turnkI + derivative * turnkD, vex::pct);
 
     wait(10, msec);
 
-    if (error < turnRange && error > -turnRange) {
+    if (error < turnRange && error > -turnRange) { //increase time when the robot is pointing in turnRange
       t += 10;
     } else {
       t = 0;
@@ -305,6 +320,8 @@ void autoTurnRight(double degrees, double iDeg, double fDeg, double speed) { //T
 void autoStrafeLeft (double degrees, double iDeg, double fDeg, double speed) { //Strafe left auto function. degrees > iDeg + fDeg) {
   resetDriveEncoders();
   
+  h = IMU.rotation();
+
   //accelerate from initialSpeed to speed while strafing through iDeg
   while (absAvgDriveEncoder() < iDeg) {
     double accelerate = speed * absAvgDriveEncoder() / iDeg;
@@ -338,8 +355,10 @@ void autoStrafeLeft (double degrees, double iDeg, double fDeg, double speed) { /
 }
 
 void autoStrafeRight (double degrees, double iDeg, double fDeg, double speed) { //Strafe right auto function. degrees > iDeg + fDeg) {
- resetDriveEncoders();
+  resetDriveEncoders();
   
+  h = IMU.rotation();
+
   //accelerate from initialSpeed to speed while strafing through iDeg
   while (absAvgDriveEncoder() < iDeg) {
     double accelerate = speed * absAvgDriveEncoder() / iDeg;
@@ -372,14 +391,14 @@ void autoStrafeRight (double degrees, double iDeg, double fDeg, double speed) { 
   brakeDrive();
 }
 
-void intake(double volts) {
-  IntakeL.spin(forward, volts, vex::volt);
-  IntakeR.spin(forward, volts, vex::volt);
+void intake(double speed) {
+  IntakeL.spin(forward, speed, vex::pct);
+  IntakeR.spin(forward, speed, vex::pct);
 }
 
-void outake(double volts) {
-  IntakeL.spin(reverse, volts, vex::volt);
-  IntakeR.spin(reverse, volts, vex::volt);
+void outake(double speed) {
+  IntakeL.spin(reverse, speed, vex::pct);
+  IntakeR.spin(reverse, speed, vex::pct);
 }
 
 void intakeBrake() {
@@ -387,14 +406,14 @@ void intakeBrake() {
   IntakeR.stop(hold);
 }
 
-void index(double volts) {
-  IndexerL.spin(forward, volts, vex::volt);
-  IndexerR.spin(forward, volts, vex::volt);
+void index(double speed) {
+  IndexerL.spin(forward, speed, vex::pct);
+  IndexerR.spin(forward, speed, vex::pct);
 }
 
-void outdex(double volts) {
-  IndexerL.spin(reverse, volts, vex::volt);
-  IndexerR.spin(reverse, volts, vex::volt);
+void outdex(double speed) {
+  IndexerL.spin(reverse, speed, vex::pct);
+  IndexerR.spin(reverse, speed, vex::pct);
 }
 
 void indexerBrake() {
@@ -536,17 +555,17 @@ void usercontrol(void) {
 
     //Simple intake on top right bumper
     if (Controller2.ButtonR1.pressing()) {
-      IntakeL.spin(forward, 127, vex::volt);
-      IntakeR.spin(forward, 127, vex::volt);
+      IntakeL.spin(forward, 127, vex::pct);
+      IntakeR.spin(forward, 127, vex::pct);
     } else if(Controller2.ButtonR2.pressing()) { //Simple outtake on bottom right bumper
-      IntakeL.spin(reverse, 127, vex::volt);
-      IntakeR.spin(reverse, 127, vex::volt);
+      IntakeL.spin(reverse, 127, vex::pct);
+      IntakeR.spin(reverse, 127, vex::pct);
     } else if(Controller2.ButtonUp.pressing()) { //Simple outtake on bottom right bumper
-      IntakeL.spin(forward, 127, vex::volt);
-      IntakeR.spin(forward, 127, vex::volt);
+      IntakeL.spin(forward, 127, vex::pct);
+      IntakeR.spin(forward, 127, vex::pct);
     } else if(Controller2.ButtonDown.pressing()) { //Simple outtake on bottom right bumper
-      IntakeL.spin(reverse, 127, vex::volt);
-      IntakeR.spin(reverse, 127, vex::volt);
+      IntakeL.spin(reverse, 127, vex::pct);
+      IntakeR.spin(reverse, 127, vex::pct);
     } else {
       IntakeL.stop(vex::hold);
       IntakeR.stop(vex::hold);
@@ -554,17 +573,17 @@ void usercontrol(void) {
     
     //Simple indexer up on top left bumper
     if (Controller2.ButtonL1.pressing()) {
-      IndexerL.spin(forward, 127, vex::volt);
-      IndexerR.spin(forward, 127, vex::volt);
+      IndexerL.spin(forward, 127, vex::pct);
+      IndexerR.spin(forward, 127, vex::pct);
     } else if(Controller2.ButtonL2.pressing()) { //Simple indexer down on bottom left bumper
-      IndexerL.spin(reverse, 127, vex::volt);
-      IndexerR.spin(reverse, 127, vex::volt);
+      IndexerL.spin(reverse, 127, vex::pct);
+      IndexerR.spin(reverse, 127, vex::pct);
     } else if(Controller2.ButtonUp.pressing()) { //Simple indexer down on bottom left bumper
-      IndexerL.spin(forward, 127, vex::volt);
-      IndexerR.spin(forward, 127, vex::volt);
+      IndexerL.spin(forward, 127, vex::pct);
+      IndexerR.spin(forward, 127, vex::pct);
     } else if(Controller2.ButtonDown.pressing()) { //Simple indexer down on bottom left bumper
-      IndexerL.spin(reverse, 127, vex::volt);
-      IndexerR.spin(reverse, 127, vex::volt);
+      IndexerL.spin(reverse, 127, vex::pct);
+      IndexerR.spin(reverse, 127, vex::pct);
     } else {
       IndexerL.stop(vex::hold);
       IndexerR.stop(vex::hold);
