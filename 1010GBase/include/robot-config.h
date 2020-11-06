@@ -6,6 +6,8 @@ extern brain Brain;
 //Controller
 extern controller Controller1;
 extern controller Controller2;
+//Sensors
+extern inertial IMU;
 //Drive
 extern motor DriveFL;
 extern motor DriveFR;

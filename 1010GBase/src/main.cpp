@@ -10,7 +10,9 @@
 // ---- START VEXCODE CONFIGURED DEVICES ----
 // Robot Configuration:
 // [Name]               [Type]        [Port(s)]
-// Controller1           Controller
+// Controller1           Controller   Primary
+// Controller2           Controller   Secondary
+// IMU                   inertial     15
 // DriveFL              Motor         20
 // DriveFR              Motor         8
 // DriveBL              Motor         19
@@ -43,9 +45,28 @@ competition Competition;
 void pre_auton(void) {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
+  
 }
 
 double initialSpeed = 10; //Speed from which a robot accelerates in autonomous functions
+
+int turnMargin = 1000; //Time in msec for which turn needs to be at the correct angle
+double turnRange = 0.1; //Range in which the turn needs to be in order to stop method
+
+double drivekP = 0.5;
+double drivekD = 0.5;
+double drivekI = 0.001;
+
+double turnkP = 0.001;
+double turnkD = 0;
+double turnkI = 0;
+
+int h = IMU.rotation(); //Heading in degrees. Rotation clockwise is positive, does not reset at 360
+
+int error; //SensorValue - DesiredValue : Position
+int prevError = 0; //Position 10 msec ago
+int derivative; //error - prevError : speed
+int totalError = 0; //+= error
 
 void resetDriveEncoders() { //Resets all driver encoder positions to zero
   DriveBL.resetPosition();
@@ -68,19 +89,26 @@ double absAvgDriveEncoder() { //Returns average of all drive encoder abs positio
         fabs(DriveBR.position(vex::deg))) /4;
 }
 
-void drive(int dir, double speed) { //Drive forward (dir = 1) or backward (dir = -1)
-    DriveBL.spin(forward, speed * dir, vex::pct);
-    DriveBR.spin(forward, speed * dir, vex::pct);
-    DriveFL.spin(forward, speed * dir, vex::pct);
-    DriveFR.spin(forward, speed * dir, vex::pct);
+void drive(int dir, double speed) { //Drive forward (dir = 1) or backward (dir = -1). Called every 10 msec
+    //PID
+    //Used to make robot go straight
+    error = IMU.rotation() - h;
+    derivative = error - prevError;
+    totalError += error;
+    prevError = error;
+    
+    DriveBL.spin(forward, speed * dir - error * drivekP - derivative * drivekD - totalError * drivekI, vex::pct);
+    DriveBR.spin(forward, speed * dir + error * drivekP + derivative * drivekD + totalError * drivekI, vex::pct);
+    DriveFL.spin(forward, speed * dir - error * drivekP - derivative * drivekD - totalError * drivekI, vex::pct);
+    DriveFR.spin(forward, speed * dir + error * drivekP + derivative * drivekD + totalError * drivekI, vex::pct);
 }
-
+/*
 void turn(int dir, double speed) { //Turn right (dir = 1) or left (dir = -1)
     DriveBL.spin(forward, speed * dir, vex::pct);
     DriveBR.spin(forward, speed * -dir, vex::pct);
     DriveFL.spin(forward, speed * dir, vex::pct);
     DriveFR.spin(forward, speed * -dir, vex::pct);
-}
+}*/
 
 void strafe(int dir, double speed) { //Strafe right (dir = 1) or left (dir = -1)
     DriveBL.spin(forward, speed * -dir, vex::pct);
@@ -98,7 +126,7 @@ void brakeDrive() { //Stop the drive using brake mode brake
 
 void autoForward(double degrees, double iDeg, double fDeg, double speed) { //Forward auto function. degrees > iDeg + fDeg
  resetDriveEncoders();
- 
+
  while (avgDriveEncoder() < iDeg) { //Accelerate for the initial degrees (iDeg)
     double accelerate = speed * avgDriveEncoder() / iDeg;
 
@@ -174,6 +202,36 @@ void autoBackward(double degrees, double iDeg, double fDeg, double speed) { //Ba
   brakeDrive();
 }
 
+void autoTurn(double degrees) { //+degrees turns right, -degrees turns left
+  int t = 0;
+
+  while(t < turnMargin) {
+    //PID
+    //Used to make robot go straight
+    error = IMU.rotation() - degrees;
+    derivative = error - prevError;
+    totalError += error;
+    prevError = error;
+    
+    DriveBL.spin(forward, -error * turnkP - derivative * turnkD - totalError * turnkI, vex::pct);
+    DriveBR.spin(forward, error * turnkP + derivative * turnkD + totalError * turnkI, vex::pct);
+    DriveFL.spin(forward, -error * turnkP - derivative * turnkD - totalError * turnkI, vex::pct);
+    DriveFR.spin(forward, error * turnkP + derivative * turnkD + totalError * turnkI, vex::pct);
+
+    wait(10, msec);
+
+    if (error < turnRange && error > -turnRange) {
+      t += 10;
+    } else {
+      t = 0;
+    }
+  }
+  
+  //stop the drive
+  brakeDrive();
+}
+
+/*
 void autoTurnLeft(double degrees, double iDeg, double fDeg, double speed) { //Turn left auto function. degrees > iDeg + fDeg
   resetDriveEncoders();
   
@@ -242,7 +300,7 @@ void autoTurnRight(double degrees, double iDeg, double fDeg, double speed) { //T
   
   //stop the drive
   brakeDrive();
-}
+}*/
 
 void autoStrafeLeft (double degrees, double iDeg, double fDeg, double speed) { //Strafe left auto function. degrees > iDeg + fDeg) {
   resetDriveEncoders();
@@ -350,11 +408,11 @@ void Calibrate () { //Runs every single action
 
   wait(200,msec);
 
-  autoTurnLeft(300, 100, 100, 70);
+  autoTurn(-300);
   
   wait(100,msec);
 
-  autoTurnRight(300, 100, 100, 70);
+  autoTurn(300);
 
   wait(100,msec);
 
@@ -390,17 +448,31 @@ void SkillsAuto() { //Start red, left of middle
 
   autoStrafeRight(360, 180, 180, 70);
 
-  autoForward(500, 180, 1, 100);
+  autoForward(500, 180, 1, 70);
   
-  autoBackward(360, 90, 180, 100);
+  autoBackward(250, 90, 180, 70);
 
-  autoForward(360, 90, 1, 100);
+  autoForward(250, 90, 1, 70);
     
-  autoBackward(360, 90, 180, 100);
+  autoBackward(250, 90, 180, 70);
 
-  autoForward(360, 90, 1, 100);
+  autoForward(250, 90, 1, 70);
 
-  autoBackward(360, 90, 180, 100);
+  autoBackward(250, 90, 180, 70);
+
+  autoForward(250, 90, 1, 70);
+
+  autoBackward(250, 90, 180, 70);
+  
+  autoForward(270, 90, 1, 70);
+
+  autoBackward(270, 90, 180, 70);
+
+  autoForward(270, 90, 1, 70);
+
+  autoBackward(270, 90, 180, 70);
+
+  autoForward(270, 90, 1, 70);
 }
 
 void RedLeftCorner() {
@@ -413,7 +485,11 @@ void BlueLeftCorner() {
 
 void autonomous(void) {
   // ..........................................................................
-  Calibrate();
+wait(2000, msec);
+
+  autoForward(1500, 180, 180, 30);
+
+  autoBackward(1500, 180, 180, 30);
   // ..........................................................................
 }
 
@@ -496,12 +572,14 @@ void usercontrol(void) {
 
     //Debug
     Brain.Screen.setCursor(1, 0);
-    Brain.Screen.print(DriveFL.velocity(rpm));
+    Brain.Screen.print(IMU.rotation());
     Brain.Screen.setCursor(2, 0);
-    Brain.Screen.print(DriveFR.velocity(rpm));
+    Brain.Screen.print(DriveFL.velocity(rpm));
     Brain.Screen.setCursor(3, 0);
-    Brain.Screen.print(DriveBL.velocity(rpm));
+    Brain.Screen.print(DriveFR.velocity(rpm));
     Brain.Screen.setCursor(4, 0);
+    Brain.Screen.print(DriveBL.velocity(rpm));
+    Brain.Screen.setCursor(5, 0);
     Brain.Screen.print(DriveBR.velocity(rpm));
 
 
