@@ -46,24 +46,27 @@ void pre_auton(void) {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
   
+  //Calibrate inertial sensor
+  IMU.startCalibration();
+  wait(2000, msec);
 }
 
 double initialSpeed = 10; //Speed from which a robot accelerates in autonomous functions
 
-int turnMargin = 1000; //Time in msec for which turn needs to be at the correct angle
+int turnMargin = 500; //Time in msec for which turn needs to be at the correct angle
 double turnRange = 0.1; //Range in which the turn needs to be in order to stop method
 
 double drivekP = 0.5;
 double drivekD = 0.5;
 double drivekI = 0.001;
 
-double turnkP = 0.001;
-double turnkD = 0;
-double turnkI = 0;
+double turnkP = 1.4;
+double turnkD = 1.7;
+double turnkI = 0.00001;
 
-double strafekP = 0;
-double strafekD = 0;
-double strafekI = 0;
+double strafekP = 3.7;
+double strafekD = 2;
+double strafekI = 0.0016;
 
 int h = 0; //Heading in degrees. Rotation clockwise is positive, does not reset at 360
 
@@ -122,10 +125,10 @@ void strafe(int dir, double speed) { //Strafe right (dir = 1) or left (dir = -1)
     totalError += error;
     prevError = error;
     
-    DriveBL.spin(forward, speed * -dir - error * drivekP - totalError * drivekI - derivative * drivekD, vex::pct);
-    DriveBR.spin(forward, speed * dir + error * drivekP + totalError * drivekI + derivative * drivekD, vex::pct);
-    DriveFL.spin(forward, speed * dir - error * drivekP - totalError * drivekI - derivative * drivekD, vex::pct);
-    DriveFR.spin(forward, speed * -dir + error * drivekP + totalError * drivekI + derivative * drivekD, vex::pct);
+    DriveBL.spin(forward, speed * -dir - error * strafekP - totalError * strafekI - derivative * strafekD, vex::pct);
+    DriveBR.spin(forward, speed * dir + error * strafekP + totalError * strafekI + derivative * strafekD, vex::pct);
+    DriveFL.spin(forward, speed * dir - error * strafekP - totalError * strafekI - derivative * strafekD, vex::pct);
+    DriveFR.spin(forward, speed * -dir + error * strafekP + totalError * strafekI + derivative * strafekD, vex::pct);
 }
 
 void brakeDrive() { //Stop the drive using brake mode brake
@@ -217,7 +220,7 @@ void autoBackward(double degrees, double iDeg, double fDeg, double speed) { //Ba
   brakeDrive();
 }
 
-void autoTurn(double degrees) { //+degrees turns right, -degrees turns left
+void autoTurnTo(double degrees) { //+degrees turns right, -degrees turns left
   int t = 0; //Time variable
 
   while(t < turnMargin) { //break when time exceeds the turnMargin
@@ -350,6 +353,8 @@ void autoStrafeLeft (double degrees, double iDeg, double fDeg, double speed) { /
     wait(10, msec);
   }
   
+  autoTurnTo(h);
+
   //stop the drive
   brakeDrive();
 }
@@ -387,6 +392,8 @@ void autoStrafeRight (double degrees, double iDeg, double fDeg, double speed) { 
     wait(10, msec);
   }
   
+  autoTurnTo(h);
+
   //stop the drive
   brakeDrive();
 }
@@ -422,16 +429,16 @@ void indexerBrake() {
 }
 
 //Autonomous master functions
-void Calibrate () { //Runs every single action
+void autoCalibrate () { //Runs every single action
   autoForward(720, 180, 360, 100);
 
   wait(200,msec);
 
-  autoTurn(-300);
+  autoTurnTo(-90);
   
   wait(100,msec);
 
-  autoTurn(300);
+  autoTurnTo(90);
 
   wait(100,msec);
 
@@ -458,7 +465,24 @@ void Calibrate () { //Runs every single action
   indexerBrake();
 }
 
-void SkillsAuto() { //Start red, left of middle
+void turnCalibrate () {
+  autoTurnTo(-90);
+  autoTurnTo(90);
+  autoTurnTo(-90);
+  autoTurnTo(90);
+  autoTurnTo(-90);
+  autoTurnTo(90);
+  autoTurnTo(-90);
+  autoTurnTo(90);
+  autoTurnTo(-90);
+  autoTurnTo(0);
+}
+
+void strafeCalibrate () {
+
+}
+
+void skillsAuto() { //Start red, left of middle
   intake(100);
 
   autoForward(1000, 180, 180, 100);
@@ -494,21 +518,22 @@ void SkillsAuto() { //Start red, left of middle
   autoForward(270, 90, 1, 70);
 }
 
-void RedLeftCorner() {
+void redLeftCorner() {
 
 }
 
-void BlueLeftCorner() {
+void blueLeftCorner() {
 
 }
 
 void autonomous(void) {
   // ..........................................................................
-wait(2000, msec);
-
-  autoForward(1500, 180, 180, 30);
-
-  autoBackward(1500, 180, 180, 30);
+  pre_auton();
+  /*
+  autoStrafeLeft(720, 90, 90, 100);
+  autoStrafeRight(720, 90, 90, 100);*/
+  turnCalibrate();
+  
   // ..........................................................................
 }
 
