@@ -53,20 +53,20 @@ void pre_auton(void) {
 
 double initialSpeed = 10; //Speed from which a robot accelerates in autonomous functions
 
-int turnMargin = 500; //Time in msec for which turn needs to be at the correct angle
+int turnMargin = 400; //Time in msec for which turn needs to be at the correct angle
 double turnRange = 0.1; //Range in which the turn needs to be in order to stop method
 
-double drivekP = 0.5;
+double drivekP = 0.8;
 double drivekD = 0.5;
-double drivekI = 0.001;
+double drivekI = 0.002;
 
 double turnkP = 1.4;
-double turnkD = 1.7;
-double turnkI = 0.00001;
+double turnkD = 2.2;
+double turnkI = 0.00002;
 
-double strafekP = 3.7;
-double strafekD = 2;
-double strafekI = 0.0016;
+double strafekP = 5;
+double strafekD = 10;
+double strafekI = 0.001;
 
 int h = 0; //Heading in degrees. Rotation clockwise is positive, does not reset at 360
 
@@ -109,13 +109,6 @@ void drive(int dir, double speed) { //Drive forward (dir = 1) or backward (dir =
     DriveFL.spin(forward, speed * dir - error * drivekP - totalError * drivekI - derivative * drivekD, vex::pct);
     DriveFR.spin(forward, speed * dir + error * drivekP + totalError * drivekI + derivative * drivekD, vex::pct);
 }
-/*
-void turn(int dir, double speed) { //Turn right (dir = 1) or left (dir = -1)
-    DriveBL.spin(forward, speed * dir, vex::pct);
-    DriveBR.spin(forward, speed * -dir, vex::pct);
-    DriveFL.spin(forward, speed * dir, vex::pct);
-    DriveFR.spin(forward, speed * -dir, vex::pct);
-}*/
 
 void strafe(int dir, double speed) { //Strafe right (dir = 1) or left (dir = -1)
     //PID
@@ -249,77 +242,6 @@ void autoTurnTo(double degrees) { //+degrees turns right, -degrees turns left
   brakeDrive();
 }
 
-/*
-void autoTurnLeft(double degrees, double iDeg, double fDeg, double speed) { //Turn left auto function. degrees > iDeg + fDeg
-  resetDriveEncoders();
-  
-  //accelerate from initialSpeed to speed while turning through iDeg
-  while (absAvgDriveEncoder() < iDeg) {
-    double accelerate = speed * absAvgDriveEncoder() / iDeg;
-
-    if (accelerate < initialSpeed) { //Make sure that the motors never move slower than initalSpeed
-      accelerate = initialSpeed;
-    }
-    turn(-1, accelerate);
-
-    wait(10, msec);
-  }
-   while (absAvgDriveEncoder() < degrees - fDeg) { //turn until fDeg at speed
-    turn(-1, speed);
-
-    wait(10, msec);
-  }
-  resetDriveEncoders();
-  while (absAvgDriveEncoder() < fDeg) { //Decellerate while turning through fDeg
-    double deccelerate = speed - speed * absAvgDriveEncoder() / fDeg;
-
-    if (deccelerate < initialSpeed) { //Make sure that the motors never move slower than initalSpeed
-      deccelerate = initialSpeed;
-    }
-    turn(-1, deccelerate);
-
-    wait(10, msec);
-  }
-  
-  //stop the drive
-  brakeDrive();
-}
-
-void autoTurnRight(double degrees, double iDeg, double fDeg, double speed) { //Turn right auto function. degrees > iDeg + fDeg
-  resetDriveEncoders();
-  
-  //accelerate from initialSpeed to speed while turning through iDeg
-  while (absAvgDriveEncoder() < iDeg) {
-    double accelerate = speed * absAvgDriveEncoder() / iDeg;
-
-    if (accelerate < initialSpeed) { //Make sure that the motors never move slower than initalSpeed
-      accelerate = initialSpeed;
-    }
-    turn(1, accelerate);
-
-    wait(10, msec);
-  }
-   while (absAvgDriveEncoder() < degrees - fDeg) { //turn until fDeg at speed
-    turn(1, speed);
-
-    wait(10, msec);
-  }
-  resetDriveEncoders();
-  while (absAvgDriveEncoder() < fDeg) { //Decellerate while turning through fDeg
-    double deccelerate = speed - speed * absAvgDriveEncoder() / fDeg;
-
-    if (deccelerate < initialSpeed) { //Make sure that the motors never move slower than initalSpeed
-      deccelerate = initialSpeed;
-    }
-    turn(1, deccelerate);
-
-    wait(10, msec);
-  }
-  
-  //stop the drive
-  brakeDrive();
-}*/
-
 void autoStrafeLeft (double degrees, double iDeg, double fDeg, double speed) { //Strafe left auto function. degrees > iDeg + fDeg) {
   resetDriveEncoders();
   
@@ -432,19 +354,13 @@ void indexerBrake() {
 void autoCalibrate () { //Runs every single action
   autoForward(720, 180, 360, 100);
 
-  wait(200,msec);
-
   autoTurnTo(-90);
-  
-  wait(100,msec);
 
-  autoTurnTo(90);
+  autoTurnTo(0);
 
-  wait(100,msec);
+  autoStrafeLeft(720, 180, 180, 100);
 
-  autoStrafeLeft(720, 220, 180, 50);
-
-  autoStrafeRight(720, 220, 180, 50);
+  autoStrafeRight(720, 180, 180, 100);
 
   autoBackward(720, 180, 180, 100);
 
@@ -529,11 +445,8 @@ void blueLeftCorner() {
 void autonomous(void) {
   // ..........................................................................
   pre_auton();
-  /*
-  autoStrafeLeft(720, 90, 90, 100);
-  autoStrafeRight(720, 90, 90, 100);*/
-  turnCalibrate();
-  
+
+  autoCalibrate();
   // ..........................................................................
 }
 
