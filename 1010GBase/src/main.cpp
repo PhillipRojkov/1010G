@@ -56,37 +56,47 @@ void pre_auton(void) {
   Brain.Screen.clearScreen();
 }
 
+//Loop times and constants
+int loopTime = 10; //loop pause in msec
+double msecLoopTime = loopTime / 1000.0; //loop pause in seconds
+double g = 9.80665; //graviational constant
+double PI = 3.14159265359;
+
+//Drive parameters
+int controllerDeadZone = 7; //Stick dead zone (stick values from 0 - 100)
+double strafeMultiplier = 0.6; //Strafe slowdown multiplier
+
+//Autonomous parameters
 double initialSpeed = 10; //Speed from which a robot accelerates in autonomous functions
 
-int turnMargin = 400; //Time in msec for which turn needs to be at the correct angle
-double turnRange = 0.1; //Range in which the turn needs to be in order to stop method
-
-int loopTime = 10; //loop pause in msec
-long double msecLoopTime = loopTime / 1000.0; //loop pause in seconds
-
-long double g = 9.80665; //graviational constant
+//Turning
+int turnMargin = 200; //Time in msec for which turn needs to be at the correct angle
+double turnRange = 0.7; //Range (+-degrees) in which the turn needs to be in order to stop method
 
 //PID constants
-double drivekP = 0.8;
-double drivekD = 0.5;
-double drivekI = 0.002;
+//Drive
+double drivekP = 0; //0.8
+double drivekD = 0; //0.5
+double drivekI = 0; //0.002
 
+//Turn
 double turnkP = 1.4;
 double turnkD = 2.2;
 double turnkI = 0.00002;
 
+//Strafe
 double strafekP = 5;
 double strafekD = loopTime;
 double strafekI = 0.001;
 
-//Location Variables
+//Odometery return variables
 double h = 0; //Heading in degrees. Rotation clockwise is positive, does not reset at 360
-long double x = 0; //x position on the field (side to side from starting position) in meters
-long double y = 0; //y position on the field (forwards/backwards from starting position) in meters
+double x = 0; //x position on the field (side to side from starting position) in meters
+double y = 0; //y position on the field (forwards/backwards from starting position) in meters
 
 //Variables used for calculating location
-long double viX = 0;
-long double viY = 0;
+double viX = 0;
+double viY = 0;
 
 //Variables used for calculating PID
 double error; //SensorValue - DesiredValue : Position
@@ -94,43 +104,63 @@ double prevError = 0; //Position loopTime msec ago
 double derivative; //error - prevError : speed
 double totalError = 0; //+= error
 
+double absAvgDriveRPM() { //Returns average of all drive speeds
+  return (fabs(DriveBL.velocity(rpm)) +
+          fabs(DriveBR.velocity(rpm)) +
+          fabs(DriveFL.velocity(rpm)) +
+          fabs(DriveFR.velocity(rpm))) / 4;
+}
+
 //Sets X and Y equal to the global position coordinates
 void computeLocation() {
-  long double accelX = -IMU.acceleration(yaxis); //Right is positive
-  long double accelY = -IMU.acceleration(zaxis); //Forward is positive
+  double accelX = IMU.acceleration(yaxis); //SIDE VECTOR - Right is positive
+  double accelY = IMU.acceleration(xaxis); //FORWARD VECTOR - Forward is positive
 
   //Cancel out vertical component from potential tipping
+  accelX = accelX + sin(IMU.roll() * (PI / 180));
+  accelY = accelY - sin(IMU.pitch() * (PI / 180));
 
   //Cancel noise
-  if (fabsl(accelX) < 0.04) {
-    accelX = 0;
+  if (fabs(accelX) < 0.06) {
+    accelX = 0.0;
   }
-  if (fabsl(accelY) < 0.04) {
-    accelY = 0;
+  if (fabs(accelY) < 0.06) {
+    accelY = 0.0;
   }
 
-  //Convert from local XY to global XY
-  accelX = accelX * cos(IMU.rotation()) + accelY * sin(IMU.rotation()) + accelX * -sin(IMU.pitch()) + accelY * -sin(IMU.roll());
-  accelY = accelY * cos(IMU.rotation()) + accelX * sin(IMU.rotation()) + accelX * -sin(IMU.pitch()) + accelY * -sin(IMU.roll());
+  //Create global x and y vectors
+  double globalAccelX = accelX * sin(IMU.rotation() * (PI / 180)) + accelY * cos(IMU.rotation() * (PI / 180));
+  double globalAccelY = accelX * cos(IMU.rotation() * (PI / 180)) + accelY * sin(IMU.rotation() * (PI / 180));
 
   //convert from Gs to m/s2
-  accelX *= g;
-  accelY *= g;
+  globalAccelX *= g;
+  globalAccelY *= g;
 
   //Use Kinematics Equation to conver to distance
-  x += viX * msecLoopTime + 0.5 * accelX * powl(msecLoopTime, 2);
-  y += viY * msecLoopTime + 0.5 * accelY * powl(msecLoopTime, 2);
+  x += viX * msecLoopTime + 0.5 * globalAccelX * pow(msecLoopTime, 2);
+  y += viY * msecLoopTime + 0.5 * globalAccelY * pow(msecLoopTime, 2);
 
   //Create initial VX and VY for the next run (in 10 msec)
-  viX += accelX * msecLoopTime;
-  viY += accelY * msecLoopTime;
+  viX += globalAccelX * msecLoopTime;
+  viY += globalAccelY * msecLoopTime;
 
   //Cancel noise on VX & VY
-  if (fabsl(viX) < 0.05 && fabsl(accelX) < 0.04 * g) {
-    viX = 0;
+  if ((fabs(viX) < 0.4 && fabs(globalAccelX) < 0.06 * g) || 
+      (fabs(globalAccelX) < 0.06 * g && absAvgDriveRPM() < 2)) {
+    viX = 0.0;
   }
-  if (fabsl(viY) < 0.05 && fabsl(accelY) < 0.04 * g) {
-    viY = 0;
+  if ((fabs(viY) < 0.4 && fabs(globalAccelY) < 0.06 * g) || 
+      (fabs(globalAccelY) < 0.06 * g && absAvgDriveRPM() < 2)) {
+        //Brain.Screen.drawCircle(300, 100, 100, red);
+    viY = 0.0;
+  } else {
+    //Brain.Screen.drawCircle(300, 100, 100, green);
+  }
+
+  if (fabs(globalAccelY) < 0.06 * g) {
+    Brain.Screen.drawCircle(300, 100, 100, red);
+  } else {
+    Brain.Screen.drawCircle(300, 100, 100, green);
   }
 }
 
@@ -145,16 +175,6 @@ void screenPrint(){
   //Print IMU rotation
   Brain.Screen.setCursor(4, 2);
   Brain.Screen.print(IMU.rotation());
-
-  //Print drive rpms
-  Brain.Screen.setCursor(6, 2);
-  Brain.Screen.print(DriveFL.velocity(rpm));
-  Brain.Screen.setCursor(7, 2);
-  Brain.Screen.print(DriveFR.velocity(rpm));
-  Brain.Screen.setCursor(8, 2);
-  Brain.Screen.print(DriveBL.velocity(rpm));
-  Brain.Screen.setCursor(9, 2);
-  Brain.Screen.print(DriveBR.velocity(rpm));
 }
 
 void resetDriveEncoders() { //Resets all driver encoder positions to zero
@@ -313,7 +333,7 @@ void autoTurnTo(double degrees) { //+degrees turns right, -degrees turns left
 
     wait(loopTime, msec);
 
-    if (error < turnRange && error > -turnRange) { //increase time when the robot is pointing in turnRange
+    if (fabs(error) < turnRange) { //increase time when the robot is pointing in turnRange
       t += loopTime;
     } else {
       t = 0;
@@ -422,9 +442,33 @@ void index(double speed) {
   IndexerR.spin(forward, speed, vex::pct);
 }
 
+void pIndex(double speed, double degrees) {
+  IndexerL.resetPosition();
+  IndexerR.resetPosition();
+
+  while (fabs(IndexerR.position(vex::degrees)) < degrees) {
+    IndexerL.spin(forward, speed, pct);
+    IndexerR.spin(forward, speed, pct);
+
+    wait(loopTime, msec);
+  }
+}
+
 void outdex(double speed) {
   IndexerL.spin(reverse, speed, vex::pct);
   IndexerR.spin(reverse, speed, vex::pct);
+}
+
+void pOutdex(double speed, double degrees) {
+  IndexerL.resetPosition();
+  IndexerR.resetPosition();
+
+  while (fabs(IndexerR.position(vex::degrees)) < degrees) {
+    IndexerL.spin(reverse, speed, pct);
+    IndexerR.spin(reverse, speed, pct);
+
+    wait(loopTime, msec);
+  }
 }
 
 void indexerBrake() {
@@ -433,6 +477,7 @@ void indexerBrake() {
 }
 
 //Autonomous master functions
+
 void autoCalibrate () { //Runs every single action
   autoForward(720, 180, 360, 100);
 
@@ -465,55 +510,78 @@ void autoCalibrate () { //Runs every single action
 
 void turnCalibrate () {
   autoTurnTo(-90);
-  autoTurnTo(90);
-  autoTurnTo(-90);
-  autoTurnTo(90);
-  autoTurnTo(-90);
-  autoTurnTo(90);
-  autoTurnTo(-90);
-  autoTurnTo(90);
-  autoTurnTo(-90);
+  autoTurnTo(135);
+  autoTurnTo(-135);
+  autoTurnTo(180);
+  autoTurnTo(-180);
   autoTurnTo(0);
-}
-
-void strafeCalibrate () {
-
 }
 
 void skillsAuto() { //Start red, left of middle
   intake(100);
 
-  autoForward(1000, 180, 180, 100);
+  autoForward(570, 180, 180, 100);
+
+  autoTurnTo(135);
 
   intakeBrake();
 
-  autoStrafeRight(360, 180, 180, 70);
-
-  autoForward(500, 180, 1, 70);
+  autoForward(650, 180, 1, 100);
   
-  autoBackward(250, 90, 180, 70);
+  //First goal
+  pIndex(100, 1300);
+  pOutdex(100, 300);
+  indexerBrake();
 
-  autoForward(250, 90, 1, 70);
-    
-  autoBackward(250, 90, 180, 70);
+  autoBackward(150, 70, 70, 90);
 
-  autoForward(250, 90, 1, 70);
+  intake(100);
 
-  autoBackward(250, 90, 180, 70);
+  autoTurnTo(0);
 
-  autoForward(250, 90, 1, 70);
+  autoForward(1350, 180, 600, 100);
 
-  autoBackward(250, 90, 180, 70);
+  autoTurnTo(90);
+
+  pIndex(100, 360);
+  indexerBrake();
+
+  intakeBrake();
+
+  autoForward(110, 90, 1, 100);
   
-  autoForward(270, 90, 1, 70);
+  //middle goal
+  pIndex(100, 2000);
+  indexerBrake();
+  wait(500, msec);
+  pIndex(100, 2000);
+  indexerBrake();
 
-  autoBackward(270, 90, 180, 70);
+  autoBackward(110, 90, 90, 100);
 
-  autoForward(270, 90, 1, 70);
+  intake(100);
 
-  autoBackward(270, 90, 180, 70);
+  autoTurnTo(-7);
 
-  autoForward(270, 90, 1, 70);
+  autoForward(1400, 180, 500, 100);
+
+  autoBackward(200, 100, 100, 100);
+
+  autoTurnTo(45);
+
+  pIndex(100, 360);
+  indexerBrake();
+
+  intakeBrake();
+
+  autoForward(720, 180, 1, 100);
+
+  //Back goal
+  pIndex(100, 1000);
+  pOutdex(100, 300);
+  indexerBrake();
+
+  autoBackward(680, 180, 180, 100);
 }
 
 void redLeftCorner() {
@@ -527,14 +595,13 @@ void blueLeftCorner() {
 void autonomous(void) {
   // ..........................................................................
   pre_auton();
-
+  
   turnCalibrate();
+  //skillsAuto();
   // ..........................................................................
 }
 
 void usercontrol(void) {
-  pre_auton();
-
   // User control code here, inside the loop
   while (1) {
     // ........................................................................
@@ -544,48 +611,41 @@ void usercontrol(void) {
     DriveBL.spin(forward, Controller1.Axis2.value() + Controller1.Axis1.value() - Controller1.Axis4.value(), vex::pct);
     DriveBR.spin(forward, Controller1.Axis2.value() - Controller1.Axis1.value() + Controller1.Axis4.value(), vex::pct); */
 
-  if (abs(Controller1.Axis3.value()) > loopTime) { 
-    DriveFL.spin(vex::directionType::fwd, Controller1.Axis3.value(),vex::velocityUnits::pct);
-    DriveBL.spin(vex::directionType::fwd, Controller1.Axis3.value(),vex::velocityUnits::pct);
-  } else {
-    DriveFL.stop(brake);
-    DriveBL.stop(brake);
-  }
-  if (abs(Controller1.Axis2.value()) > loopTime) {
-    DriveBR.spin(vex::directionType::fwd, Controller1.Axis2.value(),vex::velocityUnits::pct);
-    DriveFR.spin(vex::directionType::fwd, Controller1.Axis2.value(),vex::velocityUnits::pct);
-  } else {
-    DriveFR.stop(brake);
-    DriveBR.stop(brake);
-  }
+    //Drive Code
+    if (abs(Controller1.Axis3.value()) > controllerDeadZone) { 
+      DriveFL.spin(vex::directionType::fwd, Controller1.Axis3.value(),vex::velocityUnits::pct);
+      DriveBL.spin(vex::directionType::fwd, Controller1.Axis3.value(),vex::velocityUnits::pct);
+    } else {
+      DriveFL.stop(brake);
+      DriveBL.stop(brake);
+    }
+    if (abs(Controller1.Axis2.value()) > controllerDeadZone) {
+      DriveBR.spin(vex::directionType::fwd, Controller1.Axis2.value(),vex::velocityUnits::pct);
+      DriveFR.spin(vex::directionType::fwd, Controller1.Axis2.value(),vex::velocityUnits::pct);
+    } else {
+      DriveFR.stop(brake);
+      DriveBR.stop(brake);
+    }
 
-  double multiplier = 0.6;
+    if(Controller1.ButtonL1.pressing()) {
+      DriveBL.spin(directionType::fwd, 80 + Controller1.Axis3.value() * strafeMultiplier, velocityUnits::pct);
+      DriveFL.spin(directionType::rev, 80 - Controller1.Axis3.value() * strafeMultiplier , velocityUnits::pct);
+      DriveBR.spin(directionType::rev, 80 - Controller1.Axis2.value() * strafeMultiplier, velocityUnits::pct);
+      DriveFR.spin(directionType::fwd, 80  + Controller1.Axis2.value() * strafeMultiplier, velocityUnits::pct);
+    }
 
-  if(Controller1.ButtonL1.pressing()) {
-    DriveBL.spin(directionType::fwd, 80 + Controller1.Axis3.value() * multiplier, velocityUnits::pct);
-    DriveFL.spin(directionType::rev, 80 - Controller1.Axis3.value() * multiplier , velocityUnits::pct);
-    DriveBR.spin(directionType::rev, 80 - Controller1.Axis2.value() * multiplier, velocityUnits::pct);
-    DriveFR.spin(directionType::fwd, 80  + Controller1.Axis2.value() * multiplier, velocityUnits::pct);
-  }
-
-  if(Controller1.ButtonR1.pressing()) {
-    DriveBL.spin(directionType::rev, 80 - Controller1.Axis3.value() * multiplier, velocityUnits::pct);
-    DriveFL.spin(directionType::fwd, 80 + Controller1.Axis3.value() * multiplier, velocityUnits::pct);
-    DriveBR.spin(directionType::fwd, 80 + Controller1.Axis2.value() * multiplier, velocityUnits::pct);
-    DriveFR.spin(directionType::rev, 80 - Controller1.Axis2.value() * multiplier, velocityUnits::pct);
-  }
+    if(Controller1.ButtonR1.pressing()) {
+      DriveBL.spin(directionType::rev, 80 - Controller1.Axis3.value() * strafeMultiplier, velocityUnits::pct);
+      DriveFL.spin(directionType::fwd, 80 + Controller1.Axis3.value() * strafeMultiplier, velocityUnits::pct);
+      DriveBR.spin(directionType::fwd, 80 + Controller1.Axis2.value() * strafeMultiplier, velocityUnits::pct);
+      DriveFR.spin(directionType::rev, 80 - Controller1.Axis2.value() * strafeMultiplier, velocityUnits::pct);
+    }
 
     //Simple intake on top right bumper
     if (Controller2.ButtonR1.pressing()) {
       IntakeL.spin(forward, 127, vex::pct);
       IntakeR.spin(forward, 127, vex::pct);
     } else if(Controller2.ButtonR2.pressing()) { //Simple outtake on bottom right bumper
-      IntakeL.spin(reverse, 127, vex::pct);
-      IntakeR.spin(reverse, 127, vex::pct);
-    } else if(Controller2.ButtonUp.pressing()) { //Simple outtake on bottom right bumper
-      IntakeL.spin(forward, 127, vex::pct);
-      IntakeR.spin(forward, 127, vex::pct);
-    } else if(Controller2.ButtonDown.pressing()) { //Simple outtake on bottom right bumper
       IntakeL.spin(reverse, 127, vex::pct);
       IntakeR.spin(reverse, 127, vex::pct);
     } else {
@@ -598,12 +658,6 @@ void usercontrol(void) {
       IndexerL.spin(forward, 127, vex::pct);
       IndexerR.spin(forward, 127, vex::pct);
     } else if(Controller2.ButtonL2.pressing()) { //Simple indexer down on bottom left bumper
-      IndexerL.spin(reverse, 127, vex::pct);
-      IndexerR.spin(reverse, 127, vex::pct);
-    } else if(Controller2.ButtonUp.pressing()) { //Simple indexer down on bottom left bumper
-      IndexerL.spin(forward, 127, vex::pct);
-      IndexerR.spin(forward, 127, vex::pct);
-    } else if(Controller2.ButtonDown.pressing()) { //Simple indexer down on bottom left bumper
       IndexerL.spin(reverse, 127, vex::pct);
       IndexerR.spin(reverse, 127, vex::pct);
     } else {
