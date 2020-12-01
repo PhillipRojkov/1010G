@@ -13,6 +13,10 @@ controller Controller1 = controller(primary);
 controller Controller2 = controller(partner);
 //Sensors
 inertial IMU = inertial(PORT15);
+line LinePosition1 = line(Brain.ThreeWirePort.A);
+line LinePosition2 = line(Brain.ThreeWirePort.B);
+limit LinePosition3 = limit(Brain.ThreeWirePort.C);
+vision VisionSensor = vision(PORT2, 50);
 //Drive motors
 motor DriveFL = motor(PORT20, ratio18_1, false); //Front left drive
 motor DriveFR = motor(PORT8, ratio18_1, true); //Front right drive - Reversed
