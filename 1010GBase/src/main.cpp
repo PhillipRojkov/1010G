@@ -25,6 +25,7 @@
 
 #include "AutoMasters.cpp"
 #include "DriveClass.cpp"
+#include "Odometry.cpp"
 #include "vex.h"
 
 using namespace vex;
@@ -35,6 +36,7 @@ competition Competition;
 // Create defenitions of classes
 DriveClass driveClass;
 AutoMasters autoMasters;
+Odometry odometry;
 
 // define your global instances of motors and other devices here
 
@@ -60,106 +62,16 @@ void pre_auton(void) {
   Brain.Screen.clearScreen(green);
   wait(500, msec);
   Brain.Screen.clearScreen();
+
+  odometry.calibrating = false;
 }
 
-// Loop times and constants
-int loopTime = 10;                       // loop pause in msec
-double msecLoopTime = loopTime / 1000.0; // loop pause in seconds
-double g = 9.80665;                      // graviational constant
-double PI = 3.14159265359;
-
-// Odometery return variables
-double h = 0; // Heading in degrees. Rotation clockwise is positive, does not
-              // reset at 360
-double x = 0; // x position on the field (side to side from starting position)
-              // in meters
-double y = 0; // y position on the field (forwards/backwards from starting
-              // position) in meters
-
-// Variables used for calculating location
-double viX = 0;
-double viY = 0;
-
-double absAvgDriveRPM() { // Returns average of all drive speeds
-  return (fabs(DriveBL.velocity(rpm)) + fabs(DriveBR.velocity(rpm)) +
-          fabs(DriveFL.velocity(rpm)) + fabs(DriveFR.velocity(rpm))) /
-         4;
-}
-
-// Sets X and Y equal to the global position coordinates
-void computeLocation() {
-  double accelX = IMU.acceleration(yaxis); // SIDE VECTOR - Right is positive
-  double accelY =
-      IMU.acceleration(xaxis); // FORWARD VECTOR - Forward is positive
-
-  // Cancel out vertical component from potential tipping
-  accelX = accelX + sin(IMU.roll() * (PI / 180));
-  accelY = accelY - sin(IMU.pitch() * (PI / 180));
-
-  // Cancel noise
-  if (fabs(accelX) < 0.06) {
-    accelX = 0.0;
-  }
-  if (fabs(accelY) < 0.06) {
-    accelY = 0.0;
-  }
-
-  // Create global x and y vectors
-  double globalAccelX = accelX * sin(IMU.rotation() * (PI / 180)) +
-                        accelY * cos(IMU.rotation() * (PI / 180));
-  double globalAccelY = accelX * cos(IMU.rotation() * (PI / 180)) +
-                        accelY * sin(IMU.rotation() * (PI / 180));
-
-  // convert from Gs to m/s2
-  globalAccelX *= g;
-  globalAccelY *= g;
-
-  // Use Kinematics Equation to conver to distance
-  x += viX * msecLoopTime + 0.5 * globalAccelX * pow(msecLoopTime, 2);
-  y += viY * msecLoopTime + 0.5 * globalAccelY * pow(msecLoopTime, 2);
-
-  // Create initial VX and VY for the next run (in 10 msec)
-  viX += globalAccelX * msecLoopTime;
-  viY += globalAccelY * msecLoopTime;
-
-  // Cancel noise on VX & VY
-  if ((fabs(viX) < 0.4 && fabs(globalAccelX) < 0.06 * g) ||
-      (fabs(globalAccelX) < 0.06 * g && absAvgDriveRPM() < 2)) {
-    viX = 0.0;
-  }
-  if ((fabs(viY) < 0.4 && fabs(globalAccelY) < 0.06 * g) ||
-      (fabs(globalAccelY) < 0.06 * g && absAvgDriveRPM() < 2)) {
-    // Brain.Screen.drawCircle(300, 100, 100, red);
-    viY = 0.0;
-  } else {
-    // Brain.Screen.drawCircle(300, 100, 100, green);
-  }
-
-  if (fabs(globalAccelY) < 0.06 * g) {
-    Brain.Screen.drawCircle(300, 100, 100, red);
-  } else {
-    Brain.Screen.drawCircle(300, 100, 100, green);
-  }
-}
-
-void screenPrint() {
-  // Debug
-  // Print X and Y field position
-  Brain.Screen.setCursor(1, 2);
-  Brain.Screen.print(x);
-  Brain.Screen.setCursor(1, 18);
-  Brain.Screen.print(y);
-
-  // Print IMU rotation
-  Brain.Screen.setCursor(4, 2);
-  Brain.Screen.print(IMU.rotation());
-}
-
-void autonomous(void) {
+void autonomous(void) { 
   // ..........................................................................
   pre_auton();
 
-  autoMasters.skillsAuto();
+  //autoMasters.skillsAuto();
+  autoMasters.redRightCorner();
   // ..........................................................................
 }
 
@@ -168,6 +80,11 @@ void usercontrol(void) {
   while (1) {
     // ........................................................................
     driveClass.runTankBase();
+  /*  DriveFL.spin(forward, Controller1.Axis2.value(), pct);
+    DriveFR.spin(forward, Controller1.Axis2.value(), pct);
+    DriveBL.spin(forward, Controller1.Axis2.value(), pct);
+    DriveBR.spin(forward, Controller1.Axis2.value(), pct);*/
+
 
     driveClass.indexSense();
 
@@ -175,9 +92,11 @@ void usercontrol(void) {
 
     driveClass.intake();
 
-    computeLocation();
+    driveClass.cIndex();
 
-    screenPrint();
+    driveClass.score();
+
+    odometry.computeLocation();
     // ........................................................................
     wait(10, msec); // Sleep the task for a short amount of time to prevent
                     // wasted resources.
