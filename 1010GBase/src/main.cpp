@@ -68,7 +68,7 @@ void pre_auton(void) {
 
 void autonomous(void) { 
   // ..........................................................................
-  pre_auton();
+  //pre_auton();
 
   //autoMasters.skillsAuto();
   autoMasters.redRightCorner();

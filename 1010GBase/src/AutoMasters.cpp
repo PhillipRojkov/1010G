@@ -23,7 +23,7 @@ class AutoMasters { // Holds all master autonomous programs
 
   // Turning
   int turnMargin =
-      200; // Time in msec for which turn needs to be at the correct angle
+      100; // Time in msec for which turn needs to be at the correct angle
   double turnRange = 0.7; // Range (+-degrees) in which the turn needs to be in
                           // order to stop method
 
@@ -180,6 +180,55 @@ cIndex();
       drive(1, deccelerate);
 
 cIndex();
+
+      wait(loopTime, msec);
+    }
+
+    // Stop the drive
+    brakeDrive();
+  }
+
+void
+  dumbForward(double degrees, double iDeg, double fDeg,
+              double speed) { // Forward auto function. degrees > iDeg + fDeg
+    resetDriveEncoders();
+
+    h = IMU.rotation();
+
+    while (avgDriveEncoder() <
+           iDeg) { // Accelerate for the initial degrees (iDeg)
+      double accelerate = speed * avgDriveEncoder() / iDeg;
+
+      if (accelerate < initialSpeed) { // Make sure that the motors never move
+                                       // slower than initalSpeed
+        accelerate = initialSpeed;
+      }
+
+      // Run the drive
+      drive(1, accelerate);
+
+      wait(loopTime, msec);
+    }
+    while (avgDriveEncoder() <
+           degrees - fDeg) { // Drive at speed up until you reach final degrees
+                             // (fDeg) threshold
+      // Run the drive
+      drive(1, speed);
+
+      wait(loopTime, msec);
+    }
+    resetDriveEncoders();
+    while (avgDriveEncoder() <
+           fDeg) { // Decellerate for the final degrees (fDeg)
+      double deccelerate = speed - speed * avgDriveEncoder() / fDeg;
+
+      if (deccelerate < initialSpeed) { // Make sure that the motors never move
+                                        // slower than initalSpeed
+        deccelerate = initialSpeed;
+      }
+
+      // Run the drive
+      drive(1, deccelerate);
 
       wait(loopTime, msec);
     }
@@ -444,10 +493,11 @@ cIndex();
       if (!position2) {
         IndexerL.spin(forward, 80, pct);
         IndexerR.spin(forward, 80, pct);
-      } else if (!position2 && !goingTo3) {
-        IndexerL.stop(hold);
-        IndexerR.stop(hold);
-      } else if (!position2 && position3) {
+      } else if (position2 && !goingTo3) {
+          IndexerL.stop(hold);
+          IndexerR.stop(hold);
+        }
+      if (position3 && !position2) {
         IndexerL.spin(reverse, 80, pct);
         IndexerR.spin(reverse, 80, pct);
       }
@@ -460,9 +510,9 @@ cIndex();
       if (position3) {
         goingTo3 = false;
       }
-      if (position3) {
-        IndexerL.stop(hold);
-        IndexerR.stop(hold);
+      if (position1 && !position2) {
+        IndexerL.spin(forward, 80, pct);
+        IndexerR.spin(forward, 80, pct);
       }
   }
 
@@ -605,34 +655,66 @@ public:
 
   void redRightCorner() {
     //Intake
+    indexerBrake();
     intake(100);
-    wait(1000, msec);
+    wait(800, msec);
     //Forward - grab ball
-    autoForward(100, 300, 100, 70);
-    //Turn right 45
-    autoTurnTo(30);
-
+    dumbForward(310, 100, 100, 60);
+/*
     while (!position2 && !position3) {
       cIndex();
       wait(10, msec);
-    }
+    }*/
+    
+    intakeBrake();
+    
+    //Turn right 45
+    autoTurnTo(25);
+
+    //autoForward(60, 1, 1, 80);
+
+    //Score 1
+    pIndex(100, 700);
+    //pOutdex(100, 200);
+    //Backward
+    autoBackward(500, 50, 50, 100);
+    intake(100);
+    //Turn left 0
+    autoTurnTo(0);
+    //Backward
+    autoBackward(900, 50, 50, 100);
+    //Turn right 90
+    autoTurnTo(90);
+    intakeBrake();
+    //Forward
+    autoForward(100, 50, 50, 100);
+    //Score
+    pIndex(100, 900);
+    //Backward
+    autoBackward(100, 50, 50, 100);
+    //Turn left 180
+    autoTurnTo(180);
+    //Forward
+    autoForward(1000, 50, 50, 100);
+    //Intake
+    intake(100);
+    //Turn right 135
+    autoTurnTo(135);
+    //Forward
+    autoForward(520, 10, 250, 100);
+
+    autoBackward(50, 10, 10, 80);
+
+    autoForward(50, 10, 10, 80);
 
     intakeBrake();
 
-    //Score 1
-    shoot();
-    //Backward
-    //Turn left 0
-    //Backward
-    //Turn right 90
-    //Forward
     //Score
-    //Backward
-    //Turn left 180
-    //Forward
-    //Intake
-    //Turn right 135
-    //Score
+    pIndex(100, 6000);
+
+    outake(100);
+
+    autoBackward(100, 1, 1, 60);
   }
 
   void blueRigntCorner() {

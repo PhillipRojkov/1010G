@@ -20,6 +20,10 @@ class DriveClass { // Holds all functions used for user control
 
   int indexRotation;
 
+  double st;
+
+  bool i;
+
 public:
   void runTankBase() { // Linear tank drive
     // Left stick
@@ -110,14 +114,14 @@ public:
 
   void cIndex() {
     if (Controller2.ButtonA.pressing()) {
-      indexSense();
       if (!position2) {
         IndexerL.spin(forward, 80, pct);
         IndexerR.spin(forward, 80, pct);
-      } else if (!position2 && !goingTo3) {
-        IndexerL.stop(hold);
-        IndexerR.stop(hold);
-      } else if (!position2 && position3) {
+      } else if (position2 && !goingTo3) {
+          IndexerL.stop(hold);
+          IndexerR.stop(hold);
+        }
+      if (position3 && !position2) {
         IndexerL.spin(reverse, 80, pct);
         IndexerR.spin(reverse, 80, pct);
       }
@@ -130,13 +134,9 @@ public:
       if (position3) {
         goingTo3 = false;
       }
-      if (position3) {
-        IndexerL.stop(hold);
-        IndexerR.stop(hold);
-      }
-      if (position3 && !position2) {
-        IndexerL.spin(reverse, 80, pct);
-        IndexerR.spin(reverse, 80, pct);
+      if (position1 && !position2) {
+        IndexerL.spin(forward, 80, pct);
+        IndexerR.spin(forward, 80, pct);
       }
     }
   }
@@ -146,30 +146,7 @@ public:
     if (Controller2.ButtonR1.pressing()) {
       IntakeL.spin(forward, 100, vex::pct);
       IntakeR.spin(forward, 100, vex::pct);
-
-      /*  if (!position2) {
-          IndexerL.spin(forward, 80, pct);
-          IndexerR.spin(forward, 80, pct);
-        } else if (!position2 && !goingTo3) {
-          IndexerL.stop(hold);
-          IndexerR.stop(hold);
-        }
-        if (position1 && position2 && !position3) {
-          // spin until position3 reached
-          goingTo3 = true;
-          IndexerL.spin(forward, 80, pct);
-          IndexerR.spin(forward, 80, pct);
-        }
-        if (position3) {
-          goingTo3 = false;
-        }
-        if (position3) {
-          IndexerL.stop(hold);
-          IndexerR.stop(hold);
-        }
-  */
-    } else if (Controller2.ButtonR2
-                   .pressing()) { // Simple outtake on bottom right bumper
+    } else if (Controller2.ButtonR2.pressing()) { // Simple outtake on bottom right bumper
       IntakeL.spin(reverse, 100, vex::pct);
       IntakeR.spin(reverse, 100, vex::pct);
     } else {
@@ -181,20 +158,26 @@ public:
   void indexSense() { // Sets index ball position variables
     if (LinePosition1.value(pct) <= linePos1Pct) {
       position1 = true;
+      Brain.Screen.drawCircle(300, 100, 50, orange);
     } else {
       position1 = false;
+      Brain.Screen.drawCircle(300, 100, 50, purple);
     }
 
     if (LinePosition2.value(pct) <= linePos2Pct) {
       position2 = true;
+      Brain.Screen.drawCircle(200, 100, 50, orange);
     } else {
       position2 = false;
+      Brain.Screen.drawCircle(200, 100, 50, purple);
     }
 
     if (LinePosition3.pressing()) {
       position3 = true;
+      Brain.Screen.drawCircle(100, 100, 50, orange);
     } else {
       position3 = false;
+      Brain.Screen.drawCircle(100, 100, 50, purple);
     }
   }
 
@@ -208,6 +191,7 @@ public:
       scoring = true;
       scoreNum = 2;
       indexRotation = IndexerL.position(degrees);
+      i = true;
     } else if (Controller2.ButtonB.pressing() && !scoring) {
       scoring = true;
       scoreNum = 3;
@@ -225,10 +209,20 @@ public:
     }
 
     if (scoreNum == 2) {
-      if (IndexerL.position(degrees) < indexRotation + 600) {
+      if (IndexerL.position(degrees) < indexRotation + 800 && i) {
         IndexerL.spin(forward, 100, pct);
         IndexerR.spin(forward, 100, pct);
+        st = Brain.timer(sec);
       } else {
+        i = false;
+      } 
+      if (IndexerL.position(degrees) < indexRotation + 1400 && !i) {
+        if (Brain.timer(sec) > st + 0.2) {
+          IndexerL.spin(forward, 100, pct);
+          IndexerR.spin(forward, 100, pct);
+        }
+      }
+      if (IndexerL.position(degrees) >= indexRotation + 1400) {
         scoreNum = 0;
         scoring = false;
       }

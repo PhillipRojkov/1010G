@@ -49,6 +49,9 @@ public:
     accelX *= g;
     accelY *= g;
 
+    //avgAccelX is the average acceleration between the last iteration and this one
+    double avgAccelX = (accelX + prevAccelX) / 2;
+    double avgAccelY = (accelY + prevAccelY) / 2;
     
         // Cancel noise
         if (fabs(accelX) < 0.06) {
@@ -98,27 +101,10 @@ public:
       z = viY;
     }
 
-     //Average acceleration from last 2 calculations
-   // accelX = (accelX + prevAccelX) / 2;
     prevAccelX = accelX;
 
-   // accelY = (accelY + prevAccelY) / 2;
     prevAccelY = accelY;
-    /*
-        // Cancel noise on VX & VY
-        if ((fabs(viX) < 0.4 && fabs(globalAccelX) < 0.06 * g) ||
-            (fabs(globalAccelX) < 0.06 * g && absAvgDriveRPM() < 2)) {
-          viX = 0.0;
-        }
-        if ((fabs(viY) < 0.4 && fabs(globalAccelY) < 0.06 * g) ||
-            (fabs(globalAccelY) < 0.06 * g && absAvgDriveRPM() < 2)) {
-          // Brain.Screen.drawCircle(300, 100, 100, red);
-          viY = 0.0;
-        } else {
-          // Brain.Screen.drawCircle(300, 100, 100, green);
-        }
-        */
-  
+
     writeToSD();
   }
 
