@@ -68,10 +68,11 @@ void pre_auton(void) {
 
 void autonomous(void) { 
   // ..........................................................................
-  //pre_auton();
+  pre_auton();
 
   //autoMasters.skillsAuto();
-  autoMasters.redRightCorner();
+  autoMasters.skillsTriplePoke();
+  //autoMasters.redRightCorner();
   // ..........................................................................
 }
 
@@ -92,9 +93,14 @@ void usercontrol(void) {
 
     driveClass.intake();
 
-    driveClass.cIndex();
+    if (Controller2.ButtonA.pressing()) {
+     driveClass.cIndex();
+     driveClass.resetScoreNum();
+    }
 
     driveClass.score();
+
+    driveClass.checkPosition1();
 
     odometry.computeLocation();
     // ........................................................................

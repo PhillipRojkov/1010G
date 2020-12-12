@@ -5,8 +5,6 @@ class Odometry {
 public:
   bool calibrating = true;
 
-  double z = 0;
-
   // Time keeping
   double prevTime = 0; // The Brain.timer(sec) value from the previous
                        // iteration
@@ -54,11 +52,11 @@ public:
     double avgAccelY = (accelY + prevAccelY) / 2;
     
         // Cancel noise
-        if (fabs(accelX) < 0.06) {
-          accelX = 0.0;
+        if (fabs(avgAccelX) < 0.06 * g) {
+          avgAccelX = 0.0;
         }
-        if (fabs(accelY) < 0.06) {
-          accelY = 0.0;
+        if (fabs(avgAccelY) < 0.06 * g) {
+          avgAccelY = 0.0;
         }
       
     // Create global x and y vectors
@@ -75,15 +73,15 @@ public:
      // viX += globalAccelX * deltaT;
      // viY += globalAccelY * deltaT;
 
-      viX += accelX * deltaT;
-      viY += accelY * deltaT;
-
-      if (fabs(accelX) < 0.06 && fabs(prevAccelX) < 0.06) {
+      viX += avgAccelX * deltaT;
+      viY += avgAccelY * deltaT;
+/*
+      if (fabs(avgAccelX) < 0.06 && fabs(prevAccelX) < 0.06) {
           viX = 0.0;
         }
-        if (fabs(accelY) < 0.06 && fabs(prevAccelY) < 0.06) {
+        if (fabs(avgAccelY) < 0.06 && fabs(prevAccelY) < 0.06) {
           viY = 0.0;
-        }
+        }*/
 
 /*
       if (absAvgDriveRPM() < 4) {
@@ -94,11 +92,8 @@ public:
       // Use Kinematics Equation to conver to distance
      // x += viX * deltaT + 0.5 * globalAccelX * pow(deltaT, 2);
      // y += viY * deltaT + 0.5 * globalAccelY * pow(deltaT, 2);
-      x += viX * deltaT;
-      x = IMU.acceleration(zaxis) - sin(IMU.pitch() * (PI / 180));
-     // y += viY * deltaT;
-      y = IMU.acceleration(zaxis);
-      z = viY;
+      x = viX;
+      y = viY;
     }
 
     prevAccelX = accelX;
@@ -129,8 +124,6 @@ public:
       file << x;
       file << ",";
       file << y;
-      file << ",";
-      file << z;
       file << "\n";
       file.close();
     }

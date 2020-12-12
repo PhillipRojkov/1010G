@@ -3,7 +3,7 @@
 using namespace vex;
 
 class AutoMasters { // Holds all master autonomous programs
-// Indexer parameters
+                    // Indexer parameters
   bool position1;
   bool position2;
   bool position3;
@@ -152,7 +152,7 @@ public:
       // Run the drive
       drive(1, accelerate);
 
-cIndex();
+      cIndex();
 
       wait(loopTime, msec);
     }
@@ -162,7 +162,7 @@ cIndex();
       // Run the drive
       drive(1, speed);
 
-cIndex();
+      cIndex();
 
       wait(loopTime, msec);
     }
@@ -179,7 +179,7 @@ cIndex();
       // Run the drive
       drive(1, deccelerate);
 
-cIndex();
+      cIndex();
 
       wait(loopTime, msec);
     }
@@ -188,7 +188,7 @@ cIndex();
     brakeDrive();
   }
 
-void
+  void
   dumbForward(double degrees, double iDeg, double fDeg,
               double speed) { // Forward auto function. degrees > iDeg + fDeg
     resetDriveEncoders();
@@ -256,7 +256,7 @@ void
       // Run the drive
       drive(-1, accelerate);
 
-cIndex();
+      cIndex();
 
       wait(loopTime, msec);
     }
@@ -266,7 +266,7 @@ cIndex();
       // Run the drive
       drive(-1, speed);
 
-cIndex();
+      cIndex();
 
       wait(loopTime, msec);
     }
@@ -283,7 +283,7 @@ cIndex();
       // Run the drive
       drive(-1, deccelerate);
 
-cIndex();
+      cIndex();
 
       wait(loopTime, msec);
     }
@@ -316,7 +316,7 @@ cIndex();
                    error * turnkP + totalError * turnkI + derivative * turnkD,
                    vex::pct);
 
-cIndex();
+      cIndex();
 
       wait(loopTime, msec);
 
@@ -349,7 +349,7 @@ cIndex();
       }
       strafe(-1, accelerate);
 
-cIndex();
+      cIndex();
 
       wait(loopTime, msec);
     }
@@ -357,7 +357,7 @@ cIndex();
                                                     // speed
       strafe(-1, speed);
 
-cIndex();
+      cIndex();
 
       wait(loopTime, msec);
     }
@@ -372,7 +372,7 @@ cIndex();
       }
       strafe(-1, deccelerate);
 
-cIndex();
+      cIndex();
 
       wait(loopTime, msec);
     }
@@ -400,7 +400,7 @@ cIndex();
       }
       strafe(1, accelerate);
 
-cIndex();
+      cIndex();
 
       wait(loopTime, msec);
     }
@@ -408,7 +408,7 @@ cIndex();
                                                     // speed
       strafe(1, speed);
 
-cIndex();
+      cIndex();
 
       wait(loopTime, msec);
     }
@@ -450,93 +450,81 @@ cIndex();
   }
 
   void index(double speed) {
-    IndexerL.spin(forward, speed, vex::pct);
-    IndexerR.spin(forward, speed, vex::pct);
+    IndexerTop.spin(forward, speed, vex::pct);
+    IndexerLow.spin(forward, speed, vex::pct);
   }
 
   void pIndex(double speed, double degrees) {
-    IndexerL.resetPosition();
-    IndexerR.resetPosition();
+    IndexerTop.resetPosition();
+    IndexerLow.resetPosition();
 
-    while (fabs(IndexerR.position(vex::degrees)) < degrees) {
-      IndexerL.spin(forward, speed, pct);
-      IndexerR.spin(forward, speed, pct);
+    while (fabs(IndexerLow.position(vex::degrees)) < degrees) {
+      IndexerTop.spin(forward, speed, pct);
+      IndexerLow.spin(forward, speed, pct);
 
       wait(loopTime, msec);
     }
   }
 
   void outdex(double speed) {
-    IndexerL.spin(reverse, speed, vex::pct);
-    IndexerR.spin(reverse, speed, vex::pct);
+    IndexerTop.spin(reverse, speed, vex::pct);
+    IndexerLow.spin(reverse, speed, vex::pct);
   }
 
   void pOutdex(double speed, double degrees) {
-    IndexerL.resetPosition();
-    IndexerR.resetPosition();
+    IndexerTop.resetPosition();
+    IndexerLow.resetPosition();
 
-    while (fabs(IndexerR.position(vex::degrees)) < degrees) {
-      IndexerL.spin(reverse, speed, pct);
-      IndexerR.spin(reverse, speed, pct);
+    while (fabs(IndexerLow.position(vex::degrees)) < degrees) {
+      IndexerTop.spin(reverse, speed, pct);
+      IndexerLow.spin(reverse, speed, pct);
 
       wait(loopTime, msec);
     }
   }
 
   void indexerBrake() {
-    IndexerL.stop(hold);
-    IndexerR.stop(hold);
+    IndexerTop.stop(hold);
+    IndexerLow.stop(hold);
   }
 
-  void cIndex() {
-    indexSense();
-      if (!position2) {
-        IndexerL.spin(forward, 80, pct);
-        IndexerR.spin(forward, 80, pct);
-      } else if (position2 && !goingTo3) {
-          IndexerL.stop(hold);
-          IndexerR.stop(hold);
-        }
+  void cIndex() {  
+      if (!position3) {
+        IndexerTop.spin(forward, 80, pct);
+        IndexerLow.spin(forward, 80, pct);
+      }
       if (position3 && !position2) {
-        IndexerL.spin(reverse, 80, pct);
-        IndexerR.spin(reverse, 80, pct);
-      }
-      if (position1 && position2 && !position3) {
-        // spin until position3 reached
-        goingTo3 = true;
-        IndexerL.spin(forward, 80, pct);
-        IndexerR.spin(forward, 80, pct);
-      }
-      if (position3) {
-        goingTo3 = false;
-      }
-      if (position1 && !position2) {
-        IndexerL.spin(forward, 80, pct);
-        IndexerR.spin(forward, 80, pct);
+        IndexerLow.spin(forward, 80, pct);
       }
   }
 
   void indexSense() { // Sets index ball position variables
     if (LinePosition1.value(pct) <= linePos1Pct) {
       position1 = true;
+      Brain.Screen.drawCircle(300, 100, 50, green);
     } else {
       position1 = false;
+      Brain.Screen.drawCircle(300, 100, 50, black);
     }
 
     if (LinePosition2.value(pct) <= linePos2Pct) {
       position2 = true;
+      Brain.Screen.drawCircle(200, 100, 50, green);
     } else {
       position2 = false;
+      Brain.Screen.drawCircle(200, 100, 50, black);
     }
 
     if (LinePosition3.pressing()) {
       position3 = true;
+      Brain.Screen.drawCircle(100, 100, 50, green);
     } else {
       position3 = false;
+      Brain.Screen.drawCircle(100, 100, 50, black);
     }
   }
 
-  void shoot () {
+  void shoot() {
     while (position3 && position2) {
       index(100);
       indexSense();
@@ -653,54 +641,88 @@ public:
     autoBackward(680, 180, 180, 100);
   }
 
-  void redRightCorner() {
-    //Intake
+  void skillsTriplePoke() { // Start red, right corner goal like match auto
+    // Intake
     indexerBrake();
     intake(100);
     wait(800, msec);
-    //Forward - grab ball
+    // Forward - grab ball
     dumbForward(310, 100, 100, 60);
-/*
-    while (!position2 && !position3) {
-      cIndex();
-      wait(10, msec);
-    }*/
-    
+
     intakeBrake();
-    
-    //Turn right 45
+
+    // Turn right 45
     autoTurnTo(25);
 
-    //autoForward(60, 1, 1, 80);
+    // autoForward(60, 1, 1, 80);
 
-    //Score 1
+    // Score 1
     pIndex(100, 700);
-    //pOutdex(100, 200);
-    //Backward
+    // pOutdex(100, 200);
+    // Backward
+    autoBackward(500, 50, 200, 100);
+    // Turn left 0
+    autoTurnTo(0);
+    // Backward
+    autoBackward(870, 50, 50, 100);
+    // Turn right 90
+    autoTurnTo(-90);
+
+    autoForward(1170, 50, 200, 80);
+    autoBackward(300, 10, 10, 60);
+    autoForward(300, 10, 10, 60);
+    autoBackward(300, 10, 10, 60);
+    autoForward(300, 10, 10, 60);
+  }
+
+  void redRightCorner() {
+    // Intake
+    indexerBrake();
+    intake(100);
+    wait(800, msec);
+    // Forward - grab ball
+    dumbForward(310, 100, 100, 60);
+    /*
+        while (!position2 && !position3) {
+          cIndex();
+          wait(10, msec);
+        }*/
+
+    intakeBrake();
+
+    // Turn right 45
+    autoTurnTo(25);
+
+    // autoForward(60, 1, 1, 80);
+
+    // Score 1
+    pIndex(100, 700);
+    // pOutdex(100, 200);
+    // Backward
     autoBackward(500, 50, 50, 100);
     intake(100);
-    //Turn left 0
+    // Turn left 0
     autoTurnTo(0);
-    //Backward
+    // Backward
     autoBackward(900, 50, 50, 100);
-    //Turn right 90
+    // Turn right 90
     autoTurnTo(90);
     intakeBrake();
-    //Forward
+    // Forward
     autoForward(100, 50, 50, 100);
-    //Score
+    // Score
     pIndex(100, 900);
-    //Backward
+    // Backward
     autoBackward(100, 50, 50, 100);
-    //Turn left 180
+    // Turn left 180
     autoTurnTo(180);
-    //Forward
+    // Forward
     autoForward(1000, 50, 50, 100);
-    //Intake
+    // Intake
     intake(100);
-    //Turn right 135
+    // Turn right 135
     autoTurnTo(135);
-    //Forward
+    // Forward
     autoForward(520, 10, 250, 100);
 
     autoBackward(50, 10, 10, 80);
@@ -709,7 +731,7 @@ public:
 
     intakeBrake();
 
-    //Score
+    // Score
     pIndex(100, 6000);
 
     outake(100);
@@ -717,7 +739,5 @@ public:
     autoBackward(100, 1, 1, 60);
   }
 
-  void blueRigntCorner() {
-
-  }
+  void blueRigntCorner() {}
 };

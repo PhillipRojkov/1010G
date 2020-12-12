@@ -26,8 +26,8 @@ motor DriveBR = motor(PORT9, ratio18_1, true);   // Back right drive - Reversed
 motor IntakeL = motor(PORT12, ratio18_1, false); // Left intake
 motor IntakeR = motor(PORT2, ratio18_1, true);   // Right intake - Reversed
 // Indexer motors
-motor IndexerL = motor(PORT11, ratio6_1, true); // Left indexer - Reversed
-motor IndexerR = motor(PORT1, ratio6_1, false); // Right indexer
+motor IndexerTop = motor(PORT11, ratio6_1, true); // Left indexer - Reversed
+motor IndexerLow = motor(PORT1, ratio6_1, true); // Right indexer - Reversed
 
 // VEXcode generated functions
 

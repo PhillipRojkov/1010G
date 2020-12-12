@@ -13,16 +13,13 @@ class DriveClass { // Holds all functions used for user control
   bool position3;
   int linePos1Pct = 71;
   int linePos2Pct = 69;
-  bool goingTo3 = false;
 
   int scoreNum = 0;
-  bool scoring = false;
 
   int indexRotation;
 
-  double st;
-
-  bool i;
+  double timeToIndex = 1.2;
+  double t = 0;
 
 public:
   void runTankBase() { // Linear tank drive
@@ -100,45 +97,26 @@ public:
   void index() {
     // Simple indexer up on top left bumper
     if (Controller2.ButtonL1.pressing()) {
-      IndexerL.spin(forward, 127, vex::pct);
-      IndexerR.spin(forward, 127, vex::pct);
+      IndexerTop.spin(forward, 127, vex::pct);
+      IndexerLow.spin(forward, 127, vex::pct);
     } else if (Controller2.ButtonL2
                    .pressing()) { // Simple indexer down on bottom left bumper
-      IndexerL.spin(reverse, 127, vex::pct);
-      IndexerR.spin(reverse, 127, vex::pct);
+      IndexerTop.spin(reverse, 127, vex::pct);
+      IndexerLow.spin(reverse, 127, vex::pct);
     } else {
-      IndexerL.stop(vex::hold);
-      IndexerR.stop(vex::hold);
+      IndexerTop.stop(vex::hold);
+      IndexerLow.stop(vex::hold);
     }
   }
 
-  void cIndex() {
-    if (Controller2.ButtonA.pressing()) {
-      if (!position2) {
-        IndexerL.spin(forward, 80, pct);
-        IndexerR.spin(forward, 80, pct);
-      } else if (position2 && !goingTo3) {
-          IndexerL.stop(hold);
-          IndexerR.stop(hold);
-        }
+  void cIndex() {  
+      if (!position3) {
+        IndexerTop.spin(forward, 80, pct);
+        IndexerLow.spin(forward, 80, pct);
+      }
       if (position3 && !position2) {
-        IndexerL.spin(reverse, 80, pct);
-        IndexerR.spin(reverse, 80, pct);
+        IndexerLow.spin(forward, 80, pct);
       }
-      if (position1 && position2 && !position3) {
-        // spin until position3 reached
-        goingTo3 = true;
-        IndexerL.spin(forward, 80, pct);
-        IndexerR.spin(forward, 80, pct);
-      }
-      if (position3) {
-        goingTo3 = false;
-      }
-      if (position1 && !position2) {
-        IndexerL.spin(forward, 80, pct);
-        IndexerR.spin(forward, 80, pct);
-      }
-    }
   }
 
   void intake() {
@@ -158,84 +136,81 @@ public:
   void indexSense() { // Sets index ball position variables
     if (LinePosition1.value(pct) <= linePos1Pct) {
       position1 = true;
-      Brain.Screen.drawCircle(300, 100, 50, orange);
+      Brain.Screen.drawCircle(300, 100, 50, green);
     } else {
       position1 = false;
-      Brain.Screen.drawCircle(300, 100, 50, purple);
+      Brain.Screen.drawCircle(300, 100, 50, black);
     }
 
     if (LinePosition2.value(pct) <= linePos2Pct) {
       position2 = true;
-      Brain.Screen.drawCircle(200, 100, 50, orange);
+      Brain.Screen.drawCircle(200, 100, 50, green);
     } else {
       position2 = false;
-      Brain.Screen.drawCircle(200, 100, 50, purple);
+      Brain.Screen.drawCircle(200, 100, 50, black);
     }
 
     if (LinePosition3.pressing()) {
       position3 = true;
-      Brain.Screen.drawCircle(100, 100, 50, orange);
+      Brain.Screen.drawCircle(100, 100, 50, green);
     } else {
       position3 = false;
-      Brain.Screen.drawCircle(100, 100, 50, purple);
+      Brain.Screen.drawCircle(100, 100, 50, black);
     }
   }
 
   void score() {
     //Score 1
-    if (Controller2.ButtonX.pressing() && !scoring) {
+    if (Controller2.ButtonX.pressing() && scoreNum == 0) {
       scoreNum = 1;
-      scoring = true;
-      indexRotation = IndexerL.position(degrees);
-    } else if (Controller2.ButtonY.pressing() && !scoring) {
-      scoring = true;
+      indexRotation = IndexerTop.position(degrees);
+    } else if (Controller2.ButtonY.pressing() && scoreNum == 0) {
       scoreNum = 2;
-      indexRotation = IndexerL.position(degrees);
-      i = true;
-    } else if (Controller2.ButtonB.pressing() && !scoring) {
-      scoring = true;
+      indexRotation = IndexerTop.position(degrees);
+    }/* else if (Controller2.ButtonB.pressing() && scoreNum == 0) {
       scoreNum = 3;
-      indexRotation = IndexerL.position(degrees);
-    }
+      indexRotation = IndexerTop.position(degrees);
+    }*/
 
     if (scoreNum == 1) {
-      if (IndexerL.position(degrees) < indexRotation + 600) {
-        IndexerL.spin(forward, 100, pct);
-        IndexerR.spin(forward, 100, pct);
+      if (IndexerTop.position(degrees) < indexRotation + 600) {
+        IndexerTop.spin(forward, 100, pct);
       } else {
-        scoreNum = 0;
-        scoring = false;
+        scoreNum--;
       }
     }
 
     if (scoreNum == 2) {
-      if (IndexerL.position(degrees) < indexRotation + 800 && i) {
-        IndexerL.spin(forward, 100, pct);
-        IndexerR.spin(forward, 100, pct);
-        st = Brain.timer(sec);
-      } else {
-        i = false;
-      } 
-      if (IndexerL.position(degrees) < indexRotation + 1400 && !i) {
-        if (Brain.timer(sec) > st + 0.2) {
-          IndexerL.spin(forward, 100, pct);
-          IndexerR.spin(forward, 100, pct);
-        }
-      }
-      if (IndexerL.position(degrees) >= indexRotation + 1400) {
-        scoreNum = 0;
-        scoring = false;
+     //Run single shot
+     if (IndexerTop.position(degrees) < indexRotation + 600) {
+        IndexerTop.spin(forward, 100, pct);
+      } else if (!position3){
+        //cIndex until position3
+        cIndex();
+      } else if (position3) {
+        //Reset indexRotation
+        indexRotation = IndexerTop.position(degrees);
+        //Run single shot again
+        scoreNum--;
       }
     }
 
     if (scoreNum == 3) {
-      if (IndexerL.position(degrees) < indexRotation + 900) {
-        IndexerL.spin(forward, 100, pct);
-        IndexerR.spin(forward, 100, pct);
-      } else {
-        scoreNum = 0;
-        scoring = false;
-      }
+      
+    }
+  }
+
+  void resetScoreNum() {
+    scoreNum = 0;
+  }
+
+  void checkPosition1() {
+    if (position1) {
+      //cIndex for 3 seconds
+      t = Brain.timer(seconds) + timeToIndex;
+    }
+    if (Brain.timer(seconds) < t) {
+      cIndex();
     }
   }
 };

@@ -20,8 +20,8 @@ extern motor DriveBR;
 extern motor IntakeL;
 extern motor IntakeR;
 // Indexers
-extern motor IndexerL;
-extern motor IndexerR;
+extern motor IndexerTop;
+extern motor IndexerLow;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.
