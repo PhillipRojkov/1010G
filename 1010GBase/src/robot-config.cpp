@@ -13,9 +13,11 @@ controller Controller1 = controller(primary);
 controller Controller2 = controller(partner);
 // Sensors
 inertial IMU = inertial(PORT16);
-line LinePosition1 = line(Brain.ThreeWirePort.A);
-line LinePosition2 = line(Brain.ThreeWirePort.B);
+limit LinePosition1 = limit(Brain.ThreeWirePort.A);
+limit LinePosition2 = limit(Brain.ThreeWirePort.B);
+limit LinePosition2R = limit(Brain.ThreeWirePort.D);
 limit LinePosition3 = limit(Brain.ThreeWirePort.C);
+distance DistanceSensor = distance(PORT13);
 //vision VisionSensor = vision(PORT2, 50);
 // Drive motors
 motor DriveFL = motor(PORT20, ratio18_1, false); // Front left drive

@@ -69,23 +69,26 @@ void pre_auton(void) {
 void autonomous(void) { 
   // ..........................................................................
   pre_auton();
+  
+  autoMasters.skillsNew();
 
   //autoMasters.skillsAuto();
-  autoMasters.skillsTriplePoke();
+  //autoMasters.skillsTriplePoke();
   //autoMasters.redRightCorner();
   // ..........................................................................
 }
 
 void usercontrol(void) {
+  bool indexWait = true;
+  double timeToIndex = 2;
+  double t = 0;
+
   // User control code here, inside the loop
   while (1) {
     // ........................................................................
-    driveClass.runTankBase();
-  /*  DriveFL.spin(forward, Controller1.Axis2.value(), pct);
-    DriveFR.spin(forward, Controller1.Axis2.value(), pct);
-    DriveBL.spin(forward, Controller1.Axis2.value(), pct);
-    DriveBR.spin(forward, Controller1.Axis2.value(), pct);*/
+    driveClass.enableIndex = false;
 
+    driveClass.runTankBase();
 
     driveClass.indexSense();
 
@@ -94,8 +97,8 @@ void usercontrol(void) {
     driveClass.intake();
 
     if (Controller2.ButtonA.pressing()) {
-     driveClass.cIndex();
      driveClass.resetScoreNum();
+     driveClass.enableIndex = true;
     }
 
     driveClass.score();
@@ -103,6 +106,24 @@ void usercontrol(void) {
     driveClass.checkPosition1();
 
     odometry.computeLocation();
+
+    if (driveClass.enableIndex) {
+      indexWait = false;
+    }
+
+    //If enableIndex is false for less than three seconds in a row
+    //set enableIndex = true
+    //Start counting up
+    if (!driveClass.enableIndex && t <= Brain.timer(sec) && !indexWait) {
+      t = timeToIndex + Brain.timer(sec);
+      indexWait = true;
+    } else if (t > Brain.timer(sec)){
+      driveClass.enableIndex = true;
+    }
+
+    driveClass.intake();
+
+    driveClass.cIndex();
     // ........................................................................
     wait(10, msec); // Sleep the task for a short amount of time to prevent
                     // wasted resources.

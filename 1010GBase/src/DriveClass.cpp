@@ -11,8 +11,6 @@ class DriveClass { // Holds all functions used for user control
   bool position1;
   bool position2;
   bool position3;
-  int linePos1Pct = 71;
-  int linePos2Pct = 69;
 
   int scoreNum = 0;
 
@@ -22,6 +20,8 @@ class DriveClass { // Holds all functions used for user control
   double t = 0;
 
 public:
+  bool enableIndex = false;
+
   void runTankBase() { // Linear tank drive
     // Left stick
     if (abs(Controller1.Axis3.value()) > controllerDeadZone) {
@@ -99,10 +99,12 @@ public:
     if (Controller2.ButtonL1.pressing()) {
       IndexerTop.spin(forward, 127, vex::pct);
       IndexerLow.spin(forward, 127, vex::pct);
+      enableIndex = false;
     } else if (Controller2.ButtonL2
                    .pressing()) { // Simple indexer down on bottom left bumper
       IndexerTop.spin(reverse, 127, vex::pct);
       IndexerLow.spin(reverse, 127, vex::pct);
+      enableIndex = false;
     } else {
       IndexerTop.stop(vex::hold);
       IndexerLow.stop(vex::hold);
@@ -110,6 +112,7 @@ public:
   }
 
   void cIndex() {  
+    if (enableIndex) {
       if (!position3) {
         IndexerTop.spin(forward, 80, pct);
         IndexerLow.spin(forward, 80, pct);
@@ -117,6 +120,7 @@ public:
       if (position3 && !position2) {
         IndexerLow.spin(forward, 80, pct);
       }
+    }
   }
 
   void intake() {
@@ -124,9 +128,11 @@ public:
     if (Controller2.ButtonR1.pressing()) {
       IntakeL.spin(forward, 100, vex::pct);
       IntakeR.spin(forward, 100, vex::pct);
+      enableIndex = true;
     } else if (Controller2.ButtonR2.pressing()) { // Simple outtake on bottom right bumper
       IntakeL.spin(reverse, 100, vex::pct);
       IntakeR.spin(reverse, 100, vex::pct);
+      enableIndex = false;
     } else {
       IntakeL.stop(vex::hold);
       IntakeR.stop(vex::hold);
@@ -134,7 +140,7 @@ public:
   }
 
   void indexSense() { // Sets index ball position variables
-    if (LinePosition1.value(pct) <= linePos1Pct) {
+    if (LinePosition1.pressing()) {
       position1 = true;
       Brain.Screen.drawCircle(300, 100, 50, green);
     } else {
@@ -142,7 +148,7 @@ public:
       Brain.Screen.drawCircle(300, 100, 50, black);
     }
 
-    if (LinePosition2.value(pct) <= linePos2Pct) {
+    if (LinePosition2.pressing() || LinePosition2R.pressing()) {
       position2 = true;
       Brain.Screen.drawCircle(200, 100, 50, green);
     } else {
@@ -167,15 +173,13 @@ public:
     } else if (Controller2.ButtonY.pressing() && scoreNum == 0) {
       scoreNum = 2;
       indexRotation = IndexerTop.position(degrees);
-    }/* else if (Controller2.ButtonB.pressing() && scoreNum == 0) {
-      scoreNum = 3;
-      indexRotation = IndexerTop.position(degrees);
-    }*/
+    }
 
     if (scoreNum == 1) {
       if (IndexerTop.position(degrees) < indexRotation + 600) {
         IndexerTop.spin(forward, 100, pct);
       } else {
+        enableIndex = true;
         scoreNum--;
       }
     }
@@ -186,6 +190,7 @@ public:
         IndexerTop.spin(forward, 100, pct);
       } else if (!position3){
         //cIndex until position3
+        enableIndex = true;
         cIndex();
       } else if (position3) {
         //Reset indexRotation
@@ -193,10 +198,6 @@ public:
         //Run single shot again
         scoreNum--;
       }
-    }
-
-    if (scoreNum == 3) {
-      
     }
   }
 
@@ -210,7 +211,7 @@ public:
       t = Brain.timer(seconds) + timeToIndex;
     }
     if (Brain.timer(seconds) < t) {
-      cIndex();
+      enableIndex = true;
     }
   }
 };

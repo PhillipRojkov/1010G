@@ -7,9 +7,6 @@ class AutoMasters { // Holds all master autonomous programs
   bool position1;
   bool position2;
   bool position3;
-  int linePos1Pct = 71;
-  int linePos2Pct = 69;
-  bool goingTo3 = false;
 
   double h = 0; // Heading in degrees. Rotation clockwise is positive, does not
                 // reset at 360
@@ -27,20 +24,29 @@ class AutoMasters { // Holds all master autonomous programs
   double turnRange = 0.7; // Range (+-degrees) in which the turn needs to be in
                           // order to stop method
 
+  //Wall Aligment
+  double alignMargin = 200; //msec for which robot needs to be aligned 
+  double alignRange = 10; //mm within which robot aligns
+
   // PID constants
   // Drive
-  double drivekP = 0; // 0.8
-  double drivekD = 0; // 0.5
-  double drivekI = 0; // 0.002
+  double drivekP = 1.6; // 1.6
+  double drivekD = 14; // 14
+  double drivekI = 0.08; // 0.08
 
   // Turn
   double turnkP = 1.4;
   double turnkD = 2.2;
   double turnkI = 0.00002;
 
+  // Align
+  double alignkP = 0.5;
+  double alignkD = 16; //3
+  double alignkI = 0; //0.0024
+
   // Strafe
   double strafekP = 5;
-  double strafekD = loopTime;
+  double strafekD = 10;
   double strafekI = 0.001;
 
   // Variables used for calculating PID
@@ -54,6 +60,13 @@ class AutoMasters { // Holds all master autonomous programs
     DriveBR.resetPosition();
     DriveFL.resetPosition();
     DriveFR.resetPosition();
+  }
+
+  void resetPID() {
+    error = 0;
+    prevError = 0;
+    derivative = 0;
+    totalError = 0;
   }
 
   double avgDriveEncoder() { // Returns average of all driver encoder positions
@@ -184,6 +197,8 @@ public:
       wait(loopTime, msec);
     }
 
+    resetPID();
+
     // Stop the drive
     brakeDrive();
   }
@@ -232,6 +247,8 @@ public:
 
       wait(loopTime, msec);
     }
+
+    resetPID();
 
     // Stop the drive
     brakeDrive();
@@ -288,8 +305,84 @@ public:
       wait(loopTime, msec);
     }
 
+    resetPID();
+
     // Stop the drive
     brakeDrive();
+  }
+
+  void autoBackAlign(double d,
+                     double speed) { // Backward auto alignment function
+    resetDriveEncoders();
+    
+/*    int t = 0;                      // Time variable
+
+    h = IMU.rotation();
+
+    while (t < alignMargin) {
+      // PID
+      // Used to make robot go straight and stop when at the right distance from
+      // wall
+      //error = (IMU.rotation() - h) + ((DistanceSensor.objectDistance(mm) - 400) - d);
+      error = DistanceSensor.objectDistance(mm) - d;
+      derivative = error - prevError;
+      totalError += error;
+      prevError = error;
+
+      DriveBL.spin(forward,
+                   -speed - error * alignkP - totalError * alignkI -
+                       derivative * alignkD,
+                   vex::pct);
+      DriveBR.spin(forward,
+                   -speed - error * alignkP - totalError * alignkI -
+                       derivative * alignkD,
+                   vex::pct);
+      DriveFL.spin(forward,
+                   -speed - error * alignkP - totalError * alignkI -
+                       derivative * alignkD,
+                   vex::pct);
+      DriveFR.spin(forward,
+                   -speed - error * alignkP - totalError * alignkI -
+                       derivative * alignkD,
+                   vex::pct);
+
+      cIndex();
+
+      if (fabs(error) < alignRange) {
+        t += loopTime;
+      } else {
+        t = 0;
+      }
+
+      wait(loopTime, msec);
+    }
+*/
+
+    while (d < DistanceSensor.objectDistance(mm) - 200 ) {
+      //Drive backwards
+      drive(-1, speed);
+
+      wait(loopTime, msec);
+    }
+    while (d < DistanceSensor.objectDistance(mm) - 200) {
+      //Drive backwards but slowly
+
+       double deccelerate = speed * (DistanceSensor.objectDistance(mm) - d);
+
+      if (deccelerate < initialSpeed) { // Make sure that the motors never move
+                                        // slower than initalSpeed
+        deccelerate = initialSpeed;
+      }
+
+      // Run the drive
+      drive(-1, deccelerate);
+
+      wait(loopTime, msec);
+    }
+
+    resetPID();
+
+    autoTurnTo(h);
   }
 
   void autoTurnTo(double degrees) { //+degrees turns right, -degrees turns left
@@ -327,6 +420,8 @@ public:
         t = 0;
       }
     }
+
+    resetPID();
 
     // stop the drive
     brakeDrive();
@@ -376,6 +471,8 @@ public:
 
       wait(loopTime, msec);
     }
+
+    resetPID();
 
     autoTurnTo(h);
 
@@ -427,6 +524,8 @@ public:
 
       wait(loopTime, msec);
     }
+
+    resetPID();
 
     autoTurnTo(h);
 
@@ -488,18 +587,20 @@ public:
     IndexerLow.stop(hold);
   }
 
-  void cIndex() {  
-      if (!position3) {
-        IndexerTop.spin(forward, 80, pct);
-        IndexerLow.spin(forward, 80, pct);
-      }
-      if (position3 && !position2) {
-        IndexerLow.spin(forward, 80, pct);
-      }
+  void cIndex() {
+    indexerBrake();
+    indexSense();
+    if (!position3) {
+      IndexerTop.spin(forward, 80, pct);
+      IndexerLow.spin(forward, 80, pct);
+    }
+    if (position3 && !position2) {
+      IndexerLow.spin(forward, 80, pct);
+    }
   }
 
   void indexSense() { // Sets index ball position variables
-    if (LinePosition1.value(pct) <= linePos1Pct) {
+    if (LinePosition1.pressing()) {
       position1 = true;
       Brain.Screen.drawCircle(300, 100, 50, green);
     } else {
@@ -507,7 +608,7 @@ public:
       Brain.Screen.drawCircle(300, 100, 50, black);
     }
 
-    if (LinePosition2.value(pct) <= linePos2Pct) {
+    if (LinePosition2.pressing() || LinePosition2R.pressing()) {
       position2 = true;
       Brain.Screen.drawCircle(200, 100, 50, green);
     } else {
@@ -525,9 +626,9 @@ public:
   }
 
   void shoot() {
-    while (position3 && position2) {
-      index(100);
-      indexSense();
+    double rotTo = IndexerTop.position(deg) + 1000;
+    while (IndexerTop.position(deg) < rotTo) {
+      IndexerTop.spin(forward, 100, vex::pct);
       wait(10, msec);
     }
     indexerBrake();
@@ -542,11 +643,17 @@ public:
 
     autoTurnTo(0);
 
+    autoTurnTo(90);
+
+    autoTurnTo(0);
+
     autoStrafeLeft(720, 180, 180, 100);
 
     autoStrafeRight(720, 180, 180, 100);
 
-    autoBackward(720, 180, 180, 100);
+    autoBackward(720, 180, 360, 100);
+
+    autoTurnTo(0);
 
     intake(100);
     wait(1000, msec);
@@ -639,6 +746,101 @@ public:
     indexerBrake();
 
     autoBackward(680, 180, 180, 100);
+  }
+
+  void skillsNew() { //Start left corner against wall
+/*
+     //Flipout
+    indexerBrake();
+    intake(100);
+    wait(800, msec);
+    dumbForward(310, 100, 100, 50);
+
+    //Goal 1
+    autoForward(320, 100, 100, 80);
+    autoTurnTo(-135);
+    intakeBrake();
+    autoForward(770, 100, 100, 80);
+    shoot();
+
+    //Goal 2
+    autoBackward(250, 100, 150, 80);
+    autoTurnTo(-90);
+    autoBackward(1310, 100, 100, 80);
+    autoTurnTo(-180);
+    autoForward(150, 40, 40, 80);
+    shoot();
+
+    //Goal 3
+    autoBackward(80, 40, 40, 80);
+    autoTurnTo(-270);
+    intake(100);
+    autoForward(1100, 100, 100, 80);
+    autoTurnTo(-230);
+    intakeBrake();
+    autoForward(500, 40, 40, 80);
+    shoot();
+
+    //Goal 4
+    autoBackward(1150, 250, 250, 80);
+    autoTurnTo(-270);
+    intake(100);
+    autoForward(980, 150, 150, 60);
+    autoBackward(150, 70, 70, 80);
+    autoTurnTo(-360);
+    autoForward(900, 200, 500, 80);
+    autoTurnTo(-270);
+    intakeBrake();
+    autoForward(180, 80, 100, 70);
+    shoot();
+
+    //Goal 5
+    autoBackward(500, 200, 250, 70);
+    autoTurnTo(-360);
+    intake(100);
+    autoForward(1300, 100, 500, 80);
+    autoBackward(140, 70, 70, 70);
+    autoTurnTo(-315);
+    intakeBrake();
+    autoForward(850, 100, 100, 70);
+    shoot();
+    
+    //Goal 6
+    autoBackward(500, 100, 100, 80);
+    autoTurnTo(-450);
+    autoForward(1170, 100, 100, 80);
+    autoTurnTo(-360);
+    autoForward(300, 50, 100, 70);
+    shoot();
+*/
+    //Middle
+    autoBackward(130, 50, 100, 80);
+    autoTurnTo(-180);
+    intake(100);
+    autoForward(700, 100, 100, 60);
+    //Poke align
+    autoStrafeLeft(200, 80, 80, 50);
+    intakeBrake();
+    //Poke
+    outake(100);
+    autoForward(200, 100, 100, 60);
+    intakeBrake();
+    autoBackward(200, 100, 100, 80);
+    //Realign
+    autoStrafeRight(200, 80, 80, 50);
+    intake(100);
+    //Hug
+    autoForward(250, 50, 50, 60);
+    wait(300, msec);
+    shoot();
+    wait(300, msec);
+    outake(100);
+    autoBackward(300, 100, 100, 80);
+   /* //Repoke
+    autoStrafeLeft(200, 80, 80, 50);
+    intakeBrake();
+    autoForward(300, 100, 100, 60);
+    autoBackward(300, 100, 100, 60);*/
   }
 
   void skillsTriplePoke() { // Start red, right corner goal like match auto

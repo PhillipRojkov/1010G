@@ -8,9 +8,11 @@ extern controller Controller1;
 extern controller Controller2;
 // Sensors
 extern inertial IMU;
-extern line LinePosition1;
-extern line LinePosition2;
+extern limit LinePosition1;
+extern limit LinePosition2;
+extern limit LinePosition2R;
 extern limit LinePosition3;
+extern distance DistanceSensor;
 // Drive
 extern motor DriveFL;
 extern motor DriveFR;
