@@ -7,6 +7,12 @@ class DriveClass { // Holds all functions used for user control
   int controllerDeadZone = 10;   // Stick dead zone (stick values from 0 - 100)
   double strafeMultiplier = 0.6; // Strafe slowdown multiplier
 
+  //pot parameters
+  int leftPotMax = 220; //pot values range from 0 to leftPotMax
+  //When the pot value is greater than leftPotMax, intakeL is out
+  int rightPotMin = 190; //pot values range from 360 to rightPotMin
+  //When the pot value is less than rightPotMax, intakeR is out
+
   // Indexer parameters
   bool position1;
   bool position2;
@@ -129,13 +135,22 @@ public:
       IntakeL.spin(forward, 100, vex::pct);
       IntakeR.spin(forward, 100, vex::pct);
       enableIndex = true;
-    } else if (Controller2.ButtonR2.pressing()) { // Simple outtake on bottom right bumper
-      IntakeL.spin(reverse, 100, vex::pct);
-      IntakeR.spin(reverse, 100, vex::pct);
+    } else if (Controller2.ButtonR2.pressing()) { // Simple outtake/open on bottom right bumper
+      if (potL.angle(deg) < leftPotMax) { //If the leftPot value < leftPotMax, outtake leftIntake
+        IntakeL.spin(reverse, 100, vex::pct);
+      } else { //Stop the intake once leftPotValue >= leftPotMax
+        IntakeL.stop(hold);
+      }
+
+      if (potR.angle(deg) > rightPotMin) { //If the leftPot value < leftPotMax, outtake leftIntake
+        IntakeR.spin(reverse, 100, vex::pct);
+      } else { //Stop the intake once leftPotValue >= leftPotMax
+        IntakeR.stop(hold);
+      }
       enableIndex = false;
     } else {
-      IntakeL.stop(vex::hold);
-      IntakeR.stop(vex::hold);
+      IntakeL.stop(hold);
+      IntakeR.stop(hold);
     }
   }
 
@@ -148,7 +163,7 @@ public:
       Brain.Screen.drawCircle(300, 100, 50, black);
     }
 
-    if (LinePosition2.pressing() || LinePosition2R.pressing()) {
+    if (LinePosition2.pressing()) {
       position2 = true;
       Brain.Screen.drawCircle(200, 100, 50, green);
     } else {

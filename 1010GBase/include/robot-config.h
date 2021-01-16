@@ -12,6 +12,8 @@ extern limit LinePosition1;
 extern limit LinePosition2;
 extern limit LinePosition2R;
 extern limit LinePosition3;
+extern pot potL;
+extern pot potR;
 extern distance DistanceSensor;
 // Drive
 extern motor DriveFL;

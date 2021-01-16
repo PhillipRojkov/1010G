@@ -17,6 +17,8 @@ limit LinePosition1 = limit(Brain.ThreeWirePort.A);
 limit LinePosition2 = limit(Brain.ThreeWirePort.B);
 limit LinePosition2R = limit(Brain.ThreeWirePort.D);
 limit LinePosition3 = limit(Brain.ThreeWirePort.C);
+pot potL = pot(Brain.ThreeWirePort.H);
+pot potR = pot(Brain.ThreeWirePort.D);
 distance DistanceSensor = distance(PORT13);
 //vision VisionSensor = vision(PORT2, 50);
 // Drive motors
@@ -29,7 +31,7 @@ motor IntakeL = motor(PORT12, ratio18_1, false); // Left intake
 motor IntakeR = motor(PORT2, ratio18_1, true);   // Right intake - Reversed
 // Indexer motors
 motor IndexerTop = motor(PORT11, ratio6_1, true); // Left indexer - Reversed
-motor IndexerLow = motor(PORT1, ratio6_1, true); // Right indexer - Reversed
+motor IndexerLow = motor(PORT1, ratio18_1, false); // Right indexer
 
 // VEXcode generated functions
 
