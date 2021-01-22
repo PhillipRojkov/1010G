@@ -1,5 +1,6 @@
 using namespace vex;
 
+
 extern brain Brain;
 
 // VEXcode devices
@@ -15,6 +16,8 @@ extern limit LinePosition3;
 extern pot potL;
 extern pot potR;
 extern distance DistanceSensor;
+extern bumper bumperL;
+extern bumper bumperR;
 // Drive
 extern motor DriveFL;
 extern motor DriveFR;
@@ -26,6 +29,15 @@ extern motor IntakeR;
 // Indexers
 extern motor IndexerTop;
 extern motor IndexerLow;
+//Vision
+extern vision VisionSensor;
+extern vision::signature SIG_1;
+extern vision::signature SIG_2;
+extern vision::signature SIG_3;
+extern vision::signature SIG_4;
+extern vision::signature SIG_5;
+extern vision::signature SIG_6;
+extern vision::signature SIG_7;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.

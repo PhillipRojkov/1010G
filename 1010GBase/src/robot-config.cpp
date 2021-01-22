@@ -1,8 +1,6 @@
 #include "vex.h"
 
 using namespace vex;
-using signature = vision::signature;
-using code = vision::code;
 
 // A global instance of brain used for printing to the V5 Brain screen
 brain Brain;
@@ -20,7 +18,8 @@ limit LinePosition3 = limit(Brain.ThreeWirePort.C);
 pot potL = pot(Brain.ThreeWirePort.H);
 pot potR = pot(Brain.ThreeWirePort.D);
 distance DistanceSensor = distance(PORT13);
-//vision VisionSensor = vision(PORT2, 50);
+bumper bumperL = bumper(Brain.ThreeWirePort.F);
+bumper bumperR = bumper(Brain.ThreeWirePort.E);
 // Drive motors
 motor DriveFL = motor(PORT20, ratio18_1, false); // Front left drive
 motor DriveFR = motor(PORT8, ratio18_1, true);   // Front right drive - Reversed
@@ -32,7 +31,15 @@ motor IntakeR = motor(PORT2, ratio18_1, true);   // Right intake - Reversed
 // Indexer motors
 motor IndexerTop = motor(PORT11, ratio6_1, true); // Left indexer - Reversed
 motor IndexerLow = motor(PORT1, ratio18_1, false); // Right indexer
-
+//Vision
+vex::vision::signature SIG_1 = vex::vision::signature (1, -3073, -1003, -2038, 853, 11915, 6384, 1, 0);
+vex::vision::signature SIG_2 = vex::vision::signature (2, 1343, 8793, 5068, -913, 15, -450, 1, 0);
+vex::vision::signature SIG_3 = vex::vision::signature (3, 0, 0, 0, 0, 0, 0, 2.5, 0);
+vex::vision::signature SIG_4 = vex::vision::signature (4, 0, 0, 0, 0, 0, 0, 2.5, 0);
+vex::vision::signature SIG_5 = vex::vision::signature (5, 0, 0, 0, 0, 0, 0, 2.5, 0);
+vex::vision::signature SIG_6 = vex::vision::signature (6, 0, 0, 0, 0, 0, 0, 2.5, 0);
+vex::vision::signature SIG_7 = vex::vision::signature (7, 0, 0, 0, 0, 0, 0, 2.5, 0);
+vex::vision VisionSensor = vex::vision (vex::PORT17, 62, SIG_1, SIG_2, SIG_3, SIG_4, SIG_5, SIG_6, SIG_7);
 // VEXcode generated functions
 
 /**

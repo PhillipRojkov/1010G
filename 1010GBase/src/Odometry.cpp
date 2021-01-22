@@ -1,3 +1,4 @@
+#pragma once
 #include "vex.h"
 #include <fstream>
 

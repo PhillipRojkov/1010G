@@ -22,9 +22,8 @@
 // IndexerL             Motor         11
 // IndexerR             Motor         1
 // ---- END VEXCODE CONFIGURED DEVICES ----
-
 #include "AutoMasters.cpp"
-#include "DriveClass.cpp"
+#include "DriveClass.h"
 #include "Odometry.cpp"
 #include "vex.h"
 
@@ -69,8 +68,8 @@ void pre_auton(void) {
 void autonomous(void) { 
   // ..........................................................................
   pre_auton();
-  
-  autoMasters.skillsNew();
+  autoMasters.openIntakeTo();
+  //autoMasters.newSkillsNew();
 
   //autoMasters.skillsAuto();
   //autoMasters.skillsTriplePoke();
@@ -105,7 +104,7 @@ void usercontrol(void) {
 
     driveClass.checkPosition1();
 
-    odometry.computeLocation();
+    //odometry.computeLocation();
 
     if (driveClass.enableIndex) {
       indexWait = false;

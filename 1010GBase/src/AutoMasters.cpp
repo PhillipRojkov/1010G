@@ -1,14 +1,9 @@
+#pragma once
 #include "vex.h"
 
 using namespace vex;
 
 class AutoMasters { // Holds all master autonomous programs
-  // pot parameters
-  int leftPotMax = 230; // pot values range from 0 to leftPotMax
-  // When the pot value is greater than leftPotMax, intakeL is out
-  int rightPotMin = 195; // pot values range from 360 to rightPotMin
-  // When the pot value is less than rightPotMax, intakeR is out
-
   // Indexer parameters
   bool position1;
   bool position2;
@@ -20,6 +15,26 @@ class AutoMasters { // Holds all master autonomous programs
   // Loop times and constants
   int loopTime = 10; // loop pause in msec
 
+  // Intake parameters
+  // pot parameters
+  int leftPotDesired = 220; // pot values range from 0 to leftPotDesired
+  // When the pot value is greater than leftPotDesired, intakeL is out
+  int rightPotDesired = 115; // pot values range from 360 to rightPotDesired
+  // When the pot value is less than rightPotDesired, intakeR is out
+  int potRange1 = 5;
+  int potRange2 = 3;
+  bool leftBrake = false;
+  bool rightBrake = false;
+  bool doIntake = false;
+  // intake kP
+  double intakekP = 1.2;
+  double intakekI = 0.01;
+  double intakekD = 0;
+  double leftIntakeTotalError = 0;
+  double rightIntakeTotalError = 0;
+  double leftIntakePrevError = 0;
+  double rightIntakePrevError = 0;
+
   // Autonomous parameters
   double initialSpeed =
       10; // Speed from which a robot accelerates in autonomous functions
@@ -30,8 +45,9 @@ class AutoMasters { // Holds all master autonomous programs
   double turnRange = 0.7; // Range (+-degrees) in which the turn needs to be in
                           // order to stop method
 
-  //Strafing
-  double strafeConstant = 1; //Constant by which the speed of the front motors is multiplied to straighten strafe drive
+  // Strafing
+  double strafeConstant = 0.65; // Constant by which the speed of the front motors
+                             // is multiplied to straighten strafe drive
 
   // Wall Aligment
   double alignMargin = 200; // msec for which robot needs to be aligned
@@ -71,7 +87,7 @@ class AutoMasters { // Holds all master autonomous programs
     DriveFR.resetPosition();
   }
 
-  void resetPID() {
+  void resetPID() { // Set all PID values to zero
     error = 0;
     prevError = 0;
     derivative = 0;
@@ -139,12 +155,12 @@ public:
                      derivative * strafekD,
                  vex::pct);
     DriveFL.spin(forward,
-                 speed * dir * strafeConstant - error * strafekP - totalError * strafekI -
-                     derivative * strafekD,
+                 speed * dir * strafeConstant - error * strafekP -
+                     totalError * strafekI - derivative * strafekD,
                  vex::pct);
     DriveFR.spin(forward,
-                 speed * -dir * strafeConstant + error * strafekP + totalError * strafekI +
-                     derivative * strafekD,
+                 speed * -dir * strafeConstant + error * strafekP +
+                     totalError * strafekI + derivative * strafekD,
                  vex::pct);
   }
 
@@ -185,7 +201,7 @@ public:
            fDeg) { // Decellerate for the final degrees (fDeg)
       double deccelerate = speed - speed * avgDriveEncoder() / fDeg;
       if (deccelerate < initialSpeed) { // Make sure that the motors never move
-                                       // slower than initalSpeed
+                                        // slower than initalSpeed
         deccelerate = initialSpeed;
       }
       // Run the drive
@@ -199,7 +215,7 @@ public:
   }
 
   void
-  autoForward(double degrees, double iDeg, double fDeg, double preIntake,
+  autoForward(double degrees, double iDeg, double fDeg, bool intake,
               double speed) { // Forward auto function. degrees > iDeg + fDeg
     resetDriveEncoders();
     h = IMU.rotation();
@@ -212,9 +228,7 @@ public:
       }
       // Run the drive
       drive(1, accelerate);
-      if (avgDriveEncoder() >= preIntake) {
-        intake(100);
-      }
+      autoIntake();
       cIndex();
       wait(loopTime, msec);
     }
@@ -223,9 +237,7 @@ public:
                              // (fDeg) threshold
       // Run the drive
       drive(1, speed);
-      if (avgDriveEncoder() >= preIntake) {
-        intake(100);
-      }
+      autoIntake();
       cIndex();
       wait(loopTime, msec);
     }
@@ -234,14 +246,12 @@ public:
            fDeg) { // Decellerate for the final degrees (fDeg)
       double deccelerate = speed - speed * avgDriveEncoder() / fDeg;
       if (deccelerate < initialSpeed) { // Make sure that the motors never move
-                                       // slower than initalSpeed
+                                        // slower than initalSpeed
         deccelerate = initialSpeed;
       }
       // Run the drive
       drive(1, deccelerate);
-      if (avgDriveEncoder() >= preIntake) {
-        intake(100);
-      }
+      autoIntake();
       cIndex();
       wait(loopTime, msec);
     }
@@ -302,6 +312,18 @@ public:
   }
 
   void
+  dumberForward(double speed) { // Drive into the goal until both bumpers press
+    resetDriveEncoders();
+    h = IMU.rotation();
+    while (!bumperL.pressing() || !bumperR.pressing()) {
+      drive(1, speed);
+      wait(loopTime, msec);
+    }
+    resetPID();
+    brakeDrive();
+  }
+
+  void
   autoBackward(double degrees, double iDeg, double fDeg,
                double speed) { // Backward auto function. degrees > iDeg + fDeg
     resetDriveEncoders();
@@ -358,90 +380,17 @@ public:
     brakeDrive();
   }
 
-  void autoBackAlign(double d,
-                     double speed) { // Backward auto alignment function
-    resetDriveEncoders();
-
-    /*    int t = 0;                      // Time variable
-
-        h = IMU.rotation();
-
-        while (t < alignMargin) {
-          // PID
-          // Used to make robot go straight and stop when at the right distance
-       from
-          // wall
-          //error = (IMU.rotation() - h) + ((DistanceSensor.objectDistance(mm) -
-       400) - d); error = DistanceSensor.objectDistance(mm) - d; derivative =
-       error - prevError; totalError += error; prevError = error;
-
-          DriveBL.spin(forward,
-                       -speed - error * alignkP - totalError * alignkI -
-                           derivative * alignkD,
-                       vex::pct);
-          DriveBR.spin(forward,
-                       -speed - error * alignkP - totalError * alignkI -
-                           derivative * alignkD,
-                       vex::pct);
-          DriveFL.spin(forward,
-                       -speed - error * alignkP - totalError * alignkI -
-                           derivative * alignkD,
-                       vex::pct);
-          DriveFR.spin(forward,
-                       -speed - error * alignkP - totalError * alignkI -
-                           derivative * alignkD,
-                       vex::pct);
-
-          cIndex();
-
-          if (fabs(error) < alignRange) {
-            t += loopTime;
-          } else {
-            t = 0;
-          }
-
-          wait(loopTime, msec);
-        }
-    */
-
-    while (d < DistanceSensor.objectDistance(mm) - 200) {
-      // Drive backwards
-      drive(-1, speed);
-
-      wait(loopTime, msec);
-    }
-    while (d < DistanceSensor.objectDistance(mm) - 200) {
-      // Drive backwards but slowly
-
-      double deccelerate = speed * (DistanceSensor.objectDistance(mm) - d);
-
-      if (deccelerate < initialSpeed) { // Make sure that the motors never move
-                                        // slower than initalSpeed
-        deccelerate = initialSpeed;
-      }
-
-      // Run the drive
-      drive(-1, deccelerate);
-
-      wait(loopTime, msec);
-    }
-
-    resetPID();
-
-    autoTurnTo(h);
-  }
-
   void autoTurnTo(double degrees) { //+degrees turns right, -degrees turns left
     int t = 0;                      // Time variable
 
     while (t < turnMargin) { // break when time exceeds the turnMargin
       // PID
-      // Used to make robot go straight
       error = IMU.rotation() - degrees;
       derivative = error - prevError;
       totalError += error;
       prevError = error;
 
+      // Run motors according to PID values
       DriveBL.spin(forward,
                    -error * turnkP - totalError * turnkI - derivative * turnkD,
                    vex::pct);
@@ -455,20 +404,19 @@ public:
                    error * turnkP + totalError * turnkI + derivative * turnkD,
                    vex::pct);
 
-      cIndex();
+      cIndex(); // Auto index during turn
 
-      wait(loopTime, msec);
-
-      if (fabs(error) <
-          turnRange) { // increase time when the robot is pointing in turnRange
+      wait(loopTime, msec); // Wait to prevent wasted resources
+      // Exit the turn function once the robot is pointing in the correct
+      // direction
+      if (fabs(error) < turnRange) { // increase time value when the robot is
+                                     // pointing within turnRange
         t += loopTime;
       } else {
         t = 0;
       }
     }
-
     resetPID();
-
     // stop the drive
     brakeDrive();
   }
@@ -584,21 +532,120 @@ public:
     IntakeR.spin(forward, speed, vex::pct);
   }
 
+  void autoIntake() {
+    // Red code
+    for (int i = 0; i < 2; i++) {
+      if (i == 0) {
+        VisionSensor.takeSnapshot(SIG_2); // Red
+      } else {
+        VisionSensor.takeSnapshot(SIG_1); // Blue
+      }
+      if (VisionSensor.largestObject.exists &&
+          VisionSensor.largestObject.width > 90) {
+        if (VisionSensor.largestObject.centerY >
+            180) { // Close until position1 is clicked
+          doIntake = true;
+        } else if (VisionSensor.largestObject.centerY > 80 &&
+                   VisionSensor.largestObject.centerY <= 180) { // Open
+          openIntake();
+        }
+        if (doIntake && position1) {
+          doIntake = false;
+        }
+        if (doIntake) {
+          IntakeL.spin(forward, 100, vex::pct);
+          IntakeR.spin(forward, 100, vex::pct);
+          leftIntakeTotalError = 0;
+          rightIntakeTotalError = 0;
+          cIndex();
+        }
+      }
+    }
+  }
+
   void openIntake() {
-    while (potL.angle(deg) < leftPotMax || potR.angle(deg) > rightPotMin) {
-      if (potL.angle(deg) <
-          leftPotMax) { // If the leftPot value < leftPotMax, outtake leftIntake
-        IntakeL.spin(reverse, 100, vex::pct);
-      } else { // Stop the intake once leftPotValue >= leftPotMax
+    // PID open on bottom right
+    // bumper Left Intake
+    double leftError = leftPotDesired - potL.angle(deg);
+    leftIntakeTotalError += leftError;
+    double leftDerivative = leftError - leftIntakePrevError;
+    leftIntakePrevError = leftError;
+    // Spin intake with PID values
+    IntakeL.spin(reverse,
+                 leftError * intakekP + leftIntakeTotalError * intakekI -
+                     leftDerivative * intakekD,
+                 pct);
+    if (fabs(leftError) < potRange2) {
+      leftBrake = true;
+    }
+    if (fabs(leftError) < potRange1 && leftBrake) {
+      IntakeL.stop(hold);
+    }
+    if (fabs(leftError) >= potRange1) {
+      leftBrake = false;
+    }
+    // Right Intake
+    double rightError = -rightPotDesired + potR.angle(deg);
+    rightIntakeTotalError += rightError;
+    double rightDerivative = rightError - rightIntakePrevError;
+    rightIntakePrevError = rightError;
+    // Spin intake with PID values
+    IntakeR.spin(reverse,
+                 rightError * intakekP + rightIntakeTotalError * intakekI -
+                     rightDerivative * intakekD,
+                 pct);
+    if (fabs(rightError) < potRange2) {
+      rightBrake = true;
+    }
+    if (fabs(rightError) < potRange1 && rightBrake) {
+      IntakeR.stop(hold);
+    }
+    if (fabs(rightError) >= potRange1) {
+      rightBrake = false;
+    }
+  }
+
+  void openIntakeTo() {
+    // PID open on bottom right
+    while (fabs(leftPotDesired - potL.angle(deg)) < potRange1 && fabs(-rightPotDesired + potR.angle(deg)) < potRange1) {
+      double leftError = leftPotDesired - potL.angle(deg);
+      leftIntakeTotalError += leftError;
+      double leftDerivative = leftError - leftIntakePrevError;
+      leftIntakePrevError = leftError;
+      // Spin intake with PID values
+      IntakeL.spin(reverse,
+                   leftError * intakekP + leftIntakeTotalError * intakekI -
+                       leftDerivative * intakekD,
+                   pct);
+      if (fabs(leftError) < potRange2) {
+        leftBrake = true;
+      }
+      if (fabs(leftError) < potRange1 && leftBrake) {
         IntakeL.stop(hold);
       }
-      if (potR.angle(deg) > rightPotMin) { // If the leftPot value < leftPotMax,
-                                           // outtake leftIntake
-        IntakeR.spin(reverse, 100, vex::pct);
-      } else { // Stop the intake once leftPotValue >= leftPotMax
+      if (fabs(leftError) >= potRange1) {
+        leftBrake = false;
+      }
+      // Right Intake
+      double rightError = -rightPotDesired + potR.angle(deg);
+      rightIntakeTotalError += rightError;
+      double rightDerivative = rightError - rightIntakePrevError;
+      rightIntakePrevError = rightError;
+      // Spin intake with PID values
+      IntakeR.spin(reverse,
+                   rightError * intakekP + rightIntakeTotalError * intakekI -
+                       rightDerivative * intakekD,
+                   pct);
+      if (fabs(rightError) < potRange2) {
+        rightBrake = true;
+      }
+      if (fabs(rightError) < potRange1 && rightBrake) {
         IntakeR.stop(hold);
       }
-      wait(10, msec);
+      if (fabs(rightError) >= potRange1) {
+        rightBrake = false;
+      }
+      wait(loopTime, msec);
     }
   }
 
@@ -667,7 +714,7 @@ public:
       Brain.Screen.drawCircle(300, 100, 50, black);
     }
 
-    if (LinePosition2.pressing() || LinePosition2R.pressing()) {
+    if (LinePosition2.pressing()) {
       position2 = true;
       Brain.Screen.drawCircle(200, 100, 50, green);
     } else {
@@ -692,42 +739,39 @@ public:
     }
     indexerBrake();
   }
+
+  void doubleShot() {
+    // Run single shot
+    shoot();
+    while (!position3) {
+      // cIndex until position3
+      cIndex();
+      wait(10, msec);
+    }
+    shoot();
+  }
   // -------------------------------------------------------------------------------
 public:
   // Master Functions
   void autoCalibrate() { // Runs every single action
     autoForward(720, 180, 360, 100);
-
     autoTurnTo(-90);
-
     autoTurnTo(0);
-
     autoTurnTo(90);
-
     autoTurnTo(0);
-
     autoStrafeLeft(720, 180, 180, 100);
-
     autoStrafeRight(720, 180, 180, 100);
-
     autoBackward(720, 180, 360, 100);
-
     autoTurnTo(0);
-
     intake(100);
     wait(1000, msec);
-
     openIntake();
     wait(1000, msec);
-
     intakeBrake();
-
     index(127);
     wait(1000, msec);
-
     outdex(127);
     wait(1000, msec);
-
     indexerBrake();
   }
 
@@ -740,95 +784,42 @@ public:
     autoTurnTo(0);
   }
 
-  void skillsNew() { // Start left corner against wall, facing the ball
+  void newSkillsNew() {
     // Flipout
     indexerBrake();
-    openIntake();
-    wait(800, msec);
+    openIntakeTo();
+    wait(1000, msec);
     dumbForward(310, 100, 100, 50);
     intake(100);
-
     // Goal 1
     autoForward(320, 100, 100, 80);
     autoTurnTo(-135);
     intakeBrake();
     autoForward(770, 100, 100, 80);
     shoot();
-
     // Goal 2
-    autoBackward(250, 100, 150, 80);
+    autoBackward(350, 100, 100, 80);
+    autoTurnTo(0);
+    openIntake();
+    autoForward(1050, 100, 100, true, 80);
     autoTurnTo(-90);
-    autoBackward(1310, 100, 100, 80);
-    autoTurnTo(-180);
-    autoForward(150, 40, 40, 80);
+    autoForward(300, 100, 1, 80);
+    intakeBrake();
+    dumberForward(40);
     shoot();
-
     // Goal 3
-    autoBackward(80, 40, 40, 80);
-    autoTurnTo(-270);
-    openIntake();
-    intakeBrake();
-    autoForward(1100, 100, 100, 800, 80); //Intake at 800
-    autoTurnTo(-230);
-    intakeBrake();
-    autoForward(500, 40, 40, 80);
-    shoot();
-
+    autoBackward(450, 50, 50, 80);
+    autoTurnTo(0);
+    autoForward(1300, 100, 300, true, 80);
+    autoTurnTo(-45);
+    autoStrafeLeft(400, 100, 100, 70);
+    autoForward(500, 100, 100, 80);
     // Goal 4
-    autoBackward(1050, 350, 350, 80);
-    autoTurnTo(-270);
-    intake(100);
-    autoForward(910, 150, 150, 60);
-    autoBackward(150, 70, 70, 80);
-    autoTurnTo(-360);
-    openIntake();
-    autoForward(900, 200, 600, 700, 70); //Intake at 700
-    autoTurnTo(-270);
-    intakeBrake();
-    autoForward(180, 80, 100, 70);
-    shoot();
-
     // Goal 5
-    autoBackward(500, 200, 250, 70);
-    autoTurnTo(-360);
-    openIntake();
-    autoForward(1300, 100, 500, 1000, 80); //Intake at 1000
-    autoBackward(140, 70, 70, 70);
-    autoTurnTo(-315);
-    intakeBrake();
-    autoForward(850, 100, 100, 70);
-    shoot();
-
     // Goal 6
-    autoBackward(500, 100, 100, 80);
-    autoTurnTo(-450);
-    autoForward(1130, 100, 100, 80);
-    autoTurnTo(-360);
-    autoForward(300, 50, 100, 70);
-    shoot();
-
-    // Middle
-    autoBackward(130, 50, 100, 80);
-    autoTurnTo(-180);
-    openIntake();
-    autoForward(700, 100, 100, 300, 60); //Intake at 300
-    // Poke align
-    autoStrafeLeft(200, 80, 80, 50);
-    intakeBrake();
-    // Poke
-    autoForward(200, 100, 100, 60);
-    intakeBrake();
-    autoBackward(200, 100, 100, 80);
-    // Realign
-    autoStrafeRight(200, 80, 80, 50);
-    intake(100);
-    // Hug
-    autoForward(250, 50, 50, 60);
-    wait(300, msec);
-    shoot();
-    wait(300, msec);
-    openIntake();
-    autoBackward(300, 100, 100, 80);
+    // Goal 7
+    // Goal 8
+    // Goal centre
   }
 
   void redRightCorner() {
@@ -838,11 +829,7 @@ public:
     wait(800, msec);
     // Forward - grab ball
     dumbForward(310, 100, 100, 60);
-    /*
-        while (!position2 && !position3) {
-          cIndex();
-          wait(10, msec);
-        }*/
+    intake(100);
 
     intakeBrake();
 
