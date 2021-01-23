@@ -23,7 +23,7 @@ class DriveClass {
   bool rightBrake = false;
   bool doIntake = false;
   // intake kP
-  double intakekP = 1.2;
+  double intakekP = 4;
   double intakekI = 0.01;
   double intakekD = 0;
   double leftIntakeTotalError = 0;

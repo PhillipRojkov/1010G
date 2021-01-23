@@ -68,8 +68,8 @@ void pre_auton(void) {
 void autonomous(void) { 
   // ..........................................................................
   pre_auton();
-  autoMasters.openIntakeTo();
-  //autoMasters.newSkillsNew();
+  
+  autoMasters.newSkillsNew();
 
   //autoMasters.skillsAuto();
   //autoMasters.skillsTriplePoke();

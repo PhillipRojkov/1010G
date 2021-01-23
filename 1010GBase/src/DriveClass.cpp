@@ -164,8 +164,10 @@ void DriveClass::intake() {
     dC.leftIntakeTotalError = 0;
     dC.rightIntakeTotalError = 0;
     dC.enableIndex = true;
+    dC.doIntake = false;
   } else if (Controller2.ButtonR2.pressing()) {
     openIntake();
+    dC.doIntake = false;
   } else if (Controller2.ButtonUp.pressing()) { // Auto intake
     intakeSense();
   } else {
@@ -173,6 +175,7 @@ void DriveClass::intake() {
     dC.rightIntakeTotalError = 0;
     IntakeL.stop(hold);
     IntakeR.stop(hold);
+    dC.doIntake = false;
   }
 }
 

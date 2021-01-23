@@ -19,7 +19,7 @@ class AutoMasters { // Holds all master autonomous programs
   // pot parameters
   int leftPotDesired = 220; // pot values range from 0 to leftPotDesired
   // When the pot value is greater than leftPotDesired, intakeL is out
-  int rightPotDesired = 115; // pot values range from 360 to rightPotDesired
+  int rightPotDesired = 125; // pot values range from 360 to rightPotDesired
   // When the pot value is less than rightPotDesired, intakeR is out
   int potRange1 = 5;
   int potRange2 = 3;
@@ -27,7 +27,7 @@ class AutoMasters { // Holds all master autonomous programs
   bool rightBrake = false;
   bool doIntake = false;
   // intake kP
-  double intakekP = 1.2;
+  double intakekP = 4;
   double intakekI = 0.01;
   double intakekD = 0;
   double leftIntakeTotalError = 0;
@@ -258,6 +258,7 @@ public:
     resetPID();
     // Stop the drive
     brakeDrive();
+    doIntake = false; //Stop the intaking
   }
 
   void
@@ -312,11 +313,18 @@ public:
   }
 
   void
-  dumberForward(double speed) { // Drive into the goal until both bumpers press
+  bumperForward(double speed) { // Drive into the goal until both bumpers press
     resetDriveEncoders();
     h = IMU.rotation();
     while (!bumperL.pressing() || !bumperR.pressing()) {
-      drive(1, speed);
+      if (!bumperL.pressing()) { //Drive left side if left bumper not pressed
+        DriveBL.spin(forward, speed, pct);
+        DriveFL.spin(forward, speed, pct);
+      }
+      if (!bumperR.pressing()) { //Drive right side if right bumper not pressed
+        DriveBR.spin(forward, speed, pct);
+        DriveFR.spin(forward, speed, pct);
+      }
       wait(loopTime, msec);
     }
     resetPID();
@@ -541,7 +549,7 @@ public:
         VisionSensor.takeSnapshot(SIG_1); // Blue
       }
       if (VisionSensor.largestObject.exists &&
-          VisionSensor.largestObject.width > 90) {
+          VisionSensor.largestObject.width > 80) {
         if (VisionSensor.largestObject.centerY >
             180) { // Close until position1 is clicked
           doIntake = true;
@@ -580,6 +588,8 @@ public:
     }
     if (fabs(leftError) < potRange1 && leftBrake) {
       IntakeL.stop(hold);
+      leftIntakeTotalError = 0;
+      leftIntakePrevError = 0;
     }
     if (fabs(leftError) >= potRange1) {
       leftBrake = false;
@@ -599,6 +609,8 @@ public:
     }
     if (fabs(rightError) < potRange1 && rightBrake) {
       IntakeR.stop(hold);
+      rightIntakeTotalError = 0;
+      rightIntakePrevError = 0;
     }
     if (fabs(rightError) >= potRange1) {
       rightBrake = false;
@@ -607,7 +619,12 @@ public:
 
   void openIntakeTo() {
     // PID open on bottom right
-    while (fabs(leftPotDesired - potL.angle(deg)) < potRange1 && fabs(-rightPotDesired + potR.angle(deg)) < potRange1) {
+    while (fabs(leftPotDesired - potL.angle(deg)) > 10 || fabs(-rightPotDesired + potR.angle(deg)) > 10) {
+      Brain.Screen.setCursor(1, 1);
+      //Brain.Screen.print(leftPotDesired - potL.angle(deg));
+      Brain.Screen.print(potL.angle(deg));
+      Brain.Screen.setCursor(4, 1);
+      Brain.Screen.print(fabs(-rightPotDesired + potR.angle(deg)));
       double leftError = leftPotDesired - potL.angle(deg);
       leftIntakeTotalError += leftError;
       double leftDerivative = leftError - leftIntakePrevError;
@@ -786,13 +803,12 @@ public:
 
   void newSkillsNew() {
     // Flipout
-    indexerBrake();
     openIntakeTo();
     wait(1000, msec);
     dumbForward(310, 100, 100, 50);
     intake(100);
     // Goal 1
-    autoForward(320, 100, 100, 80);
+    autoForward(250, 100, 100, 80);
     autoTurnTo(-135);
     intakeBrake();
     autoForward(770, 100, 100, 80);
@@ -801,20 +817,32 @@ public:
     autoBackward(350, 100, 100, 80);
     autoTurnTo(0);
     openIntake();
-    autoForward(1050, 100, 100, true, 80);
+    autoForward(1200, 100, 100, true, 80);
     autoTurnTo(-90);
-    autoForward(300, 100, 1, 80);
+    autoForward(200, 100, 1, 80);
     intakeBrake();
-    dumberForward(40);
+    bumperForward(40);
+    wait(800, msec);
     shoot();
     // Goal 3
     autoBackward(450, 50, 50, 80);
     autoTurnTo(0);
-    autoForward(1300, 100, 300, true, 80);
+    autoForward(1300, 100, 600, true, 80);
     autoTurnTo(-45);
-    autoStrafeLeft(400, 100, 100, 70);
-    autoForward(500, 100, 100, 80);
+    autoStrafeLeft(600, 100, 100, 70);
+    intakeBrake();
+    autoForward(600, 100, 100, 80);
+    shoot();
     // Goal 4
+    autoBackward(1200, 100, 100, 80);
+    autoTurnTo(90);
+    autoForward(700, 100, 300, true, 80);
+    autoTurnTo(0);
+    intakeBrake();
+    autoForward(500, 100, 1, 80);
+    bumperForward(40);
+    wait(800, msec);
+    shoot();
     // Goal 5
     // Goal 6
     // Goal 7
