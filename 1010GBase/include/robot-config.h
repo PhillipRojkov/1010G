@@ -16,8 +16,8 @@ extern limit LinePosition3;
 extern pot potL;
 extern pot potR;
 extern distance DistanceSensor;
-extern bumper bumperL;
-extern bumper bumperR;
+extern limit bumperL;
+extern limit bumperR;
 // Drive
 extern motor DriveFL;
 extern motor DriveFR;

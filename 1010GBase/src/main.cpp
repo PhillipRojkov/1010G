@@ -67,13 +67,9 @@ void pre_auton(void) {
 
 void autonomous(void) { 
   // ..........................................................................
-  pre_auton();
-  
-  autoMasters.newSkillsNew();
+  //autoMasters.newSkillsNew();
 
-  //autoMasters.skillsAuto();
-  //autoMasters.skillsTriplePoke();
-  //autoMasters.redRightCorner();
+  autoMasters.rightHome();
   // ..........................................................................
 }
 
@@ -105,6 +101,12 @@ void usercontrol(void) {
     driveClass.checkPosition1();
 
     //odometry.computeLocation();
+
+    Brain.Screen.setCursor(1, 1);
+    Brain.Screen.print(potL.angle(degrees));
+    Brain.Screen.setCursor(3, 1);
+    Brain.Screen.print(potR.angle(degrees));
+
 
     if (driveClass.enableIndex) {
       indexWait = false;

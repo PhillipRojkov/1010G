@@ -115,22 +115,23 @@ void DriveClass::cIndex() { // Automatic index
 void DriveClass::openIntake() {
   // PID open on bottom right
   // bumper Left Intake
-  double leftError = dC.leftPotDesired - potL.angle(deg);
+  double leftError = -dC.leftPotDesired + potL.angle(deg);
   dC.leftIntakeTotalError += leftError;
   double leftDerivative = leftError - dC.leftIntakePrevError;
   dC.leftIntakePrevError = leftError;
   // Spin intake with PID values
-  IntakeL.spin(reverse,
+  /*IntakeL.spin(reverse,
                leftError * dC.intakekP + dC.leftIntakeTotalError * dC.intakekI -
                    leftDerivative * dC.intakekD,
-               pct);
-  if (fabs(leftError) < dC.potRange2) {
+               pct);*/
+               IntakeL.spin(reverse, 100, pct);
+  if (leftError < dC.potRange2) {
     dC.leftBrake = true;
   }
-  if (fabs(leftError) < dC.potRange1 && dC.leftBrake) {
+  if (leftError < dC.potRange1 && dC.leftBrake) {
     IntakeL.stop(hold);
   }
-  if (fabs(leftError) >= dC.potRange1) {
+  if (leftError >= dC.potRange1) {
     dC.leftBrake = false;
   }
   // Right Intake
@@ -139,18 +140,19 @@ void DriveClass::openIntake() {
   double rightDerivative = rightError - dC.rightIntakePrevError;
   dC.rightIntakePrevError = rightError;
   // Spin intake with PID values
-  IntakeR.spin(reverse,
+  /*IntakeR.spin(reverse,
                rightError * dC.intakekP +
                    dC.rightIntakeTotalError * dC.intakekI -
                    rightDerivative * dC.intakekD,
-               pct);
-  if (fabs(rightError) < dC.potRange2) {
+               pct);*/
+               IntakeR.spin(reverse, 100, pct);
+  if (rightError < dC.potRange2) { //inside small range
     dC.rightBrake = true;
   }
-  if (fabs(rightError) < dC.potRange1 && dC.rightBrake) {
+  if (rightError < dC.potRange1 && dC.rightBrake) { //inside large range and rightBrake
     IntakeR.stop(hold);
   }
-  if (fabs(rightError) >= dC.potRange1) {
+  if (rightError >= dC.potRange1) { //out of large range
     dC.rightBrake = false;
   }
   dC.enableIndex = false;

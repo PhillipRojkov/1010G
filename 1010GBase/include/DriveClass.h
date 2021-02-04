@@ -4,21 +4,19 @@
 class DriveClass {
   public:
   // Drive parameters
-  int controllerDeadZone = 10; // Stick dead zone (stick values from 0 - 100)
-  int strafeSpeed = 100;
+  int controllerDeadZone = 17; // Stick dead zone (stick values from 0 - 100)
+  int strafeSpeed = 110;
   double strafeStickMultiplier =
       0.6; // Strafe slowdown multiplier applied to sticks
   double frontStrafeSpeedMultiplier =
-      0.65; // Slow down front wheels in strafe in order to keep straight
+      0.7; // Slow down front wheels in strafe in order to keep straight
 
   // Intake parameters
   // pot parameters
-  int leftPotDesired = 220; // pot values range from 0 to leftPotDesired
-  // When the pot value is greater than leftPotDesired, intakeL is out
-  int rightPotDesired = 115; // pot values range from 360 to rightPotDesired
-  // When the pot value is less than rightPotDesired, intakeR is out
-  int potRange1 = 5;
-  int potRange2 = 3;
+  int leftPotDesired = 20; //min
+  int rightPotDesired = 105; //min
+  int potRange1 = 7;
+  int potRange2 = 2;
   bool leftBrake = false;
   bool rightBrake = false;
   bool doIntake = false;
