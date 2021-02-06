@@ -116,36 +116,19 @@ void DriveClass::openIntake() {
   // PID open on bottom right
   // bumper Left Intake
   double leftError = -dC.leftPotDesired + potL.angle(deg);
-  dC.leftIntakeTotalError += leftError;
-  double leftDerivative = leftError - dC.leftIntakePrevError;
-  dC.leftIntakePrevError = leftError;
-  // Spin intake with PID values
-  /*IntakeL.spin(reverse,
-               leftError * dC.intakekP + dC.leftIntakeTotalError * dC.intakekI -
-                   leftDerivative * dC.intakekD,
-               pct);*/
-               IntakeL.spin(reverse, 100, pct);
-  if (leftError < dC.potRange2) {
+  IntakeL.spin(reverse, 100, pct); //Run left intake
+  if (leftError < dC.potRange2) { //inside small range
     dC.leftBrake = true;
   }
-  if (leftError < dC.potRange1 && dC.leftBrake) {
+  if (leftError < dC.potRange1 && dC.leftBrake) { //inside large range and left brake
     IntakeL.stop(hold);
   }
-  if (leftError >= dC.potRange1) {
+  if (leftError >= dC.potRange1) { //out of large range
     dC.leftBrake = false;
   }
   // Right Intake
   double rightError = -dC.rightPotDesired + potR.angle(deg);
-  dC.rightIntakeTotalError += rightError;
-  double rightDerivative = rightError - dC.rightIntakePrevError;
-  dC.rightIntakePrevError = rightError;
-  // Spin intake with PID values
-  /*IntakeR.spin(reverse,
-               rightError * dC.intakekP +
-                   dC.rightIntakeTotalError * dC.intakekI -
-                   rightDerivative * dC.intakekD,
-               pct);*/
-               IntakeR.spin(reverse, 100, pct);
+  IntakeR.spin(reverse, 100, pct); //Run right intake
   if (rightError < dC.potRange2) { //inside small range
     dC.rightBrake = true;
   }
@@ -182,15 +165,15 @@ void DriveClass::intake() {
 }
 
 void DriveClass::indexSense() { // Sets index ball position variables
-  if (LinePosition1.pressing()) {
+  if (LinePosition1.pressing()) { //Position 1
     dC.position1 = true;
-    Brain.Screen.drawCircle(300, 100, 50, green);
+    Brain.Screen.drawCircle(300, 100, 50, green); //Visualisation
   } else {
     dC.position1 = false;
     Brain.Screen.drawCircle(300, 100, 50, black);
   }
 
-  if (LinePosition2.pressing()) {
+  if (LinePosition2.pressing()) { //Position 2
     dC.position2 = true;
     Brain.Screen.drawCircle(200, 100, 50, green);
   } else {
@@ -198,7 +181,7 @@ void DriveClass::indexSense() { // Sets index ball position variables
     Brain.Screen.drawCircle(200, 100, 50, black);
   }
 
-  if (LinePosition3.pressing()) {
+  if (LinePosition3.pressing()) { //Position 3
     dC.position3 = true;
     Brain.Screen.drawCircle(100, 100, 50, green);
   } else {
@@ -211,25 +194,25 @@ void DriveClass::intakeSense() {
   // Red code
   for (int i = 0; i < 2; i++) {
     if (i == 0) {
-      VisionSensor.takeSnapshot(SIG_2); //Red
+      VisionSensor.takeSnapshot(SIG_2); //Red signature
     } else {
-      VisionSensor.takeSnapshot(SIG_1); //Blue
+      VisionSensor.takeSnapshot(SIG_1); //Blue signature
     }
     if (VisionSensor.largestObject.exists &&
-        VisionSensor.largestObject.width > 100) {
+        VisionSensor.largestObject.width > 100) { //If the object exists and is relatively close
       if (VisionSensor.largestObject.centerY >
-          190) { // Close until position1 is clicked
+          190) { // If the object is near, close until position1 is clicked
         dC.doIntake = true;
         dC.enableIndex = true;
       } else if (VisionSensor.largestObject.centerY > 80 &&
-                 VisionSensor.largestObject.centerY <= 190) { // Open
+                 VisionSensor.largestObject.centerY <= 190) { // If the object is far, open intake
         openIntake();
         dC.doIntake = false;
       }
-      if (dC.doIntake && position1) {
+      if (dC.doIntake && position1) { //Stop intaking once the ball enters position 1
         dC.doIntake = false;
       }
-      if (dC.doIntake) {
+      if (dC.doIntake) { //Run the intakes if doIntake is true
         IntakeL.spin(forward, 100, vex::pct);
         IntakeR.spin(forward, 100, vex::pct);
         dC.leftIntakeTotalError = 0;

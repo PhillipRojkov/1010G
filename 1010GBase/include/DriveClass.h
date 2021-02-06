@@ -13,7 +13,7 @@ class DriveClass {
 
   // Intake parameters
   // pot parameters
-  int leftPotDesired = 20; //min
+  int leftPotDesired = 30; //min
   int rightPotDesired = 105; //min
   int potRange1 = 7;
   int potRange2 = 2;

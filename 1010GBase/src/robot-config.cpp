@@ -18,8 +18,7 @@ limit LinePosition3 = limit(Brain.ThreeWirePort.C);
 pot potL = pot(Brain.ThreeWirePort.H);
 pot potR = pot(Brain.ThreeWirePort.D);
 distance DistanceSensor = distance(PORT13);
-limit bumperL = limit(Brain.ThreeWirePort.F);
-limit bumperR = limit(Brain.ThreeWirePort.E);
+limit selector = limit(Brain.ThreeWirePort.E);
 // Drive motors
 motor DriveFL = motor(PORT20, ratio18_1, false); // Front left drive
 motor DriveFR = motor(PORT8, ratio18_1, true);   // Front right drive - Reversed

@@ -17,12 +17,12 @@ class AutoMasters { // Holds all master autonomous programs
 
   // Intake parameters
   // pot parameters
-  int leftPotDesired = 17; // pot values range from 0 to leftPotDesired
+  int leftPotDesired = 30; // pot values range from 0 to leftPotDesired
   // When the pot value is greater than leftPotDesired, intakeL is out
-  int rightPotDesired = 110; // pot values range from 360 to rightPotDesired
+  int rightPotDesired = 105; // pot values range from 360 to rightPotDesired
   // When the pot value is less than rightPotDesired, intakeR is out
-  int potRange1 = 5;
-  int potRange2 = 3;
+  int potRange1 = 7;
+  int potRange2 = 2;
   bool leftBrake = false;
   bool rightBrake = false;
   bool doIntake = false;
@@ -41,13 +41,14 @@ class AutoMasters { // Holds all master autonomous programs
 
   // Turning
   int turnMargin =
-      100; // Time in msec for which turn needs to be at the correct angle
+      70; // Time in msec for which turn needs to be at the correct angle
   double turnRange = 0.7; // Range (+-degrees) in which the turn needs to be in
                           // order to stop method
 
   // Strafing
-  double strafeConstant = 0.8; // Constant by which the speed of the front motors
-                             // is multiplied to straighten strafe drive
+  double strafeConstant =
+      0.8; // Constant by which the speed of the front motors
+           // is multiplied to straighten strafe drive
 
   // Wall Aligment
   double alignMargin = 200; // msec for which robot needs to be aligned
@@ -55,14 +56,14 @@ class AutoMasters { // Holds all master autonomous programs
 
   // PID constants
   // Drive
-  double drivekP = 1.5;  // 1.6
-  double drivekD = 14;   // 14
-  double drivekI = 0.08; // 0.08
+  double drivekP = 1.4;     // 1.6
+  double drivekD = 2.3;     // 14
+  double drivekI = 0.00005; // 0.08
 
   // Turn
-  double turnkP = 1.3;
+  double turnkP = 1.4;
   double turnkD = 2.3;
-  double turnkI = 0.00002;
+  double turnkI = 0.00005;
 
   // Align
   double alignkP = 0.5;
@@ -258,28 +259,24 @@ public:
     resetPID();
     // Stop the drive
     brakeDrive();
-    doIntake = false; //Stop the intaking
+    doIntake = false; // Stop the intaking
   }
 
   void
   dumbForward(double degrees, double iDeg, double fDeg,
               double speed) { // Forward auto function. degrees > iDeg + fDeg
     resetDriveEncoders();
-
     h = IMU.rotation();
-
     while (avgDriveEncoder() <
            iDeg) { // Accelerate for the initial degrees (iDeg)
       double accelerate = speed * avgDriveEncoder() / iDeg;
-
       if (accelerate < initialSpeed) { // Make sure that the motors never move
                                        // slower than initalSpeed
         accelerate = initialSpeed;
       }
-
       // Run the drive
       drive(1, accelerate);
-
+      indexSense();
       wait(loopTime, msec);
     }
     while (avgDriveEncoder() <
@@ -287,51 +284,67 @@ public:
                              // (fDeg) threshold
       // Run the drive
       drive(1, speed);
-
+      indexSense();
       wait(loopTime, msec);
     }
     resetDriveEncoders();
     while (avgDriveEncoder() <
            fDeg) { // Decellerate for the final degrees (fDeg)
       double deccelerate = speed - speed * avgDriveEncoder() / fDeg;
-
       if (deccelerate < initialSpeed) { // Make sure that the motors never move
                                         // slower than initalSpeed
         deccelerate = initialSpeed;
       }
-
       // Run the drive
       drive(1, deccelerate);
-
+      indexSense();
       wait(loopTime, msec);
     }
-
     resetPID();
-
     // Stop the drive
     brakeDrive();
   }
 
   void
-  bumperForward(double speed) { // Drive into the goal until both bumpers press
-    while (!bumperL.pressing() || !bumperR.pressing()) {
-      if (!bumperL.pressing()) { //Drive left side if left bumper not pressed
-        DriveBL.spin(forward, speed, pct);
-        DriveFL.spin(forward, speed, pct);
-      } else {
-        DriveBL.stop(coast);
-        DriveFL.stop(coast);
+  dumbBackward(double degrees, double iDeg, double fDeg,
+              double speed) { // Backward auto function. degrees > iDeg + fDeg
+     resetDriveEncoders();
+    h = IMU.rotation();
+    while (fabs(avgDriveEncoder()) <
+           iDeg) { // Accelerate for the initial degrees (iDeg)
+      double accelerate = speed * absAvgDriveEncoder() / iDeg;
+      if (accelerate < initialSpeed) { // Make sure that the motors never move
+                                       // slower than initalSpeed
+        accelerate = initialSpeed;
       }
-      if (!bumperR.pressing()) { //Drive right side if right bumper not pressed
-        DriveBR.spin(forward, speed, pct);
-        DriveFR.spin(forward, speed, pct);
-      } else {
-        DriveBR.stop(coast);
-        DriveFR.stop(coast);
+      // Run the drive
+      drive(-1, accelerate);
+      indexSense();
+      wait(loopTime, msec);
+    }
+    while (fabs(avgDriveEncoder()) <
+           degrees - fDeg) { // Drive at speed up until you reach final degrees
+                             // (fDeg) threshold
+      // Run the drive
+      drive(-1, speed);
+      indexSense();
+      wait(loopTime, msec);
+    }
+    resetDriveEncoders();
+    while (fabs(avgDriveEncoder()) <
+           fDeg) { // Decellerate for the final degrees (fDeg)
+      double deccelerate = speed - speed * absAvgDriveEncoder() / fDeg;
+      if (deccelerate < initialSpeed) { // Make sure that the motors never move
+                                        // slower than initalSpeed
+        deccelerate = initialSpeed;
       }
+      // Run the drive
+      drive(-1, deccelerate);
+      indexSense();
       wait(loopTime, msec);
     }
     resetPID();
+    // Stop the drive
     brakeDrive();
   }
 
@@ -394,7 +407,6 @@ public:
 
   void autoTurnTo(double degrees) { //+degrees turns right, -degrees turns left
     int t = 0;                      // Time variable
-
     while (t < turnMargin) { // break when time exceeds the turnMargin
       // PID
       error = IMU.rotation() - degrees;
@@ -417,7 +429,6 @@ public:
                    vex::pct);
 
       cIndex(); // Auto index during turn
-
       wait(loopTime, msec); // Wait to prevent wasted resources
       // Exit the turn function once the robot is pointing in the correct
       // direction
@@ -576,95 +587,96 @@ public:
   }
 
   void openIntake() {
-  // PID open on bottom right
-  // bumper Left Intake
-  double leftError = -leftPotDesired + potL.angle(deg);
-  leftIntakeTotalError += leftError;
-  double leftDerivative = leftError - leftIntakePrevError;
-  leftIntakePrevError = leftError;
-  // Spin intake with PID values
-  /*IntakeL.spin(reverse,
-               leftError * dC.intakekP + dC.leftIntakeTotalError * dC.intakekI -
-                   leftDerivative * dC.intakekD,
-               pct);*/
-               IntakeL.spin(reverse, 100, pct);
-  if (leftError < potRange2) {
-    leftBrake = true;
+    // PID open on bottom right
+    // bumper Left Intake
+    double leftError = -leftPotDesired + potL.angle(deg);
+    leftIntakeTotalError += leftError;
+    double leftDerivative = leftError - leftIntakePrevError;
+    leftIntakePrevError = leftError;
+    // Spin intake with PID values
+    /*IntakeL.spin(reverse,
+                 leftError * dC.intakekP + dC.leftIntakeTotalError * dC.intakekI
+       - leftDerivative * dC.intakekD, pct);*/
+    IntakeL.spin(reverse, 100, pct);
+    if (leftError < potRange2) {
+      leftBrake = true;
+    }
+    if (leftError < potRange1 && leftBrake) {
+      IntakeL.stop(hold);
+    }
+    if (leftError >= potRange1) {
+      leftBrake = false;
+    }
+    // Right Intake
+    double rightError = -rightPotDesired + potR.angle(deg);
+    rightIntakeTotalError += rightError;
+    double rightDerivative = rightError - rightIntakePrevError;
+    rightIntakePrevError = rightError;
+    // Spin intake with PID values
+    /*IntakeR.spin(reverse,
+                 rightError * dC.intakekP +
+                     dC.rightIntakeTotalError * dC.intakekI -
+                     rightDerivative * dC.intakekD,
+                 pct);*/
+    IntakeR.spin(reverse, 100, pct);
+    if (rightError < potRange2) { // inside small range
+      rightBrake = true;
+    }
+    if (rightError < potRange1 &&
+        rightBrake) { // inside large range and rightBrake
+      IntakeR.stop(hold);
+    }
+    if (rightError >= potRange1) { // out of large range
+      rightBrake = false;
+    }
   }
-  if (leftError < potRange1 && leftBrake) {
-    IntakeL.stop(hold);
-  }
-  if (leftError >= potRange1) {
-    leftBrake = false;
-  }
-  // Right Intake
-  double rightError = -rightPotDesired + potR.angle(deg);
-  rightIntakeTotalError += rightError;
-  double rightDerivative = rightError - rightIntakePrevError;
-  rightIntakePrevError = rightError;
-  // Spin intake with PID values
-  /*IntakeR.spin(reverse,
-               rightError * dC.intakekP +
-                   dC.rightIntakeTotalError * dC.intakekI -
-                   rightDerivative * dC.intakekD,
-               pct);*/
-               IntakeR.spin(reverse, 100, pct);
-  if (rightError < potRange2) { //inside small range
-    rightBrake = true;
-  }
-  if (rightError < potRange1 && rightBrake) { //inside large range and rightBrake
-    IntakeR.stop(hold);
-  }
-  if (rightError >= potRange1) { //out of large range
-    rightBrake = false;
-  }
-}
 
   void openIntakeTo() {
     // PID open on bottom right
-    while (fabs(leftPotDesired - potL.angle(deg)) > 10 || fabs(-rightPotDesired + potR.angle(deg)) > 10) {
+    while (fabs(leftPotDesired - potL.angle(deg)) > 10 ||
+           fabs(-rightPotDesired + potR.angle(deg)) > 10) {
       // PID open on bottom right
-  // bumper Left Intake
-  double leftError = -leftPotDesired + potL.angle(deg);
-  leftIntakeTotalError += leftError;
-  double leftDerivative = leftError - leftIntakePrevError;
-  leftIntakePrevError = leftError;
-  // Spin intake with PID values
-  /*IntakeL.spin(reverse,
-               leftError * dC.intakekP + dC.leftIntakeTotalError * dC.intakekI -
-                   leftDerivative * dC.intakekD,
-               pct);*/
-               IntakeL.spin(reverse, 100, pct);
-  if (leftError < potRange2) {
-    leftBrake = true;
-  }
-  if (leftError < potRange1 && leftBrake) {
-    IntakeL.stop(hold);
-  }
-  if (leftError >= potRange1) {
-    leftBrake = false;
-  }
-  // Right Intake
-  double rightError = -rightPotDesired + potR.angle(deg);
-  rightIntakeTotalError += rightError;
-  double rightDerivative = rightError - rightIntakePrevError;
-  rightIntakePrevError = rightError;
-  // Spin intake with PID values
-  /*IntakeR.spin(reverse,
-               rightError * dC.intakekP +
-                   dC.rightIntakeTotalError * dC.intakekI -
-                   rightDerivative * dC.intakekD,
-               pct);*/
-               IntakeR.spin(reverse, 100, pct);
-  if (rightError < potRange2) { //inside small range
-    rightBrake = true;
-  }
-  if (rightError < potRange1 && rightBrake) { //inside large range and rightBrake
-    IntakeR.stop(hold);
-  }
-  if (rightError >= potRange1) { //out of large range
-    rightBrake = false;
-  }
+      // bumper Left Intake
+      double leftError = -leftPotDesired + potL.angle(deg);
+      leftIntakeTotalError += leftError;
+      double leftDerivative = leftError - leftIntakePrevError;
+      leftIntakePrevError = leftError;
+      // Spin intake with PID values
+      /*IntakeL.spin(reverse,
+                   leftError * dC.intakekP + dC.leftIntakeTotalError *
+         dC.intakekI - leftDerivative * dC.intakekD, pct);*/
+      IntakeL.spin(reverse, 100, pct);
+      if (leftError < potRange2) {
+        leftBrake = true;
+      }
+      if (leftError < potRange1 && leftBrake) {
+        IntakeL.stop(hold);
+      }
+      if (leftError >= potRange1) {
+        leftBrake = false;
+      }
+      // Right Intake
+      double rightError = -rightPotDesired + potR.angle(deg);
+      rightIntakeTotalError += rightError;
+      double rightDerivative = rightError - rightIntakePrevError;
+      rightIntakePrevError = rightError;
+      // Spin intake with PID values
+      /*IntakeR.spin(reverse,
+                   rightError * dC.intakekP +
+                       dC.rightIntakeTotalError * dC.intakekI -
+                       rightDerivative * dC.intakekD,
+                   pct);*/
+      IntakeR.spin(reverse, 100, pct);
+      if (rightError < potRange2) { // inside small range
+        rightBrake = true;
+      }
+      if (rightError < potRange1 &&
+          rightBrake) { // inside large range and rightBrake
+        IntakeR.stop(hold);
+      }
+      if (rightError >= potRange1) { // out of large range
+        rightBrake = false;
+      }
       wait(loopTime, msec);
     }
   }
@@ -770,40 +782,53 @@ public:
     }
     shoot();
   }
+
+  // Params
+  // Aligns on a corner goal by turning to the right,
+  // pivots around front right wheel, coasts back right wheel,
+  // drives both left wheels
+  // speed: speed at which the left motors spin
+  // degreees: where the robot will face
+  void alignTurnRight(double speed, double degrees) {
+    resetDriveEncoders();
+    DriveFR.stop(hold);  // Pivot on front right wheel
+    DriveBR.stop(coast); // Coast on back right wheel
+
+    // Run loop when heading is less than degrees
+    // heading increases as robot turns right
+    while (IMU.rotation() < degrees) {
+      DriveFL.spin(forward, speed, pct);
+      DriveBL.spin(forward, speed, pct);
+      wait(10, msec);
+    }
+    resetPID();
+    brakeDrive();
+  }
+
+  // Params
+  // Aligns on a corner goal by turning to the left,
+  // pivots around front left wheel, coasts back left wheel,
+  // drives both right wheels
+  // speed: speed at which the right motors spin
+  // degreees: where the robot will face
+  void alignTurnLeft(double speed, double degrees) {
+    resetDriveEncoders();
+    DriveFL.stop(hold);  // Pivot on front right wheel
+    DriveBL.stop(coast); // Coast on back right wheel
+
+    // Run loop when heading is greater than degrees
+    // heading decreases (and goes negative) as robot turns left
+    while (IMU.rotation() > degrees) {
+      DriveFR.spin(forward, speed, pct);
+      DriveBR.spin(forward, speed, pct);
+      wait(10, msec);
+    }
+    resetPID();
+    brakeDrive();
+  }
   // -------------------------------------------------------------------------------
 public:
   // Master Functions
-  void autoCalibrate() { // Runs every single action
-    autoForward(720, 180, 360, 100);
-    autoTurnTo(-90);
-    autoTurnTo(0);
-    autoTurnTo(90);
-    autoTurnTo(0);
-    autoStrafeLeft(720, 180, 180, 100);
-    autoStrafeRight(720, 180, 180, 100);
-    autoBackward(720, 180, 360, 100);
-    autoTurnTo(0);
-    intake(100);
-    wait(1000, msec);
-    openIntake();
-    wait(1000, msec);
-    intakeBrake();
-    index(127);
-    wait(1000, msec);
-    outdex(127);
-    wait(1000, msec);
-    indexerBrake();
-  }
-
-  void turnCalibrate() {
-    autoTurnTo(-90);
-    autoTurnTo(135);
-    autoTurnTo(-135);
-    autoTurnTo(180);
-    autoTurnTo(-180);
-    autoTurnTo(0);
-  }
-
   void newSkillsNew() {
     // Flipout
     openIntakeTo();
@@ -820,13 +845,13 @@ public:
     // Goal 2
     autoBackward(260, 100, 100, 90);
     autoTurnTo(0);
-    openIntake(); 
+    openIntake();
     autoForward(1190, 100, 100, true, 90);
     autoTurnTo(-90);
     intakeBrake();
     autoForward(250, 100, 1, 90);
     wait(800, msec);
-    shoot(); 
+    shoot();
     // Goal 3
     autoBackward(450, 50, 50, 90);
     autoTurnTo(0);
@@ -859,7 +884,7 @@ public:
     // Goal 6
     autoBackward(250, 100, 100, 90);
     autoTurnTo(180);
-    openIntake(); 
+    openIntake();
     autoForward(1245, 100, 100, true, 90);
     autoTurnTo(90);
     intakeBrake();
@@ -903,84 +928,118 @@ public:
   }
 
   void rightHome() {
-    //Flipout
+    // Flipout
     openIntake();
-    wait(800, msec);
-    //Goal 1
-    dumbForward(80, 20, 40, 60);
+    wait(200, msec);
+    // Goal 1
+    dumbForward(40, 20, 40, 100);
     intake(100);
-    autoForward(300, 50, 100, 100);
-    autoTurnTo(135);
-    openIntake();
+    autoTurnTo(25);
+    intakeBrake();
     autoForward(100, 50, 1, 100);
-    intake(100);
-    autoForward(300, 1, 1, 80);
-    intakeBrake();
-    autoForward(50, 1, 100, 80);
+    alignTurnRight(100, 42);
     shoot();
-    //Goal 2
-    autoBackward(350, 50, 50, 100);
-    intake(100);
-    autoTurnTo(90);
-    autoBackward(1200, 50, 50, 100);
-    autoTurnTo(180);
+    // Goal 2
+    autoBackward(600, 50, 100, 100);
+    autoTurnTo(0);
+    autoBackward(1100, 50, 100, 100);
+    autoTurnTo(90); 
     intakeBrake();
-    autoForward(250, 50, 50, 100);
+    autoForward(230, 50, 150, 100);
+    wait(100, msec);
     shoot();
-    //Goal 3
+    // Goal 3
     autoBackward(250, 50, 50, 100);
-    autoTurnTo(270);
+    autoTurnTo(180);
     autoForward(900, 50, 100, 100);
-    autoTurnTo(225);
+    autoTurnTo(135);
     openIntake();
     autoForward(200, 50, 1, 100);
     intake(100);
-    autoForward(300, 1, 1, 80);
-    wait(800, msec);
+    autoForward(200, 1, 1, 100);
+    wait(500, msec);
     intakeBrake();
-    autoForward(150, 1, 100, 80);
+    autoForward(100, 1, 100, 100);
     shoot();
     autoBackward(200, 1, 1, 100);
   }
 
-  void rightTwoAndMiddle () {
-    //Flipout
+  void rightTwoAndMiddle() {
+    // Flipout
     openIntake();
-    wait(800, msec);
-    //Goal 1
-    dumbForward(80, 20, 20, 40);
+    wait(200, msec);
+    // Goal 1
+    dumbForward(40, 20, 40, 100);
     intake(100);
-    autoForward(300, 50, 50, 80);
-    autoTurnTo(135);
-    openIntake();
-    autoForward(100, 50, 1, 80);
-    intake(100);
-    autoForward(300, 1, 1, 60);
+    autoTurnTo(25);
     intakeBrake();
-    autoForward(50, 1, 100, 60);
+    autoForward(100, 50, 1, 100);
+    alignTurnRight(100, 42);
     shoot();
-    //Goal 2
+    // Goal 2
+    autoBackward(600, 50, 100, 100);
+    autoTurnTo(0);
+    autoBackward(1100, 50, 100, 100);
+    autoTurnTo(90); 
+    intakeBrake();
+    autoForward(230, 50, 150, 100);
+    wait(100, msec);
+    shoot();
+    // Goal middle
+    autoBackward(200, 50, 50, 100);
+    autoTurnTo(0);
+    autoBackward(600, 100, 100, 100);
+    autoTurnTo(-90);
+    autoForward(800, 100, 100, 80);
+    autoStrafeRight(700, 100, 100, 100);
+    autoBackward(500, 50, 100, 100);
+  }
+
+  void rightTwoAndSide() {
+    int t = Brain.timer(sec);
+    // Flipout
+    openIntake();
+    wait(200, msec);
+    // Goal 1
+    dumbForward(40, 20, 40, 100);
+    intake(100);
+    autoTurnTo(25);
+    intakeBrake();
+    autoForward(100, 50, 1, 100);
+    alignTurnRight(100, 42);
+    shoot();
+    // Goal 2
+    autoBackward(600, 50, 100, 100);
+    autoTurnTo(0);
+    autoBackward(1100, 50, 100, 100);
+    autoTurnTo(90); 
+    intakeBrake();
+    autoForward(230, 50, 150, 100);
+    wait(100, msec);
+    shoot();
+    // Goal side
+    indexerBrake();
+    intake(100);
+    wait(700, msec);
+    //dumbBackward(50, 10, 10, 40);
+    while (!position1 && !position2 && !position3) {
+      indexSense();
+      wait(10, msec);
+    }
+    intakeBrake();
     autoBackward(350, 50, 50, 100);
     intake(100);
-    autoTurnTo(90);
-    autoBackward(1200, 50, 50, 100);
-    autoTurnTo(180);
+    autoTurnTo(-15);
     intakeBrake();
-    autoForward(200, 50, 50, 100);
+    autoForward(1500, 50, 150, 100);
+    autoTurnTo(-75);
+    brakeDrive();
+    h = IMU.rotation();
+      resetPID();
+    while (Brain.timer(sec) < t + 14) {
+      drive(1, 100);
+    }
     shoot();
-    //Goal middle
-    autoBackward(100, 50, 50, 100);
-    autoTurnTo(225);
-    openIntake();
-    autoForward(600, 60, 1, 100);
-    intake(100);
-    autoForward(200, 1, 50, 100);
-    autoTurnTo(270);
-    autoBackward(500, 100, 100, 100);
-    autoStrafeRight(1000, 100, 100, 80);
-    openIntake();
-    autoForward(520, 10, 250, 100);
-    shoot();
-    autoBackward(100, 1, 1, 60);
+    autoBackward(400, 1, 50, 100);
   }
 };

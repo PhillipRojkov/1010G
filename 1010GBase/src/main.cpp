@@ -37,6 +37,16 @@ DriveClass driveClass;
 AutoMasters autoMasters;
 Odometry odometry;
 
+//Auto selector integer
+int selection = 0;
+/*
+* 0 : Home row, right starting position
+* 1 : Two + middle, right starting position
+* 2 : Two + right side, right starting position
+*/
+int numOfAutos = 3;
+bool selecting = false;
+
 // define your global instances of motors and other devices here
 
 /*---------------------------------------------------------------------------*/
@@ -63,13 +73,39 @@ void pre_auton(void) {
   Brain.Screen.clearScreen();
 
   odometry.calibrating = false;
+
+  //Auto selection
+  while (true) {
+    if (selector.pressing() && !selecting) {
+      selecting = true;
+      if (selection < numOfAutos - 1) {
+        selection++;
+      } else {
+        selection = 0;
+      }
+    } else if (!selector.pressing()) {
+      selecting = false;
+    }
+    Brain.Screen.setCursor(2, 1);
+    Brain.Screen.print("Auto Selection :");
+    Brain.Screen.setCursor(2, 18);
+    Brain.Screen.print(selection);
+    wait (20, msec);
+  }
 }
 
 void autonomous(void) { 
-  // ..........................................................................
+  Brain.Screen.clearScreen(); //Clear the auto selection text
+  // .........................................................................
   //autoMasters.newSkillsNew();
 
-  autoMasters.rightHome();
+  if (selection == 0) {
+    autoMasters.rightHome();
+  } else if (selection == 1) {
+    autoMasters.rightTwoAndMiddle();
+  } else if (selection == 2) {
+    autoMasters.rightTwoAndSide();
+  }
   // ..........................................................................
 }
 

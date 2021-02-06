@@ -70,37 +70,13 @@ public:
     prevTime = Brain.timer(sec);
 
     if (!calibrating) {
-      // Create initial VX and VY
-     // viX += globalAccelX * deltaT;
-     // viY += globalAccelY * deltaT;
-
       viX += avgAccelX * deltaT;
       viY += avgAccelY * deltaT;
-/*
-      if (fabs(avgAccelX) < 0.06 && fabs(prevAccelX) < 0.06) {
-          viX = 0.0;
-        }
-        if (fabs(avgAccelY) < 0.06 && fabs(prevAccelY) < 0.06) {
-          viY = 0.0;
-        }*/
-
-/*
-      if (absAvgDriveRPM() < 4) {
-        viX = 0;
-        viY = 0;
-      }
-*/
-      // Use Kinematics Equation to conver to distance
-     // x += viX * deltaT + 0.5 * globalAccelX * pow(deltaT, 2);
-     // y += viY * deltaT + 0.5 * globalAccelY * pow(deltaT, 2);
       x = viX;
       y = viY;
     }
-
     prevAccelX = accelX;
-
     prevAccelY = accelY;
-
     writeToSD();
   }
 
