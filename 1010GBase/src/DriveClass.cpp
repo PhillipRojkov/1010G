@@ -1,10 +1,8 @@
 #include "DriveClass.h"
 
-DriveClass dC;
-
 void DriveClass::runTankBase() { // Linear tank drive with mecanum on bumpers
   // Left stick
-  if (abs(Controller1.Axis3.value()) > dC.controllerDeadZone) {
+  if (abs(Controller1.Axis3.value()) > controllerDeadZone) {
     DriveFL.spin(vex::directionType::fwd, Controller1.Axis3.value(),
                  vex::velocityUnits::pct);
     DriveBL.spin(vex::directionType::fwd, Controller1.Axis3.value(),
@@ -14,7 +12,7 @@ void DriveClass::runTankBase() { // Linear tank drive with mecanum on bumpers
     DriveBL.stop(brake);
   }
   // Right stick
-  if (abs(Controller1.Axis2.value()) > dC.controllerDeadZone) {
+  if (abs(Controller1.Axis2.value()) > controllerDeadZone) {
     DriveBR.spin(vex::directionType::fwd, Controller1.Axis2.value(),
                  vex::velocityUnits::pct);
     DriveFR.spin(vex::directionType::fwd, Controller1.Axis2.value(),
@@ -26,39 +24,39 @@ void DriveClass::runTankBase() { // Linear tank drive with mecanum on bumpers
   // Left bumper strafe left
   if (Controller1.ButtonL1.pressing()) {
     DriveBL.spin(directionType::fwd,
-                 dC.strafeSpeed +
-                     Controller1.Axis3.value() * dC.strafeStickMultiplier,
+                 strafeSpeed +
+                     Controller1.Axis3.value() * strafeStickMultiplier,
                  velocityUnits::pct);
     DriveFL.spin(directionType::rev,
-                 dC.strafeSpeed * dC.frontStrafeSpeedMultiplier -
-                     Controller1.Axis3.value() * dC.strafeStickMultiplier,
+                 strafeSpeed * frontStrafeSpeedMultiplier -
+                     Controller1.Axis3.value() * strafeStickMultiplier,
                  velocityUnits::pct);
     DriveBR.spin(directionType::rev,
-                 dC.strafeSpeed -
-                     Controller1.Axis2.value() * dC.strafeStickMultiplier,
+                 strafeSpeed -
+                     Controller1.Axis2.value() * strafeStickMultiplier,
                  velocityUnits::pct);
     DriveFR.spin(directionType::fwd,
-                 dC.strafeSpeed * dC.frontStrafeSpeedMultiplier +
-                     Controller1.Axis2.value() * dC.strafeStickMultiplier,
+                 strafeSpeed * frontStrafeSpeedMultiplier +
+                     Controller1.Axis2.value() * strafeStickMultiplier,
                  velocityUnits::pct);
   }
   // Right bumper strafe right
   if (Controller1.ButtonR1.pressing()) {
     DriveBL.spin(directionType::rev,
-                 dC.strafeSpeed -
-                     Controller1.Axis3.value() * dC.strafeStickMultiplier,
+                 strafeSpeed -
+                     Controller1.Axis3.value() * strafeStickMultiplier,
                  velocityUnits::pct);
     DriveFL.spin(directionType::fwd,
-                 dC.strafeSpeed * dC.frontStrafeSpeedMultiplier +
-                     Controller1.Axis3.value() * dC.strafeStickMultiplier,
+                 strafeSpeed * frontStrafeSpeedMultiplier +
+                     Controller1.Axis3.value() * strafeStickMultiplier,
                  velocityUnits::pct);
     DriveBR.spin(directionType::fwd,
-                 dC.strafeSpeed +
-                     Controller1.Axis2.value() * dC.strafeStickMultiplier,
+                 strafeSpeed +
+                     Controller1.Axis2.value() * strafeStickMultiplier,
                  velocityUnits::pct);
     DriveFR.spin(directionType::rev,
-                 dC.strafeSpeed * dC.frontStrafeSpeedMultiplier -
-                     Controller1.Axis2.value() * dC.strafeStickMultiplier,
+                 strafeSpeed * frontStrafeSpeedMultiplier -
+                     Controller1.Axis2.value() * strafeStickMultiplier,
                  velocityUnits::pct);
   }
 }
@@ -87,12 +85,12 @@ void DriveClass::index() { // Indexer override
   if (Controller2.ButtonL1.pressing()) {
     IndexerTop.spin(forward, 100, vex::pct);
     IndexerLow.spin(forward, 80, vex::pct);
-    dC.enableIndex = false; // disable auto indexing
+    enableIndex = false; // disable auto indexing
   } else if (Controller2.ButtonL2
                  .pressing()) { // Simple indexer down on bottom left bumper
     IndexerTop.spin(reverse, 100, vex::pct);
     IndexerLow.spin(reverse, 100, vex::pct);
-    dC.enableIndex = false; // disable auto indexing
+    enableIndex = false; // disable auto indexing
   } else {
     IndexerTop.stop(vex::hold);
     IndexerLow.stop(vex::hold);
@@ -100,13 +98,13 @@ void DriveClass::index() { // Indexer override
 }
 
 void DriveClass::cIndex() { // Automatic index
-  if (dC.enableIndex) {
-    if (!dC.position3) { // Always try to fill position 3
+  if (enableIndex) {
+    if (!position3) { // Always try to fill position 3
       IndexerTop.spin(forward, 40, pct);
       IndexerLow.spin(forward, 40, pct);
     }
-    if (dC.position3 &&
-        !dC.position2) { // If position 3 is filled, fill position2
+    if (position3 &&
+        !position2) { // If position 3 is filled, fill position2
       IndexerLow.spin(forward, 40, pct);
     }
   }
@@ -115,30 +113,30 @@ void DriveClass::cIndex() { // Automatic index
 void DriveClass::openIntake() {
   // PID open on bottom right
   // bumper Left Intake
-  double leftError = -dC.leftPotDesired + potL.angle(deg);
+  double leftError = -leftPotDesired + potL.angle(deg);
   IntakeL.spin(reverse, 100, pct); //Run left intake
-  if (leftError < dC.potRange2) { //inside small range
-    dC.leftBrake = true;
+  if (leftError < potRange2) { //inside small range
+    leftBrake = true;
   }
-  if (leftError < dC.potRange1 && dC.leftBrake) { //inside large range and left brake
+  if (leftError < potRange1 && leftBrake) { //inside large range and left brake
     IntakeL.stop(hold);
   }
-  if (leftError >= dC.potRange1) { //out of large range
-    dC.leftBrake = false;
+  if (leftError >= potRange1) { //out of large range
+    leftBrake = false;
   }
   // Right Intake
-  double rightError = -dC.rightPotDesired + potR.angle(deg);
+  double rightError = -rightPotDesired + potR.angle(deg);
   IntakeR.spin(reverse, 100, pct); //Run right intake
-  if (rightError < dC.potRange2) { //inside small range
-    dC.rightBrake = true;
+  if (rightError < potRange2) { //inside small range
+    rightBrake = true;
   }
-  if (rightError < dC.potRange1 && dC.rightBrake) { //inside large range and rightBrake
+  if (rightError < potRange1 && rightBrake) { //inside large range and rightBrake
     IntakeR.stop(hold);
   }
-  if (rightError >= dC.potRange1) { //out of large range
-    dC.rightBrake = false;
+  if (rightError >= potRange1) { //out of large range
+    rightBrake = false;
   }
-  dC.enableIndex = false;
+  enableIndex = false;
 }
 
 void DriveClass::intake() {
@@ -146,46 +144,46 @@ void DriveClass::intake() {
   if (Controller2.ButtonR1.pressing()) {
     IntakeL.spin(forward, 100, vex::pct);
     IntakeR.spin(forward, 100, vex::pct);
-    dC.leftIntakeTotalError = 0;
-    dC.rightIntakeTotalError = 0;
-    dC.enableIndex = true;
-    dC.doIntake = false;
+    leftIntakeTotalError = 0;
+    rightIntakeTotalError = 0;
+    enableIndex = true;
+    doIntake = false;
   } else if (Controller2.ButtonR2.pressing()) {
     openIntake();
-    dC.doIntake = false;
+    doIntake = false;
   } else if (Controller2.ButtonUp.pressing()) { // Auto intake
     intakeSense();
   } else {
-    dC.leftIntakeTotalError = 0;
-    dC.rightIntakeTotalError = 0;
+    leftIntakeTotalError = 0;
+    rightIntakeTotalError = 0;
     IntakeL.stop(hold);
     IntakeR.stop(hold);
-    dC.doIntake = false;
+    doIntake = false;
   }
 }
 
 void DriveClass::indexSense() { // Sets index ball position variables
   if (LinePosition1.value(pct) < 60) { //Position 1
-    dC.position1 = true;
+    position1 = true;
     Brain.Screen.drawCircle(300, 100, 50, green); //Visualisation
   } else {
-    dC.position1 = false;
+    position1 = false;
     Brain.Screen.drawCircle(300, 100, 50, black);
   }
 
   if (LinePosition2.value(pct) < 70) { //Position 2
-    dC.position2 = true;
+    position2 = true;
     Brain.Screen.drawCircle(200, 100, 50, green);
   } else {
-    dC.position2 = false;
+    position2 = false;
     Brain.Screen.drawCircle(200, 100, 50, black);
   }
 
   if (LinePosition3L.value(pct) < 67 || LinePosition3T.value(pct) < 67) { //Position 3
-    dC.position3 = true;
+    position3 = true;
     Brain.Screen.drawCircle(100, 100, 50, green);
   } else {
-    dC.position3 = false;
+    position3 = false;
     Brain.Screen.drawCircle(100, 100, 50, black);
   }
 }
@@ -202,22 +200,22 @@ void DriveClass::intakeSense() {
         VisionSensor.largestObject.width > 100) { //If the object exists and is relatively close
       if (VisionSensor.largestObject.centerY >
           190) { // If the object is near, close until position1 is clicked
-        dC.doIntake = true;
-        dC.enableIndex = true;
+        doIntake = true;
+        enableIndex = true;
       } else if (VisionSensor.largestObject.centerY > 80 &&
                  VisionSensor.largestObject.centerY <= 190) { // If the object is far, open intake
         openIntake();
-        dC.doIntake = false;
+        doIntake = false;
       }
-      if (dC.doIntake && position1) { //Stop intaking once the ball enters position 1
-        dC.doIntake = false;
+      if (doIntake && position1) { //Stop intaking once the ball enters position 1
+        doIntake = false;
       }
-      if (dC.doIntake) { //Run the intakes if doIntake is true
+      if (doIntake) { //Run the intakes if doIntake is true
         IntakeL.spin(forward, 100, vex::pct);
         IntakeR.spin(forward, 100, vex::pct);
-        dC.leftIntakeTotalError = 0;
-        dC.rightIntakeTotalError = 0;
-        dC.enableIndex = true;
+        leftIntakeTotalError = 0;
+        rightIntakeTotalError = 0;
+        enableIndex = true;
       }
     }
   }
@@ -225,49 +223,49 @@ void DriveClass::intakeSense() {
 
 void DriveClass::score() { // Score macro
   // Score 1
-  if (Controller1.ButtonL2.pressing() && dC.scoreNum == 0) {
-    dC.scoreNum = 1;
-    dC.indexRotation = IndexerTop.position(degrees);
-  } else if (Controller1.ButtonR2.pressing() && dC.scoreNum == 0) {
-    dC.scoreNum = 2;
-    dC.indexRotation = IndexerTop.position(degrees);
+  if (Controller1.ButtonL2.pressing() && scoreNum == 0) {
+    scoreNum = 1;
+    indexRotation = IndexerTop.position(degrees);
+  } else if (Controller1.ButtonR2.pressing() && scoreNum == 0) {
+    scoreNum = 2;
+    indexRotation = IndexerTop.position(degrees);
   }
 
-  if (dC.scoreNum == 1) {
-    if (IndexerTop.position(degrees) < dC.indexRotation + 600) {
+  if (scoreNum == 1) {
+    if (IndexerTop.position(degrees) < indexRotation + 600) {
       IndexerTop.spin(forward, 100, pct);
     } else {
-      dC.enableIndex = true;
-      dC.scoreNum--;
+      enableIndex = true;
+      scoreNum--;
     }
   }
 
-  if (dC.scoreNum == 2) {
+  if (scoreNum == 2) {
     // Run single shot
-    if (IndexerTop.position(degrees) < dC.indexRotation + 600) {
+    if (IndexerTop.position(degrees) < indexRotation + 600) {
       IndexerTop.spin(forward, 100, pct);
-    } else if (!dC.position3) {
+    } else if (!position3) {
       // cIndex until position3
-      dC.enableIndex = true;
+      enableIndex = true;
       cIndex();
-    } else if (dC.position3) {
+    } else if (position3) {
       // Reset indexRotation
-      dC.indexRotation = IndexerTop.position(degrees);
+      indexRotation = IndexerTop.position(degrees);
       // Run single shot again
-      dC.scoreNum--;
+      scoreNum--;
     }
   }
 }
 
-void DriveClass::resetScoreNum() { dC.scoreNum = 0; }
+void DriveClass::resetScoreNum() { scoreNum = 0; }
 
 void DriveClass::checkPosition1() { // Run auto index for some time if position1
                                     // is activated
-  if (dC.position1) {
+  if (position1) {
     // cIndex for timeToIndex seconds
-    dC.t = Brain.timer(seconds) + dC.timeToIndex;
+    t = Brain.timer(seconds) + timeToIndex;
   }
-  if (Brain.timer(seconds) < dC.t) {
-    dC.enableIndex = true;
+  if (Brain.timer(seconds) < t) {
+    enableIndex = true;
   }
 }

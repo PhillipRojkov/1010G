@@ -22,9 +22,9 @@
 // IndexerL             Motor         11
 // IndexerR             Motor         1
 // ---- END VEXCODE CONFIGURED DEVICES ----
-#include "AutoMasters.cpp"
+#include "AutoMasters.h"
 #include "DriveClass.h"
-#include "Odometry.cpp"
+#include "Odometry.h"
 #include "vex.h"
 
 using namespace vex;
@@ -72,7 +72,7 @@ void pre_auton(void) {
   wait(500, msec);
   Brain.Screen.clearScreen();
 
-  odometry.calibrating = false;
+  odometry.finishCalibrating();
 
   //Auto selection
   while (true) {

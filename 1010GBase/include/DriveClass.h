@@ -2,7 +2,7 @@
 #include "vex.h"
 
 class DriveClass {
-  public:
+  private:
   // Drive parameters
   int controllerDeadZone = 17; // Stick dead zone (stick values from 0 - 100)
   int strafeSpeed = 110;
@@ -37,7 +37,8 @@ class DriveClass {
   int indexRotation;
   double timeToIndex = 1.2;
   double t = 0;
-
+  
+  public:
   bool enableIndex = false;
 
   void runTankBase();
