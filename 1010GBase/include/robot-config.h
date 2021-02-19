@@ -9,10 +9,10 @@ extern controller Controller1;
 extern controller Controller2;
 // Sensors
 extern inertial IMU;
-extern limit LinePosition1;
-extern limit LinePosition2;
-extern limit LinePosition2R;
-extern limit LinePosition3;
+extern line LinePosition1;
+extern line LinePosition2;
+extern line LinePosition3L;
+extern line LinePosition3T;
 extern pot potL;
 extern pot potR;
 extern distance DistanceSensor;

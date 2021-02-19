@@ -9,7 +9,7 @@ class DriveClass {
   double strafeStickMultiplier =
       0.6; // Strafe slowdown multiplier applied to sticks
   double frontStrafeSpeedMultiplier =
-      0.7; // Slow down front wheels in strafe in order to keep straight
+      1; // Slow down front wheels in strafe in order to keep straight
 
   // Intake parameters
   // pot parameters

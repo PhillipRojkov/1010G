@@ -729,7 +729,7 @@ public:
     indexerBrake();
     indexSense();
     if (!position3) {
-      IndexerTop.spin(forward, 80, pct);
+      IndexerTop.spin(forward, 100, pct);
       IndexerLow.spin(forward, 80, pct);
     }
     if (position3 && !position2) {
@@ -738,30 +738,30 @@ public:
   }
 
   void indexSense() { // Sets index ball position variables
-    if (LinePosition1.pressing()) {
-      position1 = true;
-      Brain.Screen.drawCircle(300, 100, 50, green);
-    } else {
-      position1 = false;
-      Brain.Screen.drawCircle(300, 100, 50, black);
-    }
-
-    if (LinePosition2.pressing()) {
-      position2 = true;
-      Brain.Screen.drawCircle(200, 100, 50, green);
-    } else {
-      position2 = false;
-      Brain.Screen.drawCircle(200, 100, 50, black);
-    }
-
-    if (LinePosition3.pressing()) {
-      position3 = true;
-      Brain.Screen.drawCircle(100, 100, 50, green);
-    } else {
-      position3 = false;
-      Brain.Screen.drawCircle(100, 100, 50, black);
-    }
+  if (LinePosition1.value(pct) < 60) { //Position 1
+    position1 = true;
+    Brain.Screen.drawCircle(300, 100, 50, green); //Visualisation
+  } else {
+    position1 = false;
+    Brain.Screen.drawCircle(300, 100, 50, black);
   }
+
+  if (LinePosition2.value(pct) < 70) { //Position 2
+    position2 = true;
+    Brain.Screen.drawCircle(200, 100, 50, green);
+  } else {
+    position2 = false;
+    Brain.Screen.drawCircle(200, 100, 50, black);
+  }
+
+  if (LinePosition3L.value(pct) < 70) { //Position 3
+    position3 = true;
+    Brain.Screen.drawCircle(100, 100, 50, green);
+  } else {
+    position3 = false;
+    Brain.Screen.drawCircle(100, 100, 50, black);
+  }
+}
 
   void shoot() {
     double rotTo = IndexerTop.position(deg) + 1000;
@@ -945,21 +945,21 @@ public:
     autoBackward(1100, 50, 100, 100);
     autoTurnTo(90); 
     intakeBrake();
-    autoForward(230, 50, 150, 100);
-    wait(100, msec);
+    autoForward(350, 50, 150, 100);
+    wait(400, msec);
     shoot();
     // Goal 3
     autoBackward(250, 50, 50, 100);
     autoTurnTo(180);
     autoForward(900, 50, 100, 100);
-    autoTurnTo(135);
+    autoTurnTo(135); 
     openIntake();
     autoForward(200, 50, 1, 100);
     intake(100);
-    autoForward(200, 1, 1, 100);
-    wait(500, msec);
+    autoForward(200, 1, 50, 100);
+    wait(300, msec);
+    autoForward(150, 1, 100, 100);
     intakeBrake();
-    autoForward(100, 1, 100, 100);
     shoot();
     autoBackward(200, 1, 1, 100);
   }
@@ -982,8 +982,8 @@ public:
     autoBackward(1100, 50, 100, 100);
     autoTurnTo(90); 
     intakeBrake();
-    autoForward(230, 50, 150, 100);
-    wait(100, msec);
+    autoForward(350, 50, 150, 100);
+    wait(400, msec);
     shoot();
     // Goal middle
     autoBackward(200, 50, 50, 100);
@@ -1014,8 +1014,8 @@ public:
     autoBackward(1100, 50, 100, 100);
     autoTurnTo(90); 
     intakeBrake();
-    autoForward(230, 50, 150, 100);
-    wait(100, msec);
+    autoForward(350, 50, 150, 100);
+    wait(400, msec);
     shoot();
     // Goal side
     indexerBrake();
@@ -1036,7 +1036,7 @@ public:
     brakeDrive();
     h = IMU.rotation();
       resetPID();
-    while (Brain.timer(sec) < t + 14) {
+    while (Brain.timer(sec) < t + 14.3) {
       drive(1, 100);
     }
     shoot();

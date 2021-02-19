@@ -94,7 +94,7 @@ void pre_auton(void) {
   }
 }
 
-void autonomous(void) { 
+void autonomous(void) {  
   Brain.Screen.clearScreen(); //Clear the auto selection text
   // .........................................................................
   //autoMasters.newSkillsNew();

@@ -85,13 +85,13 @@ void DriveClass::runArcadeBase() { // Linear mecanum drive in arcade style
 void DriveClass::index() { // Indexer override
   // Simple indexer up on top left bumper
   if (Controller2.ButtonL1.pressing()) {
-    IndexerTop.spin(forward, 127, vex::pct);
-    IndexerLow.spin(forward, 127, vex::pct);
+    IndexerTop.spin(forward, 100, vex::pct);
+    IndexerLow.spin(forward, 80, vex::pct);
     dC.enableIndex = false; // disable auto indexing
   } else if (Controller2.ButtonL2
                  .pressing()) { // Simple indexer down on bottom left bumper
-    IndexerTop.spin(reverse, 127, vex::pct);
-    IndexerLow.spin(reverse, 127, vex::pct);
+    IndexerTop.spin(reverse, 100, vex::pct);
+    IndexerLow.spin(reverse, 100, vex::pct);
     dC.enableIndex = false; // disable auto indexing
   } else {
     IndexerTop.stop(vex::hold);
@@ -102,12 +102,12 @@ void DriveClass::index() { // Indexer override
 void DriveClass::cIndex() { // Automatic index
   if (dC.enableIndex) {
     if (!dC.position3) { // Always try to fill position 3
-      IndexerTop.spin(forward, 80, pct);
-      IndexerLow.spin(forward, 80, pct);
+      IndexerTop.spin(forward, 40, pct);
+      IndexerLow.spin(forward, 40, pct);
     }
     if (dC.position3 &&
         !dC.position2) { // If position 3 is filled, fill position2
-      IndexerLow.spin(forward, 80, pct);
+      IndexerLow.spin(forward, 40, pct);
     }
   }
 }
@@ -165,7 +165,7 @@ void DriveClass::intake() {
 }
 
 void DriveClass::indexSense() { // Sets index ball position variables
-  if (LinePosition1.pressing()) { //Position 1
+  if (LinePosition1.value(pct) < 60) { //Position 1
     dC.position1 = true;
     Brain.Screen.drawCircle(300, 100, 50, green); //Visualisation
   } else {
@@ -173,7 +173,7 @@ void DriveClass::indexSense() { // Sets index ball position variables
     Brain.Screen.drawCircle(300, 100, 50, black);
   }
 
-  if (LinePosition2.pressing()) { //Position 2
+  if (LinePosition2.value(pct) < 70) { //Position 2
     dC.position2 = true;
     Brain.Screen.drawCircle(200, 100, 50, green);
   } else {
@@ -181,7 +181,7 @@ void DriveClass::indexSense() { // Sets index ball position variables
     Brain.Screen.drawCircle(200, 100, 50, black);
   }
 
-  if (LinePosition3.pressing()) { //Position 3
+  if (LinePosition3L.value(pct) < 67 || LinePosition3T.value(pct) < 67) { //Position 3
     dC.position3 = true;
     Brain.Screen.drawCircle(100, 100, 50, green);
   } else {
