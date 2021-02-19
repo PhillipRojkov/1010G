@@ -103,8 +103,7 @@ void DriveClass::cIndex() { // Automatic index
       IndexerTop.spin(forward, 40, pct);
       IndexerLow.spin(forward, 40, pct);
     }
-    if (position3 &&
-        !position2) { // If position 3 is filled, fill position2
+    if (position3 && !position2) { // If position 3 is filled, fill position2
       IndexerLow.spin(forward, 40, pct);
     }
   }
@@ -114,26 +113,27 @@ void DriveClass::openIntake() {
   // PID open on bottom right
   // bumper Left Intake
   double leftError = -leftPotDesired + potL.angle(deg);
-  IntakeL.spin(reverse, 100, pct); //Run left intake
-  if (leftError < potRange2) { //inside small range
+  IntakeL.spin(reverse, 100, pct); // Run left intake
+  if (leftError < potRange2) {     // inside small range
     leftBrake = true;
   }
-  if (leftError < potRange1 && leftBrake) { //inside large range and left brake
+  if (leftError < potRange1 && leftBrake) { // inside large range and left brake
     IntakeL.stop(hold);
   }
-  if (leftError >= potRange1) { //out of large range
+  if (leftError >= potRange1) { // out of large range
     leftBrake = false;
   }
   // Right Intake
   double rightError = -rightPotDesired + potR.angle(deg);
-  IntakeR.spin(reverse, 100, pct); //Run right intake
-  if (rightError < potRange2) { //inside small range
+  IntakeR.spin(reverse, 100, pct); // Run right intake
+  if (rightError < potRange2) {    // inside small range
     rightBrake = true;
   }
-  if (rightError < potRange1 && rightBrake) { //inside large range and rightBrake
+  if (rightError < potRange1 &&
+      rightBrake) { // inside large range and rightBrake
     IntakeR.stop(hold);
   }
-  if (rightError >= potRange1) { //out of large range
+  if (rightError >= potRange1) { // out of large range
     rightBrake = false;
   }
   enableIndex = false;
@@ -162,16 +162,16 @@ void DriveClass::intake() {
   }
 }
 
-void DriveClass::indexSense() { // Sets index ball position variables
-  if (LinePosition1.value(pct) < 60) { //Position 1
+void DriveClass::indexSense() {        // Sets index ball position variables
+  if (LinePosition1.value(pct) < 60) { // Position 1
     position1 = true;
-    Brain.Screen.drawCircle(300, 100, 50, green); //Visualisation
+    Brain.Screen.drawCircle(300, 100, 50, green); // Visualisation
   } else {
     position1 = false;
     Brain.Screen.drawCircle(300, 100, 50, black);
   }
 
-  if (LinePosition2.value(pct) < 70) { //Position 2
+  if (LinePosition2.value(pct) < 70) { // Position 2
     position2 = true;
     Brain.Screen.drawCircle(200, 100, 50, green);
   } else {
@@ -179,7 +179,8 @@ void DriveClass::indexSense() { // Sets index ball position variables
     Brain.Screen.drawCircle(200, 100, 50, black);
   }
 
-  if (LinePosition3L.value(pct) < 67 || LinePosition3T.value(pct) < 67) { //Position 3
+  if (LinePosition3L.value(pct) < 67 ||
+      LinePosition3T.value(pct) < 67) { // Position 3
     position3 = true;
     Brain.Screen.drawCircle(100, 100, 50, green);
   } else {
@@ -192,25 +193,28 @@ void DriveClass::intakeSense() {
   // Red code
   for (int i = 0; i < 2; i++) {
     if (i == 0) {
-      VisionSensor.takeSnapshot(SIG_2); //Red signature
+      VisionSensor.takeSnapshot(SIG_2); // Red signature
     } else {
-      VisionSensor.takeSnapshot(SIG_1); //Blue signature
+      VisionSensor.takeSnapshot(SIG_1); // Blue signature
     }
     if (VisionSensor.largestObject.exists &&
-        VisionSensor.largestObject.width > 100) { //If the object exists and is relatively close
+        VisionSensor.largestObject.width >
+            100) { // If the object exists and is relatively close
       if (VisionSensor.largestObject.centerY >
           190) { // If the object is near, close until position1 is clicked
         doIntake = true;
         enableIndex = true;
       } else if (VisionSensor.largestObject.centerY > 80 &&
-                 VisionSensor.largestObject.centerY <= 190) { // If the object is far, open intake
+                 VisionSensor.largestObject.centerY <=
+                     190) { // If the object is far, open intake
         openIntake();
         doIntake = false;
       }
-      if (doIntake && position1) { //Stop intaking once the ball enters position 1
+      if (doIntake &&
+          position1) { // Stop intaking once the ball enters position 1
         doIntake = false;
       }
-      if (doIntake) { //Run the intakes if doIntake is true
+      if (doIntake) { // Run the intakes if doIntake is true
         IntakeL.spin(forward, 100, vex::pct);
         IntakeR.spin(forward, 100, vex::pct);
         leftIntakeTotalError = 0;

@@ -3,7 +3,7 @@
 #include <fstream> //Used for SD card functions
 
 class EncoderOdometry {
-  public:
+public:
   double encoderX;
   double encoderY;
 

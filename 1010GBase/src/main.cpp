@@ -37,13 +37,13 @@ DriveClass driveClass;
 AutoMasters autoMasters;
 Odometry odometry;
 
-//Auto selector integer
+// Auto selector integer
 int selection = 0;
 /*
-* 0 : Home row, right starting position
-* 1 : Two + middle, right starting position
-* 2 : Two + right side, right starting position
-*/
+ * 0 : Home row, right starting position
+ * 1 : Two + middle, right starting position
+ * 2 : Two + right side, right starting position
+ */
 int numOfAutos = 3;
 bool selecting = false;
 
@@ -74,7 +74,7 @@ void pre_auton(void) {
 
   odometry.finishCalibrating();
 
-  //Auto selection
+  // Auto selection
   while (true) {
     if (selector.pressing() && !selecting) {
       selecting = true;
@@ -90,15 +90,14 @@ void pre_auton(void) {
     Brain.Screen.print("Auto Selection :");
     Brain.Screen.setCursor(2, 18);
     Brain.Screen.print(selection);
-    wait (20, msec);
+    wait(20, msec);
   }
 }
 
-void autonomous(void) {  
-  Brain.Screen.clearScreen(); //Clear the auto selection text
+void autonomous(void) {
+  Brain.Screen.clearScreen(); // Clear the auto selection text
   // .........................................................................
-  //autoMasters.newSkillsNew();
-
+  // autoMasters.newSkillsNew();
   if (selection == 0) {
     autoMasters.rightHome();
   } else if (selection == 1) {
@@ -118,48 +117,35 @@ void usercontrol(void) {
   while (1) {
     // ........................................................................
     driveClass.enableIndex = false;
-
     driveClass.runTankBase();
-
     driveClass.indexSense();
-
     driveClass.index();
-
     driveClass.intake();
-
     if (Controller2.ButtonA.pressing()) {
-     driveClass.resetScoreNum();
-     driveClass.enableIndex = true;
+      driveClass.resetScoreNum();
+      driveClass.enableIndex = true;
     }
-
     driveClass.score();
-
     driveClass.checkPosition1();
-
-    //odometry.computeLocation();
 
     Brain.Screen.setCursor(1, 1);
     Brain.Screen.print(potL.angle(degrees));
     Brain.Screen.setCursor(3, 1);
     Brain.Screen.print(potR.angle(degrees));
 
-
     if (driveClass.enableIndex) {
       indexWait = false;
     }
-
-    //If enableIndex is false for less than three seconds in a row
-    //set enableIndex = true
-    //Start counting up
+    // If enableIndex is false for less than three seconds in a row
+    // set enableIndex = true
+    // Start counting up
     if (!driveClass.enableIndex && t <= Brain.timer(sec) && !indexWait) {
       t = timeToIndex + Brain.timer(sec);
       indexWait = true;
-    } else if (t > Brain.timer(sec)){
+    } else if (t > Brain.timer(sec)) {
       driveClass.enableIndex = true;
     }
-
     driveClass.intake();
-
     driveClass.cIndex();
     // ........................................................................
     wait(10, msec); // Sleep the task for a short amount of time to prevent

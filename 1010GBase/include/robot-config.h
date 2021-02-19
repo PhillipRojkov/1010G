@@ -1,6 +1,5 @@
 using namespace vex;
 
-
 extern brain Brain;
 
 // VEXcode devices
@@ -28,7 +27,7 @@ extern motor IntakeR;
 // Indexers
 extern motor IndexerTop;
 extern motor IndexerLow;
-//Vision
+// Vision
 extern vision VisionSensor;
 extern vision::signature SIG_1;
 extern vision::signature SIG_2;

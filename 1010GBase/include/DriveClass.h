@@ -2,7 +2,7 @@
 #include "vex.h"
 
 class DriveClass {
-  private:
+private:
   // Drive parameters
   int controllerDeadZone = 17; // Stick dead zone (stick values from 0 - 100)
   int strafeSpeed = 110;
@@ -13,8 +13,8 @@ class DriveClass {
 
   // Intake parameters
   // pot parameters
-  int leftPotDesired = 30; //min
-  int rightPotDesired = 105; //min
+  int leftPotDesired = 30;   // min
+  int rightPotDesired = 105; // min
   int potRange1 = 7;
   int potRange2 = 2;
   bool leftBrake = false;
@@ -37,29 +37,19 @@ class DriveClass {
   int indexRotation;
   double timeToIndex = 1.2;
   double t = 0;
-  
-  public:
+
+public:
   bool enableIndex = false;
 
   void runTankBase();
-
   void runArcadeBase();
-
   void index();
-
   void cIndex();
-
   void openIntake();
-
   void intake();
-
   void indexSense();
-
   void intakeSense();
-
   void score();
-
   void resetScoreNum();
-
   void checkPosition1();
 };

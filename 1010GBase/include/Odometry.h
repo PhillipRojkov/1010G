@@ -1,13 +1,13 @@
 #pragma once
-#include "InertialNavigation.h"
 #include "EncoderOdometry.h"
+#include "InertialNavigation.h"
 
 class Odometry {
-  public: 
+public:
   double x;
   double y;
 
-  void setXY();
-
   void finishCalibrating();
+
+  void setXY();
 };

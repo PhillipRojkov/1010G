@@ -1,14 +1,14 @@
 #pragma once
 #include "vex.h"
 
-class AutoFunctions { //Holds basic autonomous functions
-  public:
+class AutoFunctions { // Holds basic autonomous functions
+public:
   // Indexer parameters
   bool position1;
   bool position2;
   bool position3;
 
-  private:
+private:
   double h = 0; // Heading in degrees. Rotation clockwise is positive, does not
                 // reset at 360
 
@@ -81,81 +81,43 @@ class AutoFunctions { //Holds basic autonomous functions
   double derivative;     // error - prevError : speed
   double totalError = 0; //+= error
 
-  public:
+public:
   void resetDriveEncoders();
-
   void resetPID();
-
   double avgDriveEncoder();
-
   double absAvgDriveEncoder();
 
   void drive(int dir, double speed);
-
   void strafe(int dir,
               double speed); // Strafe right (dir = 1) or left (dir = -1)
-
-  void brakeDrive(); // Stop the drive using brake mode brake
+  void brakeDrive();         // Stop the drive using brake mode brake
 
   void
   autoForward(double degrees, double iDeg, double fDeg,
               double speed); // Forward auto function. degrees > iDeg + fDeg
-
-              void
+  void
   autoForward(double degrees, double iDeg, double fDeg, bool intake,
               double speed); // Forward auto function. degrees > iDeg + fDeg
-
-  void
-  dumbForward(double degrees, double iDeg, double fDeg,
-              double speed);
-
-  void
-  dumbBackward(double degrees, double iDeg, double fDeg,
-              double speed);
-
-  void
-  autoBackward(double degrees, double iDeg, double fDeg,
-               double speed);
-
+  void dumbForward(double degrees, double iDeg, double fDeg, double speed);
+  void dumbBackward(double degrees, double iDeg, double fDeg, double speed);
+  void autoBackward(double degrees, double iDeg, double fDeg, double speed);
   void autoTurnTo(double degrees);
-
-  void autoStrafeLeft(
-      double degrees, double iDeg, double fDeg,
-      double speed);
-
-  void autoStrafeRight(
-      double degrees, double iDeg, double fDeg,
-      double speed);
-
+  void autoStrafeLeft(double degrees, double iDeg, double fDeg, double speed);
+  void autoStrafeRight(double degrees, double iDeg, double fDeg, double speed);
   void intake(double speed);
-
   void autoIntake();
-
   void openIntake();
-
   void openIntakeTo();
-
   void intakeBrake();
-
   void index(double speed);
-
   void pIndex(double speed, double degrees);
-
   void outdex(double speed);
-
   void pOutdex(double speed, double degrees);
-
   void indexerBrake();
-
   void cIndex();
-
   void indexSense();
-
   void shoot();
-
   void doubleShot();
-
   void alignTurnRight(double speed, double degrees);
-
   void alignTurnLeft(double speed, double degrees);
 };

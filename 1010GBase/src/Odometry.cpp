@@ -10,6 +10,4 @@ void Odometry::setXY() {
   x = (encoderOdometry.encoderX + inertialNavigation.inertialX) / 2;
 }
 
-void Odometry::finishCalibrating() {
-  inertialNavigation.calibrating = false;
-}
+void Odometry::finishCalibrating() { inertialNavigation.calibrating = false; }
