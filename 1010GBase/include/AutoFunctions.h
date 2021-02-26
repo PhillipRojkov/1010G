@@ -82,42 +82,37 @@ private:
   double totalError = 0; //+= error
 
 public:
-  void resetDriveEncoders();
-  void resetPID();
-  double avgDriveEncoder();
-  double absAvgDriveEncoder();
+  void resetDriveEncoders(); // Resets all driver encoder positions to zero
+  void resetPID();  // Set all PID values to zero
+  double avgDriveEncoder(); // Returns average of all driver encoder positions
+  double absAvgDriveEncoder(); // Returns average of all drive encoder abs positions
 
-  void drive(int dir, double speed);
-  void strafe(int dir,
-              double speed); // Strafe right (dir = 1) or left (dir = -1)
-  void brakeDrive();         // Stop the drive using brake mode brake
-
-  void
-  autoForward(double degrees, double iDeg, double fDeg,
-              double speed); // Forward auto function. degrees > iDeg + fDeg
-  void
-  autoForward(double degrees, double iDeg, double fDeg, bool intake,
-              double speed); // Forward auto function. degrees > iDeg + fDeg
-  void dumbForward(double degrees, double iDeg, double fDeg, double speed);
-  void dumbBackward(double degrees, double iDeg, double fDeg, double speed);
-  void autoBackward(double degrees, double iDeg, double fDeg, double speed);
-  void autoTurnTo(double degrees);
-  void autoStrafeLeft(double degrees, double iDeg, double fDeg, double speed);
-  void autoStrafeRight(double degrees, double iDeg, double fDeg, double speed);
-  void intake(double speed);
-  void autoIntake();
-  void openIntake();
-  void openIntakeTo();
-  void intakeBrake();
-  void index(double speed);
-  void pIndex(double speed, double degrees);
-  void outdex(double speed);
-  void pOutdex(double speed, double degrees);
-  void indexerBrake();
-  void cIndex();
-  void indexSense();
-  void shoot();
-  void doubleShot();
-  void alignTurnRight(double speed, double degrees);
-  void alignTurnLeft(double speed, double degrees);
+  void drive(int dir, double speed); // Drive forward (dir = 1) or backward (dir = -1). Called every loopTime msec
+  void strafe(int dir, double speed); // Strafe right (dir = 1) or left (dir = -1)
+  void brakeDrive(); // Stop the drive using brake mode brake
+  void autoForward(double degrees, double iDeg, double fDeg, double speed); // Forward auto function. degrees > iDeg + fDeg
+  void autoForward(double degrees, double iDeg, double fDeg, bool intake, double speed); // Forward auto function. degrees > iDeg + fDeg
+  void dumbForward(double degrees, double iDeg, double fDeg, double speed); // No auto index
+  void dumbBackward(double degrees, double iDeg, double fDeg, double speed); //No auto index
+  void autoBackward(double degrees, double iDeg, double fDeg, double speed); // Backward auto function. degrees > iDeg + fDeg
+  void autoTurnTo(double degrees); //PID turn, +degrees turns right, -degrees turns left
+  void autoStrafeLeft(double degrees, double iDeg, double fDeg, double speed); // Strafe left auto function. degrees > iDeg + fDeg
+  void autoStrafeRight(double degrees, double iDeg, double fDeg, double speed); // Strafe right auto function. degrees > iDeg + fDeg
+  void intake(double speed); // Run intakes at speed
+  void autoIntake(); // Automatically intake balls using vision
+  void openIntake(); // Open intakes
+  void openIntakeTo(); // Open intakes and then continue
+  void intakeBrake(); // Stop intakes using braketype hold
+  void index(double speed); // Run indexer at speed
+  void pIndex(double speed, double degrees); // Run indexer for set number of degrees at speed
+  void outdex(double speed); // Outdex at speed
+  void pOutdex(double speed, double degrees); //Outdex for a set number of degrees at speed
+  void indexerBrake(); // Hold indexer
+  void cIndex(); // Auto index
+  void indexSense(); // Set position variables for auto index
+  void shoot(); // Shoot 1 ball
+  void doubleShot(); // Shoot 2 balls
+  void alignTurnRight(double speed, double degrees); // Turn right into corner goal until param degrees is reached
+  void alignTurnLeft(double speed, double degrees); // Turn left into corner goal until param degrees is reached
+  void flipout(); // Run hood flipout
 };

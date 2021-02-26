@@ -5,11 +5,11 @@ class DriveClass {
 private:
   // Drive parameters
   int controllerDeadZone = 17; // Stick dead zone (stick values from 0 - 100)
-  int strafeSpeed = 110;
+  int strafeSpeed = 100;
   double strafeStickMultiplier =
       0.6; // Strafe slowdown multiplier applied to sticks
-  double frontStrafeSpeedMultiplier =
-      1; // Slow down front wheels in strafe in order to keep straight
+  double strafeWeighting =
+      1; // Larger strafeWeighting increases front speed, decreases rear speed. 1 is equal
 
   // Intake parameters
   // pot parameters
@@ -41,15 +41,15 @@ private:
 public:
   bool enableIndex = false;
 
-  void runTankBase();
-  void runArcadeBase();
-  void index();
-  void cIndex();
-  void openIntake();
-  void intake();
-  void indexSense();
-  void intakeSense();
-  void score();
-  void resetScoreNum();
-  void checkPosition1();
+  void runTankBase(); // Linear tank drive with mecanum on bumpers
+  void runArcadeBase(); // Linear mecanum drive in arcade style
+  void index(); // Indexer override on partner left bumpers
+  void cIndex(); // Automatic index
+  void openIntake(); // Open intakes on partner bottom right bumper
+  void intake(); // Intake/ open/ auto intake, on top right bumper/ bottom right bumper/ up button
+  void indexSense(); // Sets index ball position variables
+  void intakeSense(); // Automatically intake balls
+  void score(); // Score macros for one and two balls (driver bottom left bumper, bottom right bumper)
+  void resetScoreNum(); // Reset score macro
+  void checkPosition1(); // Auto intake when a ball is in position1
 };

@@ -15,21 +15,21 @@ line LinePosition1 = line(Brain.ThreeWirePort.D);
 line LinePosition2 = line(Brain.ThreeWirePort.G);
 line LinePosition3L = line(Brain.ThreeWirePort.C);
 line LinePosition3T = line(Brain.ThreeWirePort.H);
-pot potL = pot(Brain.ThreeWirePort.H);
-pot potR = pot(Brain.ThreeWirePort.D);
+line IntakeLineL = line(Brain.ThreeWirePort.A);
+line IntakeLineR = line(Brain.ThreeWirePort.B);
 distance DistanceSensor = distance(PORT13);
 limit selector = limit(Brain.ThreeWirePort.E);
 // Drive motors
-motor DriveFL = motor(PORT20, ratio36_1, true); // Front left drive - Reversed
-motor DriveFR = motor(PORT7, ratio36_1, false); // Front right drive
+motor DriveFL = motor(PORT20, ratio36_1, false); // Front left drive
+motor DriveFR = motor(PORT7, ratio36_1, true); // Front right drive - Reversed
 motor DriveBL = motor(PORT17, ratio36_1, true); // Back left drive - Reversed
 motor DriveBR = motor(PORT9, ratio36_1, false); // Back right drive
 // Intake motors
 motor IntakeL = motor(PORT13, ratio18_1, false); // Left intake
 motor IntakeR = motor(PORT2, ratio18_1, true);   // Right intake - Reversed
 // Indexer motors
-motor IndexerTop = motor(PORT18, ratio6_1, false); // Left indexer
-motor IndexerLow = motor(PORT8, ratio18_1, true);  // Right indexer - Reversed
+motor IndexerTop = motor(PORT18, ratio18_1, false); // Top indexer
+motor IndexerLow = motor(PORT8, ratio18_1, true);  // Lower indexer - Reversed
 // Vision
 vex::vision::signature SIG_1 =
     vex::vision::signature(1, -3073, -1003, -2038, 853, 11915, 6384, 1, 0);

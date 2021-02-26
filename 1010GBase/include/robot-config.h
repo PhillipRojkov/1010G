@@ -12,8 +12,8 @@ extern line LinePosition1;
 extern line LinePosition2;
 extern line LinePosition3L;
 extern line LinePosition3T;
-extern pot potL;
-extern pot potR;
+extern line IntakeLineL;
+extern line IntakeLineR;
 extern distance DistanceSensor;
 extern limit selector;
 // Drive

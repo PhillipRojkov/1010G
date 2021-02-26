@@ -1,6 +1,6 @@
 #include "DriveClass.h"
 
-void DriveClass::runTankBase() { // Linear tank drive with mecanum on bumpers
+void DriveClass::runTankBase() {
   // Left stick
   if (abs(Controller1.Axis3.value()) > controllerDeadZone) {
     DriveFL.spin(vex::directionType::fwd, Controller1.Axis3.value(),
@@ -24,44 +24,44 @@ void DriveClass::runTankBase() { // Linear tank drive with mecanum on bumpers
   // Left bumper strafe left
   if (Controller1.ButtonL1.pressing()) {
     DriveBL.spin(directionType::fwd,
-                 strafeSpeed +
+                 strafeSpeed * (2 - strafeWeighting) +
                      Controller1.Axis3.value() * strafeStickMultiplier,
                  velocityUnits::pct);
     DriveFL.spin(directionType::rev,
-                 strafeSpeed * frontStrafeSpeedMultiplier -
+                 strafeSpeed * strafeWeighting -
                      Controller1.Axis3.value() * strafeStickMultiplier,
                  velocityUnits::pct);
     DriveBR.spin(directionType::rev,
-                 strafeSpeed -
+                 strafeSpeed * (2 - strafeWeighting) -
                      Controller1.Axis2.value() * strafeStickMultiplier,
                  velocityUnits::pct);
     DriveFR.spin(directionType::fwd,
-                 strafeSpeed * frontStrafeSpeedMultiplier +
+                 strafeSpeed * strafeWeighting +
                      Controller1.Axis2.value() * strafeStickMultiplier,
                  velocityUnits::pct);
   }
   // Right bumper strafe right
   if (Controller1.ButtonR1.pressing()) {
     DriveBL.spin(directionType::rev,
-                 strafeSpeed -
+                 strafeSpeed * (2 - strafeWeighting) -
                      Controller1.Axis3.value() * strafeStickMultiplier,
                  velocityUnits::pct);
     DriveFL.spin(directionType::fwd,
-                 strafeSpeed * frontStrafeSpeedMultiplier +
+                 strafeSpeed * strafeWeighting +
                      Controller1.Axis3.value() * strafeStickMultiplier,
                  velocityUnits::pct);
     DriveBR.spin(directionType::fwd,
-                 strafeSpeed +
+                 strafeSpeed * (2 - strafeWeighting) +
                      Controller1.Axis2.value() * strafeStickMultiplier,
                  velocityUnits::pct);
     DriveFR.spin(directionType::rev,
-                 strafeSpeed * frontStrafeSpeedMultiplier -
+                 strafeSpeed * strafeWeighting -
                      Controller1.Axis2.value() * strafeStickMultiplier,
                  velocityUnits::pct);
   }
 }
 
-void DriveClass::runArcadeBase() { // Linear mecanum drive in arcade style
+void DriveClass::runArcadeBase() {
   DriveFL.spin(forward,
                Controller1.Axis2.value() + Controller1.Axis1.value() +
                    Controller1.Axis4.value(),
@@ -80,89 +80,76 @@ void DriveClass::runArcadeBase() { // Linear mecanum drive in arcade style
                vex::pct);
 }
 
-void DriveClass::index() { // Indexer override
-  // Simple indexer up on top left bumper
+void DriveClass::index() {
+  // Simple indexer up on partner top left bumper
   if (Controller2.ButtonL1.pressing()) {
     IndexerTop.spin(forward, 100, vex::pct);
     IndexerLow.spin(forward, 80, vex::pct);
     enableIndex = false; // disable auto indexing
   } else if (Controller2.ButtonL2
-                 .pressing()) { // Simple indexer down on bottom left bumper
+                 .pressing()) { // Simple indexer down on partner bottom left bumper
     IndexerTop.spin(reverse, 100, vex::pct);
     IndexerLow.spin(reverse, 100, vex::pct);
     enableIndex = false; // disable auto indexing
-  } else {
-    IndexerTop.stop(vex::hold);
-    IndexerLow.stop(vex::hold);
+  } else { //Auto index
+    cIndex();
   }
 }
 
 void DriveClass::cIndex() { // Automatic index
   if (enableIndex) {
     if (!position3) { // Always try to fill position 3
-      IndexerTop.spin(forward, 40, pct);
-      IndexerLow.spin(forward, 40, pct);
+      IndexerTop.spin(forward, 70, pct);
+      IndexerLow.spin(forward, 70, pct);
     }
     if (position3 && !position2) { // If position 3 is filled, fill position2
-      IndexerLow.spin(forward, 40, pct);
+      IndexerLow.spin(forward, 70, pct);
+      IndexerTop.stop(hold);
+    }
+    if (position3 && position2) { // Hold balls when both position 2 and 3 are filled
+      IndexerLow.stop(hold);
+      IndexerTop.stop(hold);
     }
   }
 }
 
 void DriveClass::openIntake() {
-  // PID open on bottom right
-  // bumper Left Intake
-  double leftError = -leftPotDesired + potL.angle(deg);
+  // open Left Intake on bottom right bumper
   IntakeL.spin(reverse, 100, pct); // Run left intake
-  if (leftError < potRange2) {     // inside small range
-    leftBrake = true;
-  }
-  if (leftError < potRange1 && leftBrake) { // inside large range and left brake
-    IntakeL.stop(hold);
-  }
-  if (leftError >= potRange1) { // out of large range
-    leftBrake = false;
+  if (IntakeLineL.value(pct) < 50) {
+    IntakeL.stop();
   }
   // Right Intake
-  double rightError = -rightPotDesired + potR.angle(deg);
   IntakeR.spin(reverse, 100, pct); // Run right intake
-  if (rightError < potRange2) {    // inside small range
-    rightBrake = true;
-  }
-  if (rightError < potRange1 &&
-      rightBrake) { // inside large range and rightBrake
-    IntakeR.stop(hold);
-  }
-  if (rightError >= potRange1) { // out of large range
-    rightBrake = false;
+  if (IntakeLineR.value(pct) < 50) {
+    IntakeR.stop();
   }
   enableIndex = false;
 }
 
 void DriveClass::intake() {
-  // Intake on top right bumper
-  if (Controller2.ButtonR1.pressing()) {
+  if (Controller2.ButtonR1.pressing()) { // Intake on partner top right bumper
     IntakeL.spin(forward, 100, vex::pct);
     IntakeR.spin(forward, 100, vex::pct);
-    leftIntakeTotalError = 0;
+    leftIntakeTotalError = 0; //Reset opening PID values
     rightIntakeTotalError = 0;
-    enableIndex = true;
-    doIntake = false;
-  } else if (Controller2.ButtonR2.pressing()) {
+    enableIndex = true; //Auto index
+    doIntake = false; //Disable auto intake
+  } else if (Controller2.ButtonR2.pressing()) { // Open on partner bottom right bumper
     openIntake();
-    doIntake = false;
-  } else if (Controller2.ButtonUp.pressing()) { // Auto intake
+    doIntake = false; //Disable auto intake
+  } else if (Controller2.ButtonUp.pressing()) { // Auto intake on partner up button
     intakeSense();
   } else {
-    leftIntakeTotalError = 0;
+    leftIntakeTotalError = 0; //Reset opening PID values
     rightIntakeTotalError = 0;
-    IntakeL.stop(hold);
+    IntakeL.stop(hold); //Hold the intakes in the open position
     IntakeR.stop(hold);
-    doIntake = false;
+    doIntake = false; //Disable auto intake
   }
 }
 
-void DriveClass::indexSense() {        // Sets index ball position variables
+void DriveClass::indexSense() {
   if (LinePosition1.value(pct) < 60) { // Position 1
     position1 = true;
     Brain.Screen.drawCircle(300, 100, 50, green); // Visualisation
@@ -225,7 +212,7 @@ void DriveClass::intakeSense() {
   }
 }
 
-void DriveClass::score() { // Score macro
+void DriveClass::score() {
   // Score 1
   if (Controller1.ButtonL2.pressing() && scoreNum == 0) {
     scoreNum = 1;

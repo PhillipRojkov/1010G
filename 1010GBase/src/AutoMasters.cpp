@@ -1,10 +1,12 @@
 #include "AutoMasters.h"
 
-AutoFunctions autoFunctions;
+void AutoMasters::runFlipout() {
+  autoFunctions.flipout();
+}
 
-// Master Functions
 void AutoMasters::newSkillsNew() {
   // Flipout
+  autoFunctions.flipout();
   autoFunctions.openIntakeTo();
   wait(700, msec);
   autoFunctions.dumbForward(200, 100, 100, 40);
@@ -103,6 +105,7 @@ void AutoMasters::newSkillsNew() {
 
 void AutoMasters::rightHome() {
   // Flipout
+  autoFunctions.flipout();
   autoFunctions.openIntake();
   wait(200, msec);
   // Goal 1
@@ -140,6 +143,7 @@ void AutoMasters::rightHome() {
 
 void AutoMasters::rightTwoAndMiddle() {
   // Flipout
+  autoFunctions.flipout();
   autoFunctions.openIntake();
   wait(200, msec);
   // Goal 1
@@ -171,6 +175,7 @@ void AutoMasters::rightTwoAndMiddle() {
 
 void AutoMasters::rightTwoAndSide() {
   // Flipout
+  autoFunctions.flipout();
   autoFunctions.openIntake();
   wait(200, msec);
   // Goal 1

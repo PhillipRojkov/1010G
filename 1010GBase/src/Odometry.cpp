@@ -1,8 +1,5 @@
 #include "Odometry.h"
 
-EncoderOdometry encoderOdometry;
-InertialNavigation inertialNavigation;
-
 void Odometry::setXY() {
   encoderOdometry.computeLocation();
   inertialNavigation.computeLocation();

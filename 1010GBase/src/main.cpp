@@ -7,21 +7,6 @@
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
-// ---- START VEXCODE CONFIGURED DEVICES ----
-// Robot Configuration:
-// [Name]               [Type]        [Port(s)]
-// Controller1           Controller   Primary
-// Controller2           Controller   Secondary
-// IMU                   inertial     15
-// DriveFL              Motor         20
-// DriveFR              Motor         8
-// DriveBL              Motor         19
-// DriveBR              Motor         9
-// IntakeL              Motor         12
-// IntakeR              Motor         2
-// IndexerL             Motor         11
-// IndexerR             Motor         1
-// ---- END VEXCODE CONFIGURED DEVICES ----
 #include "AutoMasters.h"
 #include "DriveClass.h"
 #include "Odometry.h"
@@ -43,8 +28,9 @@ int selection = 0;
  * 0 : Home row, right starting position
  * 1 : Two + middle, right starting position
  * 2 : Two + right side, right starting position
+ * 3 : Skills auto
  */
-int numOfAutos = 3;
+int numOfAutos = 4;
 bool selecting = false;
 
 // define your global instances of motors and other devices here
@@ -97,13 +83,14 @@ void pre_auton(void) {
 void autonomous(void) {
   Brain.Screen.clearScreen(); // Clear the auto selection text
   // .........................................................................
-  // autoMasters.newSkillsNew();
   if (selection == 0) {
     autoMasters.rightHome();
   } else if (selection == 1) {
     autoMasters.rightTwoAndMiddle();
   } else if (selection == 2) {
     autoMasters.rightTwoAndSide();
+  } else if (selection == 3) {
+    autoMasters.newSkillsNew();
   }
   // ..........................................................................
 }
@@ -113,26 +100,27 @@ void usercontrol(void) {
   double timeToIndex = 2;
   double t = 0;
 
+  if (selection == 3) { //Run Flipout for skills driver
+    autoMasters.runFlipout();
+  }
+
   // User control code here, inside the loop
   while (1) {
     // ........................................................................
-    driveClass.enableIndex = false;
+    //driveClass.enableIndex = false;
+    driveClass.enableIndex = true;
     driveClass.runTankBase();
     driveClass.indexSense();
     driveClass.index();
     driveClass.intake();
-    if (Controller2.ButtonA.pressing()) {
+    /*if (Controller2.ButtonA.pressing()) {
       driveClass.resetScoreNum();
       driveClass.enableIndex = true;
-    }
+    }*/
     driveClass.score();
-    driveClass.checkPosition1();
+    //driveClass.checkPosition1();
 
-    Brain.Screen.setCursor(1, 1);
-    Brain.Screen.print(potL.angle(degrees));
-    Brain.Screen.setCursor(3, 1);
-    Brain.Screen.print(potR.angle(degrees));
-
+/*
     if (driveClass.enableIndex) {
       indexWait = false;
     }
@@ -144,9 +132,8 @@ void usercontrol(void) {
       indexWait = true;
     } else if (t > Brain.timer(sec)) {
       driveClass.enableIndex = true;
-    }
+    }*/
     driveClass.intake();
-    driveClass.cIndex();
     // ........................................................................
     wait(10, msec); // Sleep the task for a short amount of time to prevent
                     // wasted resources.

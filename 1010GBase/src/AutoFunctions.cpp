@@ -1,37 +1,32 @@
 #include "AutoFunctions.h"
 
-void AutoFunctions::resetDriveEncoders() { // Resets all driver encoder
-                                           // positions to zero
+void AutoFunctions::resetDriveEncoders() {
   DriveBL.resetPosition();
   DriveBR.resetPosition();
   DriveFL.resetPosition();
   DriveFR.resetPosition();
 }
 
-void AutoFunctions::resetPID() { // Set all PID values to zero
+void AutoFunctions::resetPID() {
   error = 0;
   prevError = 0;
   derivative = 0;
   totalError = 0;
 }
 
-double AutoFunctions::avgDriveEncoder() { // Returns average of all driver
-                                          // encoder positions
+double AutoFunctions::avgDriveEncoder() {
   return (DriveBL.position(vex::deg) + DriveBR.position(vex::deg) +
           DriveFL.position(vex::deg) + DriveBR.position(vex::deg)) /
          4;
 }
 
-double AutoFunctions::absAvgDriveEncoder() { // Returns average of all drive
-                                             // encoder abs positions
+double AutoFunctions::absAvgDriveEncoder() {
   return (fabs(DriveBL.position(vex::deg)) + fabs(DriveBR.position(vex::deg)) +
           fabs(DriveFL.position(vex::deg)) + fabs(DriveBR.position(vex::deg))) /
          4;
 }
 
-void AutoFunctions::drive(int dir,
-                          double speed) { // Drive forward (dir = 1) or backward
-  // (dir = -1). Called every loopTime msec
+void AutoFunctions::drive(int dir, double speed) {
   // PID
   // Used to make robot go straight
   error = IMU.rotation() - h;
@@ -85,16 +80,15 @@ void AutoFunctions::strafe(
                vex::pct);
 }
 
-void AutoFunctions::brakeDrive() { // Stop the drive using brake mode brake
+void AutoFunctions::brakeDrive() {
   DriveBL.stop(vex::brake);
   DriveBR.stop(vex::brake);
   DriveFL.stop(vex::brake);
   DriveFR.stop(vex::brake);
 }
 
-void AutoFunctions::autoForward(
-    double degrees, double iDeg, double fDeg,
-    double speed) { // Forward auto function. degrees > iDeg + fDeg
+void AutoFunctions::autoForward(double degrees, double iDeg, double fDeg,
+                                double speed) {
   resetDriveEncoders();
   h = IMU.rotation();
   while (avgDriveEncoder() <
@@ -134,9 +128,8 @@ void AutoFunctions::autoForward(
   brakeDrive();
 }
 
-void AutoFunctions::autoForward(
-    double degrees, double iDeg, double fDeg, bool intake,
-    double speed) { // Forward auto function. degrees > iDeg + fDeg
+void AutoFunctions::autoForward(double degrees, double iDeg, double fDeg,
+                                bool intake, double speed) {
   resetDriveEncoders();
   h = IMU.rotation();
   while (avgDriveEncoder() <
@@ -180,9 +173,8 @@ void AutoFunctions::autoForward(
   doIntake = false; // Stop the intaking
 }
 
-void AutoFunctions::dumbForward(
-    double degrees, double iDeg, double fDeg,
-    double speed) { // Forward auto function. degrees > iDeg + fDeg
+void AutoFunctions::dumbForward(double degrees, double iDeg, double fDeg,
+                                double speed) {
   resetDriveEncoders();
   h = IMU.rotation();
   while (avgDriveEncoder() <
@@ -222,9 +214,8 @@ void AutoFunctions::dumbForward(
   brakeDrive();
 }
 
-void AutoFunctions::dumbBackward(
-    double degrees, double iDeg, double fDeg,
-    double speed) { // Backward auto function. degrees > iDeg + fDeg
+void AutoFunctions::dumbBackward(double degrees, double iDeg, double fDeg,
+                                 double speed) {
   resetDriveEncoders();
   h = IMU.rotation();
   while (fabs(avgDriveEncoder()) <
@@ -265,9 +256,8 @@ void AutoFunctions::dumbBackward(
   brakeDrive();
 }
 
-void AutoFunctions::autoBackward(
-    double degrees, double iDeg, double fDeg,
-    double speed) { // Backward auto function. degrees > iDeg + fDeg
+void AutoFunctions::autoBackward(double degrees, double iDeg, double fDeg,
+                                 double speed) {
   resetDriveEncoders();
   h = IMU.rotation();
   while (fabs(avgDriveEncoder()) <
@@ -308,8 +298,7 @@ void AutoFunctions::autoBackward(
   brakeDrive();
 }
 
-void AutoFunctions::autoTurnTo(
-    double degrees) {      //+degrees turns right, -degrees turns left
+void AutoFunctions::autoTurnTo(double degrees) {
   int t = 0;               // Time variable
   while (t < turnMargin) { // break when time exceeds the turnMargin
     // PID
@@ -347,9 +336,8 @@ void AutoFunctions::autoTurnTo(
   brakeDrive();
 }
 
-void AutoFunctions::autoStrafeLeft(
-    double degrees, double iDeg, double fDeg,
-    double speed) { // Strafe left auto function. degrees > iDeg + fDeg) {
+void AutoFunctions::autoStrafeLeft(double degrees, double iDeg, double fDeg,
+                                   double speed) {
   resetDriveEncoders();
   h = IMU.rotation();
   // accelerate from initialSpeed to speed while strafing through iDeg
@@ -387,9 +375,8 @@ void AutoFunctions::autoStrafeLeft(
   brakeDrive();
 }
 
-void AutoFunctions::autoStrafeRight(
-    double degrees, double iDeg, double fDeg,
-    double speed) { // Strafe right auto function. degrees > iDeg + fDeg) {
+void AutoFunctions::autoStrafeRight(double degrees, double iDeg, double fDeg,
+                                    double speed) {
   resetDriveEncoders();
   h = IMU.rotation();
   // accelerate from initialSpeed to speed while strafing through iDeg
@@ -465,96 +452,30 @@ void AutoFunctions::autoIntake() {
 }
 
 void AutoFunctions::openIntake() {
-  // PID open on bottom right
-  // bumper Left Intake
-  double leftError = -leftPotDesired + potL.angle(deg);
-  leftIntakeTotalError += leftError;
-  double leftDerivative = leftError - leftIntakePrevError;
-  leftIntakePrevError = leftError;
-  // Spin intake with PID values
-  /*IntakeL.spin(reverse,
-               leftError * dC.intakekP + dC.leftIntakeTotalError * dC.intakekI
-     - leftDerivative * dC.intakekD, pct);*/
-  IntakeL.spin(reverse, 100, pct);
-  if (leftError < potRange2) {
-    leftBrake = true;
-  }
-  if (leftError < potRange1 && leftBrake) {
-    IntakeL.stop(hold);
-  }
-  if (leftError >= potRange1) {
-    leftBrake = false;
+   // open Left Intake on bottom right bumper
+  IntakeL.spin(reverse, 100, pct); // Run left intake
+  if (IntakeLineL.value(pct) < 50) {
+    IntakeL.stop();
   }
   // Right Intake
-  double rightError = -rightPotDesired + potR.angle(deg);
-  rightIntakeTotalError += rightError;
-  double rightDerivative = rightError - rightIntakePrevError;
-  rightIntakePrevError = rightError;
-  // Spin intake with PID values
-  /*IntakeR.spin(reverse,
-               rightError * dC.intakekP +
-                   dC.rightIntakeTotalError * dC.intakekI -
-                   rightDerivative * dC.intakekD,
-               pct);*/
-  IntakeR.spin(reverse, 100, pct);
-  if (rightError < potRange2) { // inside small range
-    rightBrake = true;
-  }
-  if (rightError < potRange1 &&
-      rightBrake) { // inside large range and rightBrake
-    IntakeR.stop(hold);
-  }
-  if (rightError >= potRange1) { // out of large range
-    rightBrake = false;
+  IntakeR.spin(reverse, 100, pct); // Run right intake
+  if (IntakeLineR.value(pct) < 50) {
+    IntakeR.stop();
   }
 }
 
 void AutoFunctions::openIntakeTo() {
-  // PID open on bottom right
-  while (fabs(leftPotDesired - potL.angle(deg)) > 10 ||
-         fabs(-rightPotDesired + potR.angle(deg)) > 10) {
-    // PID open on bottom right
-    // bumper Left Intake
-    double leftError = -leftPotDesired + potL.angle(deg);
-    leftIntakeTotalError += leftError;
-    double leftDerivative = leftError - leftIntakePrevError;
-    leftIntakePrevError = leftError;
-    // Spin intake with PID values
-    /*IntakeL.spin(reverse,
-                 leftError * dC.intakekP + dC.leftIntakeTotalError *
-       dC.intakekI - leftDerivative * dC.intakekD, pct);*/
-    IntakeL.spin(reverse, 100, pct);
-    if (leftError < potRange2) {
-      leftBrake = true;
-    }
-    if (leftError < potRange1 && leftBrake) {
-      IntakeL.stop(hold);
-    }
-    if (leftError >= potRange1) {
-      leftBrake = false;
-    }
-    // Right Intake
-    double rightError = -rightPotDesired + potR.angle(deg);
-    rightIntakeTotalError += rightError;
-    double rightDerivative = rightError - rightIntakePrevError;
-    rightIntakePrevError = rightError;
-    // Spin intake with PID values
-    /*IntakeR.spin(reverse,
-                 rightError * dC.intakekP +
-                     dC.rightIntakeTotalError * dC.intakekI -
-                     rightDerivative * dC.intakekD,
-                 pct);*/
-    IntakeR.spin(reverse, 100, pct);
-    if (rightError < potRange2) { // inside small range
-      rightBrake = true;
-    }
-    if (rightError < potRange1 &&
-        rightBrake) { // inside large range and rightBrake
-      IntakeR.stop(hold);
-    }
-    if (rightError >= potRange1) { // out of large range
-      rightBrake = false;
-    }
+  while (!(IntakeLineL.value(pct) < 50) || !(IntakeLineR.value(pct) < 50)) {
+     // open Left Intake on bottom right bumper
+  IntakeL.spin(reverse, 100, pct); // Run left intake
+  if (IntakeLineL.value(pct) < 50) {
+    IntakeL.stop();
+  }
+  // Right Intake
+  IntakeR.spin(reverse, 100, pct); // Run right intake
+  if (IntakeLineR.value(pct) < 50) {
+    IntakeR.stop();
+  }
     wait(loopTime, msec);
   }
 }
@@ -615,7 +536,7 @@ void AutoFunctions::cIndex() {
   }
 }
 
-void AutoFunctions::indexSense() {     // Sets index ball position variables
+void AutoFunctions::indexSense() {
   if (LinePosition1.value(pct) < 60) { // Position 1
     position1 = true;
     Brain.Screen.drawCircle(300, 100, 50, green); // Visualisation
@@ -632,7 +553,8 @@ void AutoFunctions::indexSense() {     // Sets index ball position variables
     Brain.Screen.drawCircle(200, 100, 50, black);
   }
 
-  if (LinePosition3L.value(pct) < 70) { // Position 3
+  if (LinePosition3L.value(pct) < 67 ||
+      LinePosition3T.value(pct) < 67) { // Position 3
     position3 = true;
     Brain.Screen.drawCircle(100, 100, 50, green);
   } else {
@@ -703,4 +625,9 @@ void AutoFunctions::alignTurnLeft(double speed, double degrees) {
   }
   resetPID();
   brakeDrive();
+}
+
+void AutoFunctions::flipout() {
+  IndexerLow.rotateFor(forward, 360, deg, true);
+  IndexerLow.rotateFor(reverse, 720, deg, true);
 }
