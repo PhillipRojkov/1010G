@@ -99,7 +99,7 @@ void DriveClass::index() {
 void DriveClass::cIndex() { // Automatic index
   if (enableIndex) {
     if (!position3) { // Always try to fill position 3
-      IndexerTop.spin(forward, 70, pct);
+      IndexerTop.spin(forward, 50, pct);
       IndexerLow.spin(forward, 70, pct);
     }
     if (position3 && !position2) { // If position 3 is filled, fill position2
@@ -158,7 +158,7 @@ void DriveClass::indexSense() {
     Brain.Screen.drawCircle(300, 100, 50, black);
   }
 
-  if (LinePosition2.value(pct) < 70) { // Position 2
+  if (LinePosition2.value(pct) < 60) { // Position 2
     position2 = true;
     Brain.Screen.drawCircle(200, 100, 50, green);
   } else {
@@ -166,8 +166,8 @@ void DriveClass::indexSense() {
     Brain.Screen.drawCircle(200, 100, 50, black);
   }
 
-  if (LinePosition3L.value(pct) < 67 ||
-      LinePosition3T.value(pct) < 67) { // Position 3
+  if (LinePosition3L.value(pct) < 45 ||
+      LinePosition3T.value(pct) < 45) { // Position 3
     position3 = true;
     Brain.Screen.drawCircle(100, 100, 50, green);
   } else {
@@ -225,6 +225,7 @@ void DriveClass::score() {
   if (scoreNum == 1) {
     if (IndexerTop.position(degrees) < indexRotation + 600) {
       IndexerTop.spin(forward, 100, pct);
+      enableIndex = false;
     } else {
       enableIndex = true;
       scoreNum--;

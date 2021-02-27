@@ -10,7 +10,7 @@
 #include "AutoMasters.h"
 #include "DriveClass.h"
 #include "Odometry.h"
-#include "vex.h"
+#include "vex.h" 
 
 using namespace vex;
 
@@ -21,8 +21,6 @@ competition Competition;
 DriveClass driveClass;
 AutoMasters autoMasters;
 Odometry odometry;
-
-// Auto selector integer
 int selection = 0;
 /*
  * 0 : Home row, right starting position
@@ -109,6 +107,7 @@ void usercontrol(void) {
     // ........................................................................
     //driveClass.enableIndex = false;
     driveClass.enableIndex = true;
+    driveClass.score();
     driveClass.runTankBase();
     driveClass.indexSense();
     driveClass.index();

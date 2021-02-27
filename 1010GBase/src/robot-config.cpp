@@ -15,8 +15,8 @@ line LinePosition1 = line(Brain.ThreeWirePort.D);
 line LinePosition2 = line(Brain.ThreeWirePort.G);
 line LinePosition3L = line(Brain.ThreeWirePort.C);
 line LinePosition3T = line(Brain.ThreeWirePort.H);
-line IntakeLineL = line(Brain.ThreeWirePort.A);
-line IntakeLineR = line(Brain.ThreeWirePort.B);
+line IntakeLineL = line(Brain.ThreeWirePort.B);
+line IntakeLineR = line(Brain.ThreeWirePort.A);
 distance DistanceSensor = distance(PORT13);
 limit selector = limit(Brain.ThreeWirePort.E);
 // Drive motors
