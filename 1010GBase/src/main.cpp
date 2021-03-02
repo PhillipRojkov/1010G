@@ -82,7 +82,7 @@ void autonomous(void) {
   Brain.Screen.clearScreen(); // Clear the auto selection text
   // .........................................................................
   if (selection == 0) {
-    autoMasters.rightHome();
+    autoMasters.leftHome();
   } else if (selection == 1) {
     autoMasters.rightTwoAndMiddle();
   } else if (selection == 2) {

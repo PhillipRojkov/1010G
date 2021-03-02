@@ -106,10 +106,8 @@ void AutoMasters::newSkillsNew() {
 void AutoMasters::rightHome() {
   // Flipout
   autoFunctions.flipout();
-  autoFunctions.openIntake();
-  wait(200, msec);
   // Goal 1
-  autoFunctions.dumbForward(40, 20, 40, 100);
+  autoFunctions.autoForward(40, 20, 40, 100);
   autoFunctions.intake(100);
   autoFunctions.autoTurnTo(25);
   autoFunctions.intakeBrake();
@@ -139,6 +137,42 @@ void AutoMasters::rightHome() {
   autoFunctions.intakeBrake();
   autoFunctions.shoot();
   autoFunctions.autoBackward(200, 1, 1, 100);
+}
+
+void AutoMasters::leftHome() {
+  // Flipout
+  autoFunctions.flipout();
+  // Goal 1
+  autoFunctions.intake(100);
+  wait(200, msec);
+  autoFunctions.autoForward(90, 30, 30, 50);
+  autoFunctions.autoTurnTo(-45);
+  autoFunctions.intakeBrake();
+  autoFunctions.autoForward(50, 10, 10, 50);
+  autoFunctions.shoot();
+  // Goal 2
+  autoFunctions.autoBackward(200, 50, 100, 100);
+  autoFunctions.intake(100);
+  autoFunctions.autoTurnTo(0);
+  autoFunctions.autoBackward(340, 100, 100, 100);
+  autoFunctions.intakeBrake();
+  autoFunctions.autoTurnTo(-90);
+  autoFunctions.autoForward(110, 50, 50, 100);
+  wait(400, msec);
+  autoFunctions.shoot();
+  // Goal 3
+  autoFunctions.autoBackward(80, 30, 30, 100);
+  autoFunctions.autoTurnTo(-180);
+  autoFunctions.autoForward(400, 100, 100, 70);
+  wait(30, msec);
+  autoFunctions.autoTurnTo(-135);
+  autoFunctions.intake(100);
+  autoFunctions.autoForward(160, 50, 50, 60);
+  wait(600, msec);
+  autoFunctions.intakeBrake();
+  autoFunctions.autoForward(20, 1, 10, 50);
+  autoFunctions.shoot();
+  autoFunctions.autoBackward(70, 1, 1, 100);
 }
 
 void AutoMasters::rightTwoAndMiddle() {

@@ -12,6 +12,7 @@ public:
   void newSkillsNew();
   // Match autos
   void rightHome();
+  void leftHome();
   void rightTwoAndMiddle();
   void rightTwoAndSide();
 };

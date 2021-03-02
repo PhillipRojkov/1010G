@@ -234,8 +234,9 @@ void DriveClass::score() {
 
   if (scoreNum == 2) {
     // Run single shot
-    if (IndexerTop.position(degrees) < indexRotation + 600) {
+    if (IndexerTop.position(degrees) < indexRotation + 500) {
       IndexerTop.spin(forward, 100, pct);
+      enableIndex = false;
     } else if (!position3) {
       // cIndex until position3
       enableIndex = true;

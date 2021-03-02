@@ -10,7 +10,7 @@ brain Brain;
 controller Controller1 = controller(primary);
 controller Controller2 = controller(partner);
 // Sensors
-inertial IMU = inertial(PORT16);
+inertial IMU = inertial(PORT1);
 line LinePosition1 = line(Brain.ThreeWirePort.D);
 line LinePosition2 = line(Brain.ThreeWirePort.G);
 line LinePosition3L = line(Brain.ThreeWirePort.C);
@@ -19,6 +19,7 @@ line IntakeLineL = line(Brain.ThreeWirePort.B);
 line IntakeLineR = line(Brain.ThreeWirePort.A);
 distance DistanceSensor = distance(PORT13);
 limit selector = limit(Brain.ThreeWirePort.E);
+rotation encoderM = rotation(PORT19, false);
 // Drive motors
 motor DriveFL = motor(PORT20, ratio36_1, false); // Front left drive
 motor DriveFR = motor(PORT7, ratio36_1, true); // Front right drive - Reversed

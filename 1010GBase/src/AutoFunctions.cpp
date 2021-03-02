@@ -528,16 +528,16 @@ void AutoFunctions::cIndex() {
   indexerBrake();
   indexSense();
   if (!position3) {
-    IndexerTop.spin(forward, 100, pct);
-    IndexerLow.spin(forward, 80, pct);
+    IndexerTop.spin(forward, 40, pct);
+    IndexerLow.spin(forward, 70, pct);
   }
   if (position3 && !position2) {
-    IndexerLow.spin(forward, 80, pct);
+    IndexerLow.spin(forward, 70, pct);
   }
 }
 
 void AutoFunctions::indexSense() {
-  if (LinePosition1.value(pct) < 60) { // Position 1
+  if (LinePosition1.value(pct) < 58) { // Position 1
     position1 = true;
     Brain.Screen.drawCircle(300, 100, 50, green); // Visualisation
   } else {
@@ -545,7 +545,7 @@ void AutoFunctions::indexSense() {
     Brain.Screen.drawCircle(300, 100, 50, black);
   }
 
-  if (LinePosition2.value(pct) < 70) { // Position 2
+  if (LinePosition2.value(pct) < 60) { // Position 2
     position2 = true;
     Brain.Screen.drawCircle(200, 100, 50, green);
   } else {
@@ -553,8 +553,8 @@ void AutoFunctions::indexSense() {
     Brain.Screen.drawCircle(200, 100, 50, black);
   }
 
-  if (LinePosition3L.value(pct) < 67 ||
-      LinePosition3T.value(pct) < 67) { // Position 3
+  if (LinePosition3L.value(pct) < 45 ||
+      LinePosition3T.value(pct) < 45) { // Position 3
     position3 = true;
     Brain.Screen.drawCircle(100, 100, 50, green);
   } else {
@@ -628,6 +628,5 @@ void AutoFunctions::alignTurnLeft(double speed, double degrees) {
 }
 
 void AutoFunctions::flipout() {
-  IndexerLow.rotateFor(forward, 360, deg, true);
-  IndexerLow.rotateFor(reverse, 720, deg, true);
+  IndexerLow.rotateFor(60, deg, 200, rpm, true);
 }

@@ -41,8 +41,8 @@ private:
 
   // Turning
   int turnMargin =
-      70; // Time in msec for which turn needs to be at the correct angle
-  double turnRange = 0.7; // Range (+-degrees) in which the turn needs to be in
+      50; // Time in msec for which turn needs to be at the correct angle
+  double turnRange = 1.2; // Range (+-degrees) in which the turn needs to be in
                           // order to stop method
 
   // Strafing
@@ -56,14 +56,14 @@ private:
 
   // PID constants
   // Drive
-  double drivekP = 1.4;     // 1.6
-  double drivekD = 2.3;     // 14
-  double drivekI = 0.00005; // 0.08
+  double drivekP = 0;     // 1.4
+  double drivekD = 0;     // 2.3
+  double drivekI = 0; // 0.000005
 
   // Turn
-  double turnkP = 1.4;
-  double turnkD = 2.3;
-  double turnkI = 0.00005;
+  double turnkP = 1; //1
+  double turnkD = 0; //11.4
+  double turnkI = 0; //0.002
 
   // Align
   double alignkP = 0.5;
