@@ -10,8 +10,8 @@ public:
   double encoderY;
 
   double wheelRadius = 2.75 / 2;
-  double offsetL = 4.5; //distance from tracking centre to left odometry wheel
-  double offsetR = 4.5; //distance from tracking centre to right odometry wheel
+  double offsetL = 4.27; //distance from tracking centre to left odometry wheel
+  double offsetR = 4.27; //distance from tracking centre to right odometry wheel
   double offsetS = 1.5; //distance from trakcing centre to middle odometry wheel
   double theta = 0;
 

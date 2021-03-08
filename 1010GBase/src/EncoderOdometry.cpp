@@ -16,19 +16,25 @@ void EncoderOdometry::computeLocation() {
   deltaTheta = (deltaL - deltaR) / (offsetL + offsetR);
   theta += deltaTheta;
 
-  double arcRadius = 0; //radius of the motion of the robot modeled as an arc
-  double strafeRadius = 0; //radius of the strafe motion of the robot modeled as an arc
+  double arcRadius = 0; // radius of the motion of the robot modeled as an arc
+  double strafeRadius =
+      0; // radius of the strafe motion of the robot modeled as an arc
 
-  arcRadius = deltaR / deltaTheta + offsetR;
-  strafeRadius = deltaS / deltaTheta + offsetS; //Radius of the strafe arc
+  if (deltaTheta == 0) {
+    deltaX = deltaS;
+    deltaY = deltaR;
+  } else {
+    arcRadius = deltaR / deltaTheta + offsetR;
+    strafeRadius = deltaS / deltaTheta + offsetS;
 
-  deltaX = 2 * sin(deltaTheta / 2) * strafeRadius;
-  deltaY = 2 * sin(deltaTheta / 2) * arcRadius;
+    deltaX = 2 * sin(deltaTheta / 2) * strafeRadius;
+    deltaY = 2 * sin(deltaTheta / 2) * arcRadius;
+  }
 
   double avgTheta = (theta + prevTheta) / 2;
 
   encoderX += deltaX * cos(avgTheta) + deltaY * sin(avgTheta);
-  encoderY += deltaY * cos(avgTheta) + deltaX * sin(avgTheta);
+  encoderY += deltaY * cos(avgTheta) - deltaX * sin(avgTheta);
 
   prevTheta = theta;
 }

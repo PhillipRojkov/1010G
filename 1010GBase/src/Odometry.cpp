@@ -21,7 +21,7 @@ void Odometry::printCoordinates() {
   Brain.Screen.print(IMU.rotation());
   //Print odometry heading (radians)
   Brain.Screen.setCursor(5, 2);
-  Brain.Screen.print(encoderOdometry.theta);
+  Brain.Screen.print(encoderOdometry.theta * (180 / PI));
 }
 
 void Odometry::driveToPoint(double dX, double dY, double dH) {
