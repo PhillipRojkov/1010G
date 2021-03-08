@@ -53,7 +53,7 @@ void pre_auton(void) {
   IMU.startCalibration();
   encoderL.resetPosition();
   encoderR.resetPosition();
-  encoderM.resetRotation();
+  encoderS.resetRotation();
   wait(1500, msec);
   Brain.Screen.clearScreen(green);
   wait(500, msec);
@@ -91,9 +91,12 @@ void autonomous(void) {
   Brain.Screen.clearScreen(); // Clear the auto selection text
   // .........................................................................
   thread odomThread(odometryThread);
-
+/*
   odometry.driveToPoint(10, 10, 0);
-  autoMasters.braker();
+  odometry.driveToPoint(20, 15, 0);
+  odometry.driveToPoint(0, 10, 0);
+  odometry.driveToPoint(0, 0, 0);
+  autoMasters.braker();*/
 
  /* if (selection == 0) {
     autoMasters.leftHome();

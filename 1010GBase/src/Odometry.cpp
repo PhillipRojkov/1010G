@@ -33,7 +33,7 @@ void Odometry::driveToPoint(double dX, double dY, double dH) {
 
   double speed = 80;
 
-  while (sqrt(pow(deltaX, 2) + pow(deltaY, 2)) > 0.1) {
+  while (sqrt(pow(deltaX, 2) + pow(deltaY, 2)) > 1) {
     deltaX = dX - x;
     deltaY = dY - y;
     deltaH = dH - h;
@@ -55,17 +55,17 @@ void Odometry::driveToPoint(double dX, double dY, double dH) {
     DriveBL.spin(forward, bL, pct);
     DriveBR.spin(forward, bR, pct);
 
-    if (fabs(fL) < 5) {
-      DriveFL.stop(hold);
+    if (fabs(fL) < 2) {
+      DriveFL.stop(brake);
     }
-    if (fabs(fR) < 5) {
-      DriveFR.stop(hold);
+    if (fabs(fR) < 2) {
+      DriveFR.stop(brake);
     }
-    if (fabs(bL) < 5) {
-      DriveBL.stop(hold);
+    if (fabs(bL) < 2) {
+      DriveBL.stop(brake);
     }
-    if (fabs(bR) < 5) {
-      DriveBR.stop(hold);
+    if (fabs(bR) < 2) {
+      DriveBR.stop(brake);
     }
   }
 }

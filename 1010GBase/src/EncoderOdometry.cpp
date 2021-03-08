@@ -3,28 +3,30 @@
 void EncoderOdometry::computeLocation() {
   deltaL = (encoderL.position(deg) - prevEncoderL) / 180 * PI * wheelRadius;
   deltaR = (encoderR.position(deg) - prevEncoderR) / 180 * PI * wheelRadius;
-  deltaM = (encoderM.position(deg) - prevEncoderM) / 180 * PI * wheelRadius;;
+  deltaS = (encoderS.position(deg) - prevEncoderS) / 180 * PI * wheelRadius;
 
   prevEncoderL = encoderL.position(deg);
   prevEncoderR = encoderR.position(deg);
-  prevEncoderM = encoderM.position(deg);
+  prevEncoderS = encoderS.position(deg);
 
-  deltaTheta = (deltaL - deltaR) / (sL + sR);
+  deltaTheta = (deltaL - deltaR) / (offsetL + offsetR);
   theta += deltaTheta;
 
-  double R = 0;
-  double RM = 0;
-  if (deltaTheta == 0) {
-    R = sR;
-    RM = sM;
+  double arcRadius = 0;
+  double strafeRadius = 0;
+  if (fabs(deltaTheta) < 0.001) {
+    arcRadius = offsetR;
+    strafeRadius = offsetS;
+
+    deltaX = deltaS;
+    deltaY = deltaR;
   } else {
-    R = deltaR / deltaTheta + sR;
-    RM = deltaM / deltaTheta + sM;
+    arcRadius = deltaR / deltaTheta + offsetR;
+    strafeRadius = deltaS / deltaTheta + offsetS;
+
+    deltaX = 2 * sin(deltaTheta / 2) * strafeRadius;
+    deltaY = 2 * sin(deltaTheta / 2) * arcRadius;
   }
-
-
-  double deltaY = 2 * sin(deltaTheta / 2) * R;
-  double deltaX = 2 * sin(deltaTheta / 2) * RM;
 
   double avgTheta = (theta + prevTheta) / 2;
 

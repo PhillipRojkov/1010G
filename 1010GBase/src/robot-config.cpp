@@ -19,7 +19,7 @@ line IntakeLineL = line(Brain.ThreeWirePort.F); //B
 line IntakeLineR = line(Brain.ThreeWirePort.F); //A
 distance DistanceSensor = distance(PORT13);
 limit selector = limit(Brain.ThreeWirePort.E);
-encoder encoderM = encoder(Brain.ThreeWirePort.A);
+encoder encoderS = encoder(Brain.ThreeWirePort.A);
 rotation encoderL = rotation(PORT16, false);
 rotation encoderR = rotation(PORT6, true);
 // Drive motors
