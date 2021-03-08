@@ -13,8 +13,8 @@ void EncoderOdometry::computeLocation() {
   prevEncoderR = encoderRValue;
   prevEncoderS = encoderSValue;
 
-  deltaTheta = (deltaL - deltaR) / (offsetL + offsetR);
-  theta += deltaTheta;
+  theta = IMU.rotation(deg) * (PI / 180);
+  deltaTheta = theta - prevTheta;
 
   double arcRadius = 0; // radius of the motion of the robot modeled as an arc
   double strafeRadius =
