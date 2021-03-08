@@ -10,7 +10,11 @@ public:
   double x;
   double y;
 
-  void finishCalibrating();
+  double PI = 3.14159265359;
 
   void setXY();
+
+  void printCoordinates();
+
+  void driveToPoint(double dX, double dY, double dH);
 };

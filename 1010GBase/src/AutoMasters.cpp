@@ -4,6 +4,10 @@ void AutoMasters::runFlipout() {
   autoFunctions.flipout();
 }
 
+void AutoMasters::braker() {
+  autoFunctions.brakeDrive();
+}
+
 void AutoMasters::newSkillsNew() {
   // Flipout
   autoFunctions.flipout();

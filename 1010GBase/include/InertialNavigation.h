@@ -4,11 +4,10 @@
 
 class InertialNavigation {
 public:
-  bool calibrating = true; // true when the IMU is calibrating
-
   // Time keeping
   double prevTime = 0; // The Brain.timer(sec) value from the previous
                        // iteration
+  double deltaT; // Time between iterations
 
   // Constants
   double g = 9.80665; // graviational constant
@@ -22,14 +21,23 @@ public:
   double inertialY = 0; // y position on the field (forwards/backwards from
                         // starting position) in meters
 
+  double testX = 0;
+  double testY = 0;
+
   // Variables used for calculating location
+  double accelX;
+  double accelY;
+  double globalAccelX;
+  double globalAccelY;
   double viX = 0;        // Initial global x velocity
   double viY = 0;        // Initial global y velocitY
-  double prevAccelX = 0; // Previous global x acceleration
-  double prevAccelY = 0; // Previous global y acceleration
+  double prevViX = 0; // Previous global x velocity
+  double prevViY = 0; // Previous global y velocity
+  double prevGlobalAccelX = 0; // Previous global x acceleration
+  double prevGlobalAccelY = 0; // Previous global y acceleration
 
   void computeLocation(); // Compute x and y global positions
 
-  void screenPrint(); // Print the x, y positions and rotation to the screen
+  void printCoordinates(); // Print the x, y positions and rotation to the screen
   void writeToSD();   // Write debug data to the sd card
 };

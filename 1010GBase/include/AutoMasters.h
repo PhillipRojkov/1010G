@@ -15,4 +15,6 @@ public:
   void leftHome();
   void rightTwoAndMiddle();
   void rightTwoAndSide();
+
+  void braker();
 };

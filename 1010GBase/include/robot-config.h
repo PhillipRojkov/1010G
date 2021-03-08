@@ -16,7 +16,7 @@ extern line IntakeLineL;
 extern line IntakeLineR;
 extern distance DistanceSensor;
 extern limit selector;
-extern rotation encoderM;
+extern encoder encoderM;
 extern rotation encoderL;
 extern rotation encoderR;
 // Drive

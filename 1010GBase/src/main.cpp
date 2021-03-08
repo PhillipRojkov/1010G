@@ -51,12 +51,13 @@ void pre_auton(void) {
 
   // Calibrate inertial sensor
   IMU.startCalibration();
+  encoderL.resetPosition();
+  encoderR.resetPosition();
+  encoderM.resetRotation();
   wait(1500, msec);
   Brain.Screen.clearScreen(green);
   wait(500, msec);
   Brain.Screen.clearScreen();
-
-  odometry.finishCalibrating();
 
   // Auto selection
   while (true) {
@@ -78,10 +79,23 @@ void pre_auton(void) {
   }
 }
 
+void odometryThread(){
+  while(true) {
+  odometry.setXY();
+  odometry.printCoordinates();
+  wait(5, msec);
+  }
+}
+
 void autonomous(void) {
   Brain.Screen.clearScreen(); // Clear the auto selection text
   // .........................................................................
-  if (selection == 0) {
+  thread odomThread(odometryThread);
+
+  odometry.driveToPoint(10, 10, 0);
+  autoMasters.braker();
+
+ /* if (selection == 0) {
     autoMasters.leftHome();
   } else if (selection == 1) {
     autoMasters.rightTwoAndMiddle();
@@ -89,7 +103,7 @@ void autonomous(void) {
     autoMasters.rightTwoAndSide();
   } else if (selection == 3) {
     autoMasters.newSkillsNew();
-  }
+  }*/
   // ..........................................................................
 }
 

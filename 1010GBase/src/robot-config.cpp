@@ -15,11 +15,13 @@ line LinePosition1 = line(Brain.ThreeWirePort.D);
 line LinePosition2 = line(Brain.ThreeWirePort.G);
 line LinePosition3L = line(Brain.ThreeWirePort.C);
 line LinePosition3T = line(Brain.ThreeWirePort.H);
-line IntakeLineL = line(Brain.ThreeWirePort.B);
-line IntakeLineR = line(Brain.ThreeWirePort.A);
+line IntakeLineL = line(Brain.ThreeWirePort.F); //B
+line IntakeLineR = line(Brain.ThreeWirePort.F); //A
 distance DistanceSensor = distance(PORT13);
 limit selector = limit(Brain.ThreeWirePort.E);
-rotation encoderM = rotation(PORT19, false);
+encoder encoderM = encoder(Brain.ThreeWirePort.A);
+rotation encoderL = rotation(PORT16, false);
+rotation encoderR = rotation(PORT6, true);
 // Drive motors
 motor DriveFL = motor(PORT20, ratio36_1, false); // Front left drive
 motor DriveFR = motor(PORT7, ratio36_1, true); // Front right drive - Reversed
