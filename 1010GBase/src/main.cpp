@@ -9,7 +9,6 @@
 
 #include "AutoMasters.h"
 #include "DriveClass.h"
-#include "Odometry.h"
 #include "vex.h" 
 
 using namespace vex;
@@ -20,7 +19,6 @@ competition Competition;
 // Create defenitions of classes
 DriveClass driveClass;
 AutoMasters autoMasters;
-Odometry odometry;
 int selection = 0;
 /*
  * 0 : Home row, right starting position
@@ -81,8 +79,7 @@ void pre_auton(void) {
 
 void odometryThread(){
   while(true) {
-  odometry.setXY();
-  odometry.printCoordinates();
+  autoMasters.runOdometry();
   wait(5, msec);
   }
 }
@@ -90,23 +87,17 @@ void odometryThread(){
 void autonomous(void) {
   Brain.Screen.clearScreen(); // Clear the auto selection text
   // .........................................................................
-  thread odomThread(odometryThread);
-/*
-  odometry.driveToPoint(10, 10, 0);
-  odometry.driveToPoint(20, 15, 0);
-  odometry.driveToPoint(0, 10, 0);
-  odometry.driveToPoint(0, 0, 0);
-  autoMasters.braker();*/
+  thread odomThread(odometryThread); //Start odometry thread
 
- /* if (selection == 0) {
-    autoMasters.leftHome();
+  if (selection == 0) {
+    autoMasters.skills();
   } else if (selection == 1) {
     autoMasters.rightTwoAndMiddle();
   } else if (selection == 2) {
     autoMasters.rightTwoAndSide();
   } else if (selection == 3) {
-    autoMasters.newSkillsNew();
-  }*/
+    autoMasters.leftHome();
+  }
   // ..........................................................................
 }
 
@@ -115,8 +106,9 @@ void usercontrol(void) {
   double timeToIndex = 2;
   double t = 0;
 
-  if (selection == 3) { //Run Flipout for skills driver
+  if (selection == 0) { //Run Flipout for driver skills
     autoMasters.runFlipout();
+    wait(300, msec);
   }
 
   // User control code here, inside the loop

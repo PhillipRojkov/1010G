@@ -1,110 +1,36 @@
 #include "AutoMasters.h"
+#include "Odometry.h"
+
+Odometry odometry;
+AutoFunctions autoFunctions; //instance of AutoFunctions
+
+void AutoMasters::runOdometry(){
+  odometry.setXY();
+  odometry.printCoordinates();
+}
 
 void AutoMasters::runFlipout() {
   autoFunctions.flipout();
 }
 
-void AutoMasters::braker() {
-  autoFunctions.brakeDrive();
+bool runIndexer = true;
+
+void indexThread() {
+  while (true) {
+    if (runIndexer) {
+      autoFunctions.cIndex();
+    } 
+    wait (10, msec);
+  }
 }
 
-void AutoMasters::newSkillsNew() {
+void AutoMasters::skills() {
   // Flipout
   autoFunctions.flipout();
-  autoFunctions.openIntakeTo();
-  wait(700, msec);
-  autoFunctions.dumbForward(200, 100, 100, 40);
-  autoFunctions.intake(100);
-  autoFunctions.dumbForward(100, 50, 50, 50);
-  // Goal 1
-  autoFunctions.autoForward(350, 100, 100, 90);
-  autoFunctions.autoTurnTo(-135);
-  autoFunctions.intakeBrake();
-  autoFunctions.autoForward(800, 100, 100, 90);
-  autoFunctions.shoot();
-  // Goal 2
-  autoFunctions.autoBackward(260, 100, 100, 90);
-  autoFunctions.autoTurnTo(0);
-  autoFunctions.openIntake();
-  autoFunctions.autoForward(1190, 100, 100, true, 90);
-  autoFunctions.autoTurnTo(-90);
-  autoFunctions.intakeBrake();
-  autoFunctions.autoForward(250, 100, 1, 90);
-  wait(800, msec);
-  autoFunctions.shoot();
-  // Goal 3
-  autoFunctions.autoBackward(450, 50, 50, 90);
-  autoFunctions.autoTurnTo(0);
-  autoFunctions.openIntake();
-  autoFunctions.autoForward(1400, 100, 600, true, 90);
-  autoFunctions.autoTurnTo(-45);
-  autoFunctions.autoStrafeLeft(600, 100, 100, 80);
-  autoFunctions.intakeBrake();
-  autoFunctions.autoForward(600, 100, 100, 90);
-  autoFunctions.shoot();
-  // Goal 4
-  autoFunctions.autoBackward(1200, 100, 100, 90);
-  autoFunctions.autoTurnTo(90);
-  autoFunctions.openIntake();
-  autoFunctions.autoForward(680, 100, 300, true, 90);
-  autoFunctions.autoTurnTo(0);
-  autoFunctions.intakeBrake();
-  autoFunctions.autoForward(820, 100, 1, 90);
-  wait(800, msec);
-  autoFunctions.shoot();
-  // Goal 5
-  autoFunctions.autoBackward(70, 40, 30, 90);
-  autoFunctions.autoTurnTo(90);
-  autoFunctions.openIntake();
-  autoFunctions.autoForward(1100, 100, 100, true, 90);
-  autoFunctions.autoTurnTo(45);
-  autoFunctions.intakeBrake();
-  autoFunctions.autoForward(400, 100, 100, 90);
-  autoFunctions.shoot();
-  // Goal 6
-  autoFunctions.autoBackward(250, 100, 100, 90);
-  autoFunctions.autoTurnTo(180);
-  autoFunctions.openIntake();
-  autoFunctions.autoForward(1245, 100, 100, true, 90);
-  autoFunctions.autoTurnTo(90);
-  autoFunctions.intakeBrake();
-  autoFunctions.autoForward(250, 100, 100, 90);
-  wait(800, msec);
-  autoFunctions.shoot();
-  // Goal 7
-  autoFunctions.autoBackward(450, 50, 50, 90);
-  autoFunctions.autoTurnTo(180);
-  autoFunctions.openIntake();
-  autoFunctions.autoForward(1300, 100, 400, true, 90);
-  autoFunctions.autoTurnTo(135);
-  autoFunctions.autoStrafeLeft(500, 100, 100, 80);
-  autoFunctions.autoForward(600, 100, 100, 90);
-  autoFunctions.intakeBrake();
-  autoFunctions.shoot();
-  // Goal 8
-  autoFunctions.autoBackward(250, 100, 100, 90);
-  autoFunctions.autoTurnTo(270);
-  autoFunctions.autoForward(1200, 100, 100, 90);
-  autoFunctions.autoTurnTo(180);
-  autoFunctions.autoForward(250, 100, 100, 90);
-  wait(800, msec);
-  autoFunctions.shoot();
-  // Goal centre
-  autoFunctions.autoBackward(200, 100, 100, 90);
-  autoFunctions.autoTurnTo(0);
-  autoFunctions.openIntake();
-  autoFunctions.autoForward(500, 100, 100, true, 90);
-  autoFunctions.autoStrafeLeft(400, 100, 100, 80);
-  autoFunctions.intakeBrake();
-  autoFunctions.autoForward(400, 100, 200, 90);
-  autoFunctions.autoBackward(400, 100, 200, 90);
-  autoFunctions.autoStrafeRight(400, 100, 100, 80);
-  autoFunctions.openIntake();
-  autoFunctions.autoForward(300, 100, 100, 90);
-  wait(800, msec);
-  autoFunctions.shoot();
-  wait(200, msec);
-  autoFunctions.autoBackward(200, 100, 100, 90);
+  runIndexer = true;
+  thread autoIndexThread(indexThread); //start auto index thread
+  odometry.driveToPoint(-10, 10, -45, 100);
+  //autoFunctions.autoForward(100, 50, 50, 80);
 }
 
 void AutoMasters::rightHome() {

@@ -629,4 +629,5 @@ void AutoFunctions::alignTurnLeft(double speed, double degrees) {
 
 void AutoFunctions::flipout() {
   IndexerLow.rotateFor(60, deg, 200, rpm, true);
+  IndexerLow.rotateFor(-180, deg, 200, rpm, true);
 }
