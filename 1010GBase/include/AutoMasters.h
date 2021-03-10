@@ -16,6 +16,4 @@ public:
   void leftHome();
   void rightTwoAndMiddle();
   void rightTwoAndSide();
-
-  bool runIndexer = false;;
 };

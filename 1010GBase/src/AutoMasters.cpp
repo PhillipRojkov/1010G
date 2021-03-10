@@ -13,7 +13,7 @@ void AutoMasters::runFlipout() {
   autoFunctions.flipout();
 }
 
-bool runIndexer = true;
+bool runIndexer = false;
 
 void indexThread() {
   while (true) {
@@ -24,13 +24,105 @@ void indexThread() {
   }
 }
 
+bool i = true;
+double timeToIntake = 0;
+void intakeThread() {
+  while (true) {
+  if(Brain.timer(sec) < timeToIntake) {
+    i = true;
+    autoFunctions.intake(100);
+  } else if (i) {
+    autoFunctions.intakeBrake();
+    i = false;
+  }
+  if (Brain.timer(sec) > timeToIntake) {
+    timeToIntake = Brain.timer(sec);
+  }
+  wait(10, msec);
+  }
+}
+
 void AutoMasters::skills() {
   // Flipout
   autoFunctions.flipout();
   runIndexer = true;
   thread autoIndexThread(indexThread); //start auto index thread
-  odometry.driveToPoint(-10, 10, -45, 100);
-  //autoFunctions.autoForward(100, 50, 50, 80);
+  thread intakesThread(intakeThread);
+  //Goal 1
+  odometry.driveToPoint(-4, 15, -45, 100, 15, 4, 6);
+  timeToIntake += 1.5;
+  odometry.driveToPoint(-28.8, 34, -85, 100, 30, 4, 6);
+  autoFunctions.openDegrees(100, 45);
+  runIndexer = false;
+  wait(250, msec);
+  autoFunctions.shoot();
+  runIndexer = true;
+  //Goal 2
+  autoFunctions.openDegrees(100, 90);
+  odometry.driveToPoint(7, 56, 43, 100, 10, 10, 4);
+  timeToIntake += 1;
+  wait(100, msec);
+  odometry.driveToPoint(13, 69, -45, 100, 10, 6, 4);
+  autoFunctions.openDegrees(100, 45);
+  runIndexer = false;
+  wait(250, msec);
+  autoFunctions.shoot();
+  runIndexer = true;
+  //Goal 3
+  odometry.driveToPoint(40, 73, 45, 100, 15, 4, 6);
+  autoFunctions.openDegrees(100, 90);
+  odometry.driveToPoint(45, 78, 45, 100, 15, 10, 6);
+  timeToIntake += 1.2;
+  wait(500, msec);
+  odometry.driveToPoint(49.2, 98.2, 0, 100, 15, 10, 6);
+  odometry.driveToPoint(49.6, 107, 0, 100, 15, 10, 6);
+  autoFunctions.openDegrees(100, 45);
+  runIndexer = false;
+  wait(250, msec);
+  autoFunctions.shoot();
+  runIndexer = true;
+  //Goal 4
+  odometry.driveToPoint(52, 61, 135, 100, 15, 10, 6);
+  autoFunctions.openDegrees(100, 90);
+  odometry.driveToPoint(57, 56, 135, 100, 15, 10, 6);
+  timeToIntake += 1;
+  odometry.driveToPoint(86, 65.5, 44, 100, 15, 8, 8);
+  autoFunctions.openDegrees(100, 45);
+  runIndexer = false;
+  wait(250, msec);
+  autoFunctions.shoot();
+  runIndexer = true;
+  //Goal 5
+  odometry.driveToPoint(99, 48, 135, 100, 15, 4, 6);
+  timeToIntake += 1;
+  odometry.driveToPoint(125, 35, 90, 100, 15, 4, 6);
+  autoFunctions.openDegrees(100, 90);
+  runIndexer = false;
+  wait(250, msec);
+  autoFunctions.shoot();
+  runIndexer = true;
+  //Goal 6
+  odometry.driveToPoint(90, 7, 225, 100, 15, 4, 6);
+  timeToIntake += 1;
+  odometry.driveToPoint(86, -2, 135, 100, 15, 4, 6);
+  autoFunctions.openDegrees(100, 90);
+  runIndexer = false;
+  wait(250, msec);
+  autoFunctions.shoot();
+  runIndexer = true;
+  //Goal 7
+  odometry.driveToPoint(50, -21, 225, 100, 15, 4, 6);
+  timeToIntake += 1;
+  odometry.driveToPoint(52, -45, 180, 100, 15, 4, 6);
+  autoFunctions.openDegrees(100, 90);
+  runIndexer = false;
+  wait(250, msec);
+  autoFunctions.shoot();
+  runIndexer = true;
+  Brain.Screen.clearScreen(orange);
+  //Goal centre
+
+  intakesThread.interrupt();
 }
 
 void AutoMasters::rightHome() {

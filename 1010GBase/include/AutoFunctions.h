@@ -99,8 +99,10 @@ public:
   void autoStrafeLeft(double degrees, double iDeg, double fDeg, double speed); // Strafe left auto function. degrees > iDeg + fDeg
   void autoStrafeRight(double degrees, double iDeg, double fDeg, double speed); // Strafe right auto function. degrees > iDeg + fDeg
   void intake(double speed); // Run intakes at speed
+  void openDegrees(double speed, double degrees);
   void autoIntake(); // Automatically intake balls using vision
-  void openIntake(); // Open intakes
+  void openIntakeDepreciated(); // Open intakes OLD
+  void openIntake();
   void openIntakeTo(); // Open intakes and then continue
   void intakeBrake(); // Stop intakes using braketype hold
   void index(double speed); // Run indexer at speed

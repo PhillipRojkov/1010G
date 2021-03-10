@@ -21,7 +21,9 @@ void Odometry::printCoordinates() {
   Brain.Screen.print(IMU.rotation());
 }
 
-void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed) {
+ //At what point in the translation should the turn be completed (1 is for at the end, 2 is for at the midpoint, 4 is at the quarterpoint, etc.)
+void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, double minDriveSpeed, double turnCompletionPoint, double drivekP) {
+
   dH *= (PI / 180); //Convert to radians
 
   double h = IMU.rotation() * (PI / 180); //heading in radians
@@ -44,7 +46,7 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed) {
   double prevDeltaH = deltaH;
 
   // Run when the robot is far away from desired point and heading
-  while (distanceLeft > 1 || fabs(dH - h) > 0.03) {
+  while (distanceLeft > 1 || fabs(dH - h) > 0.05) {
     speed = distanceLeft * drivekP;
     if (speed > maxSpeed) { //clamp speed between maxSpeed and minSpeed
       speed = maxSpeed;

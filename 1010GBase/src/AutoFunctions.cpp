@@ -420,6 +420,11 @@ void AutoFunctions::intake(double speed) {
   IntakeR.spin(forward, speed, vex::pct);
 }
 
+void AutoFunctions::openDegrees(double speed, double degrees) {
+  IntakeL.rotateFor(-degrees, deg, speed, rpm, false);
+  IntakeR.rotateFor(-degrees, deg, speed, rpm, false);
+}
+
 void AutoFunctions::autoIntake() {
   // Red code
   for (int i = 0; i < 2; i++) {
@@ -451,7 +456,7 @@ void AutoFunctions::autoIntake() {
   }
 }
 
-void AutoFunctions::openIntake() {
+void AutoFunctions::openIntakeDepreciated() {
    // open Left Intake on bottom right bumper
   IntakeL.spin(reverse, 100, pct); // Run left intake
   if (IntakeLineL.value(pct) < 50) {
@@ -461,6 +466,21 @@ void AutoFunctions::openIntake() {
   IntakeR.spin(reverse, 100, pct); // Run right intake
   if (IntakeLineR.value(pct) < 50) {
     IntakeR.stop();
+  }
+}
+
+void AutoFunctions::openIntake() {
+  while(IntakeL.torque() < 1.1 || IntakeR.torque() < 1.1) {
+    if (IntakeL.torque() < 1.1) {
+      IntakeL.spin(reverse, 100, pct);
+    } else {
+      IntakeL.stop(hold);
+    }
+    if (IntakeR.torque() < 1.1) {
+      IntakeR.spin(reverse, 100, pct);
+    } else {
+      IntakeR.stop(hold);
+    }
   }
 }
 
