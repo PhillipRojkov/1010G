@@ -21,9 +21,8 @@ void Odometry::printCoordinates() {
   Brain.Screen.print(IMU.rotation());
 }
 
- //At what point in the translation should the turn be completed (1 is for at the end, 2 is for at the midpoint, 4 is at the quarterpoint, etc.)
-void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, double minDriveSpeed, double turnCompletionPoint, double drivekP) {
-
+ //Turn Completion point: At what point in the translation should the turn be completed (1 is for at the end, 2 is for at the midpoint, 4 is at the quarterpoint, etc.)
+void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, double minDriveSpeed, double turnCompletionPoint, double drivekP, double positionError, double turnError) {
   dH *= (PI / 180); //Convert to radians
 
   double h = IMU.rotation() * (PI / 180); //heading in radians
@@ -32,21 +31,18 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
   double deltaY = dY - y;
   double deltaH = dH - h;
 
+  double speed;
   double distanceLeft = sqrt(pow(deltaX, 2) + pow(deltaY, 2)); //scalar point to point distance remaining
   double initialDistance = distanceLeft; //Calculate only at the beginning of this function call
+
   double percentTurn =  (initialDistance - distanceLeft) / initialDistance; //Starts at zero, approaches one as the robot gets closer to (dX, dY)
   double initialHeading = h;
-
   double newDesiredHeading = initialHeading + (dH - initialHeading) * percentTurn; //gets closer to dH as percentTurn approaches 1
-
-  double speed;
-
   double turnIntegral = 0;
-
   double prevDeltaH = deltaH;
 
   // Run when the robot is far away from desired point and heading
-  while (distanceLeft > 1 || fabs(dH - h) > 0.05) {
+  while (distanceLeft > positionError || fabs(dH - h) > turnError) {
     speed = distanceLeft * drivekP;
     if (speed > maxSpeed) { //clamp speed between maxSpeed and minSpeed
       speed = maxSpeed;
@@ -129,4 +125,12 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
   DriveFR.stop(brake);
   DriveBL.stop(brake);
   DriveBR.stop(brake);
+}
+
+void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed) {
+  driveToPoint(dX, dY, dH, maxSpeed, defaultMinDriveSpeed, defaultTurnCompletionPoint, defaultDrivekP, defaultPositionError, defaultTurnError);
+}
+
+void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, double minDriveSpeed, double turnCompletionPoint, double drivekP) {
+  driveToPoint(dX, dY, dH, maxSpeed, minDriveSpeed, turnCompletionPoint, drivekP, defaultPositionError, defaultTurnError);
 }

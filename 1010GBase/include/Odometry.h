@@ -19,7 +19,14 @@ public:
   double turnkD = 1.5 * (180/PI);
   double turnkI = 0 * (180/PI);
 
+  double defaultTurnCompletionPoint = 4;
+  double defaultMinDriveSpeed = 10;
+
+  double defaultPositionError = 1; //Distance (inches) the robot needs to be from target position to end function
+  double defaultTurnError = 0.05; //Rotation (rad) the robot needs to be from target heading to end function
+
   //Drive PID
+  double defaultDrivekP = 4;
   double drivekD = 0;
   double drivekI = 0;
 
@@ -27,5 +34,7 @@ public:
 
   void printCoordinates();
 
+  void driveToPoint(double dX, double dY, double dH, double maxSpeed, double minDriveSpeed, double turnCompletionPoint, double drivekP, double positionError, double turnError);
   void driveToPoint(double dX, double dY, double dH, double maxSpeed, double minDriveSpeed, double turnCompletionPoint, double drivekP);
+  void driveToPoint(double dX, double dY, double dH, double maxSpeed);
 };

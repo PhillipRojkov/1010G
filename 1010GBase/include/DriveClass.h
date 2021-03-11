@@ -40,6 +40,13 @@ private:
 
 public:
   bool enableIndex = false;
+  bool leftIntakeOpen = false;
+  bool rightIntakeOpen = false;
+  double openTime = 0.1;
+  double openTL = 0;
+  double openTR = 0;
+  bool leftIntakeLogic = false;
+  bool rightIntakeLogic = false;
 
   void runTankBase(); // Linear tank drive with mecanum on bumpers
   void runArcadeBase(); // Linear mecanum drive in arcade style

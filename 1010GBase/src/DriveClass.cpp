@@ -114,16 +114,32 @@ void DriveClass::cIndex() { // Automatic index
 }
 
 void DriveClass::openIntake() {
-  // open Left Intake on bottom right bumper
-  IntakeL.spin(reverse, 100, pct); // Run left intake
-  if (IntakeLineL.value(pct) < 50) {
-    IntakeL.stop();
+  if (!leftIntakeLogic) { //Set a brief period of time in which effficiency is ignored
+    openTL = Brain.timer(sec) + openTime;
+    leftIntakeLogic = true;
   }
-  // Right Intake
-  IntakeR.spin(reverse, 100, pct); // Run right intake
-  if (IntakeLineR.value(pct) < 50) {
-    IntakeR.stop();
+  if (!rightIntakeLogic) {
+    openTR = Brain.timer(sec) + openTime;
+    rightIntakeLogic = true;
   }
+    if (Brain.timer(sec) < openTL || (IntakeL.efficiency() > 0 && !leftIntakeOpen)) {
+      IntakeL.spin(reverse, 100, pct);
+      Brain.Screen.drawRectangle(440, 220, 40, 20, green);
+    } else {
+      leftIntakeOpen = true;
+      IntakeL.stop(hold);
+      Brain.Screen.drawRectangle(440, 220, 40, 20, red);
+    }
+    if (Brain.timer(sec) < openTR || (IntakeR.efficiency() > 0 && !rightIntakeOpen)) {
+      IntakeR.spin(reverse, 100, pct);
+      Brain.Screen.drawRectangle(440, 0, 40, 20, green);
+    } else {
+      rightIntakeOpen = true;
+      IntakeR.stop(hold);
+      Brain.Screen.drawRectangle(440, 0, 40, 20, red);
+    }
+    Brain.Screen.setCursor(10, 10);
+    Brain.Screen.print(IntakeL.efficiency(pct));
   enableIndex = false;
 }
 
@@ -135,17 +151,29 @@ void DriveClass::intake() {
     rightIntakeTotalError = 0;
     enableIndex = true; //Auto index
     doIntake = false; //Disable auto intake
+    leftIntakeOpen = false;
+    rightIntakeOpen = false;
+    leftIntakeLogic = false;
+    rightIntakeLogic = false;
   } else if (Controller2.ButtonR2.pressing()) { // Open on partner bottom right bumper
     openIntake();
     doIntake = false; //Disable auto intake
   } else if (Controller2.ButtonUp.pressing()) { // Auto intake on partner up button
     intakeSense();
+    leftIntakeOpen = false;
+    rightIntakeOpen = false;
+    leftIntakeLogic = false;
+    rightIntakeLogic = false;
   } else {
     leftIntakeTotalError = 0; //Reset opening PID values
     rightIntakeTotalError = 0;
     IntakeL.stop(hold); //Hold the intakes in the open position
     IntakeR.stop(hold);
     doIntake = false; //Disable auto intake
+    leftIntakeOpen = false;
+    rightIntakeOpen = false;
+    leftIntakeLogic = false;
+    rightIntakeLogic = false;
   }
 }
 

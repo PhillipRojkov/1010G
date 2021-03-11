@@ -12,10 +12,9 @@ void InertialNavigation::computeLocation() {
   accelX *= g;
   accelY *= g;
 
-  //MISTAKE IS SOMEWHERE HERE
   // Create global x and y vectors
   globalAccelX = accelX * cos(IMU.rotation() * (PI / 180)) + accelY * sin(IMU.rotation() * (PI / 180));
-  globalAccelY = accelX * sin(IMU.rotation() * (PI / 180)) + accelY * cos(IMU.rotation() * (PI / 180));
+  globalAccelY = accelX * sin(IMU.rotation() * (PI / 180)) - accelY * cos(IMU.rotation() * (PI / 180));
 
   deltaT = Brain.timer(sec) - prevTime; // time between calculations (seconds)
 
