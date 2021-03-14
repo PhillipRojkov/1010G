@@ -42,7 +42,7 @@ private:
   // Turning
   int turnMargin =
       50; // Time in msec for which turn needs to be at the correct angle
-  double turnRange = 1.2; // Range (+-degrees) in which the turn needs to be in
+  double turnRange = 2.5; // Range (+-degrees) in which the turn needs to be in
                           // order to stop method
 
   // Strafing
@@ -80,6 +80,14 @@ private:
   double prevError = 0;  // Position loopTime msec ago
   double derivative;     // error - prevError : speed
   double totalError = 0; //+= error
+
+  bool leftIntakeOpen = false;
+  bool rightIntakeOpen = false;
+  double openTime = 0.1;
+  double openTL = 0;
+  double openTR = 0;
+  bool leftIntakeLogic = false;
+  bool rightIntakeLogic = false;
 
 public:
   void resetDriveEncoders(); // Resets all driver encoder positions to zero

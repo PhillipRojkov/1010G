@@ -485,18 +485,32 @@ void AutoFunctions::openIntakeDepreciated() {
 }
 
 void AutoFunctions::openIntake() {
-  while(IntakeL.torque() < 1.1 || IntakeR.torque() < 1.1) {
-    if (IntakeL.torque() < 1.1) {
-      IntakeL.spin(reverse, 100, pct);
-    } else {
-      IntakeL.stop(hold);
-    }
-    if (IntakeR.torque() < 1.1) {
-      IntakeR.spin(reverse, 100, pct);
-    } else {
-      IntakeR.stop(hold);
-    }
+  if (!leftIntakeLogic) { //Set a brief period of time in which effficiency is ignored
+    openTL = Brain.timer(sec) + openTime;
+    leftIntakeLogic = true;
   }
+  if (!rightIntakeLogic) {
+    openTR = Brain.timer(sec) + openTime;
+    rightIntakeLogic = true;
+  }
+    if (Brain.timer(sec) < openTL || (IntakeL.efficiency() > 0 && !leftIntakeOpen)) {
+      IntakeL.spin(reverse, 100, pct);
+      Brain.Screen.drawRectangle(440, 220, 40, 20, green);
+    } else {
+      leftIntakeOpen = true;
+      IntakeL.stop(hold);
+      Brain.Screen.drawRectangle(440, 220, 40, 20, red);
+    }
+    if (Brain.timer(sec) < openTR || (IntakeR.efficiency() > 0 && !rightIntakeOpen)) {
+      IntakeR.spin(reverse, 100, pct);
+      Brain.Screen.drawRectangle(440, 0, 40, 20, green);
+    } else {
+      rightIntakeOpen = true;
+      IntakeR.stop(hold);
+      Brain.Screen.drawRectangle(440, 0, 40, 20, red);
+    }
+    Brain.Screen.setCursor(10, 10);
+    Brain.Screen.print(IntakeL.efficiency(pct));
 }
 
 void AutoFunctions::openIntakeTo() {

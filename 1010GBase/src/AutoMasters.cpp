@@ -25,6 +25,7 @@ void indexThread() {
 }
 
 bool i = true;
+bool opening = false;
 double timeToIntake = 0;
 void intakeThread() {
   while (true) {
@@ -37,6 +38,9 @@ void intakeThread() {
   }
   if (Brain.timer(sec) > timeToIntake) {
     timeToIntake = Brain.timer(sec);
+  }
+  if (opening) {
+    autoFunctions.openIntake();
   }
   wait(10, msec);
   }
@@ -166,43 +170,48 @@ void AutoMasters::skills() {
   autoFunctions.shoot();
   runIndexer = true;
 
+  autoIndexThread.interrupt();
   intakesThread.interrupt();
 }
 
 void AutoMasters::rightHome() {
   // Flipout
   autoFunctions.flipout();
-  // Goal 1
-  autoFunctions.autoForward(40, 20, 40, 100);
-  autoFunctions.intake(100);
-  autoFunctions.autoTurnTo(25);
-  autoFunctions.intakeBrake();
-  autoFunctions.autoForward(100, 50, 1, 100);
-  autoFunctions.alignTurnRight(100, 42);
+  wait(250, msec);
+  runIndexer = true;
+  thread autoIndexThread(indexThread); //start auto index thread
+  thread intakesThread(intakeThread);
+  //Goal 1
+  odometry.driveToPoint(-16.8, 35, -90, 100, 18, 4, 6); //Drive to ball
+  autoFunctions.autoForward(80, 20, 20, 100);
+  timeToIntake += 1.4;
+  wait(1000, msec);
+  autoFunctions.timeOutDrive(0.6, 90); //Drive to goal
+  autoFunctions.openDegrees(100, 45);
+  runIndexer = false;
   autoFunctions.shoot();
-  // Goal 2
-  autoFunctions.autoBackward(600, 50, 100, 100);
-  autoFunctions.autoTurnTo(0);
-  autoFunctions.autoBackward(1100, 50, 100, 100);
-  autoFunctions.autoTurnTo(90);
-  autoFunctions.intakeBrake();
-  autoFunctions.autoForward(350, 50, 150, 100);
-  wait(400, msec);
+  runIndexer = true;
+  //Goal 2
+  autoFunctions.autoBackward(200, 70, 70, 100);
+  //autoFunctions.openIntake();
+  // odometry.driveToPoint(-4, 35, -90, 100, 135, 2, 5); //Turn
+  autoFunctions.autoTurnTo(-225);
+  opening = true;
+  odometry.driveToPoint(44, -30, -225, 100, 18, 2, 5); //Drive to ball
+  odometry.driveToPoint(44, -34.7, -180, 100, 18, 2, 5); //Drive to ball
+  autoFunctions.autoForward(20, 10, 10, 100);
+  opening = false;
+  timeToIntake += 1.5;
+  autoFunctions.autoForward(40, 20, 20, 100);
+  wait(800, msec);
+  autoFunctions.timeOutDrive(0.5, 90); //Drive to goal
+  intakesThread.interrupt();
+  autoFunctions.openDegrees(100, 45);
+  runIndexer = false;
+  autoIndexThread.interrupt();
   autoFunctions.shoot();
-  // Goal 3
-  autoFunctions.autoBackward(250, 50, 50, 100);
-  autoFunctions.autoTurnTo(180);
-  autoFunctions.autoForward(900, 50, 100, 100);
-  autoFunctions.autoTurnTo(135);
-  autoFunctions.openIntake();
-  autoFunctions.intake(100);
-  autoFunctions.autoForward(200, 50, 1, 100);
-  autoFunctions.autoForward(200, 1, 50, 100);
-  wait(300, msec);
-  autoFunctions.autoForward(150, 1, 100, 100);
-  autoFunctions.intakeBrake();
-  autoFunctions.shoot();
-  autoFunctions.autoBackward(200, 1, 1, 100);
+  runIndexer = true;
+  autoFunctions.autoBackward(150, 50, 50, 90);
 }
 
 void AutoMasters::leftHome() {
