@@ -41,9 +41,12 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
   double turnIntegral = 0;
   double prevDeltaH = deltaH;
 
+  double integral = 0;
+
   // Run when the robot is far away from desired point and heading
   while (distanceLeft > positionError || fabs(dH - h) > turnError) {
-    speed = distanceLeft * drivekP;
+    integral += distanceLeft;
+    speed = distanceLeft * drivekP + integral * drivekI;
     if (speed > maxSpeed) { //clamp speed between maxSpeed and minSpeed
       speed = maxSpeed;
     } 

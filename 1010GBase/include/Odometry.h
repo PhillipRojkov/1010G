@@ -20,13 +20,13 @@ public:
   double turnkI = 0 * (180/PI);
 
   double defaultTurnCompletionPoint = 4;
-  double defaultMinDriveSpeed = 10;
+  double defaultMinDriveSpeed = 13;
 
-  double defaultPositionError = 1; //Distance (inches) the robot needs to be from target position to end function
-  double defaultTurnError = 0.05; //Rotation (rad) the robot needs to be from target heading to end function
+  double defaultPositionError = 1.3; //Distance (inches) the robot needs to be from target position to end function
+  double defaultTurnError = 0.07; //Rotation (rad) the robot needs to be from target heading to end function
 
   //Drive PID
-  double defaultDrivekP = 4;
+  double defaultDrivekP = 5;
   double drivekD = 0;
   double drivekI = 0;
 

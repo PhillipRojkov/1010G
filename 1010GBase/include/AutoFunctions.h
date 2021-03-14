@@ -86,7 +86,7 @@ public:
   void resetPID();  // Set all PID values to zero
   double avgDriveEncoder(); // Returns average of all driver encoder positions
   double absAvgDriveEncoder(); // Returns average of all drive encoder abs positions
-
+  void timeOutDrive(double t, double speed);
   void drive(int dir, double speed); // Drive forward (dir = 1) or backward (dir = -1). Called every loopTime msec
   void strafe(int dir, double speed); // Strafe right (dir = 1) or left (dir = -1)
   void brakeDrive(); // Stop the drive using brake mode brake

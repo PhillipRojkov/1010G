@@ -7,7 +7,7 @@ private:
   int controllerDeadZone = 17; // Stick dead zone (stick values from 0 - 100)
   int strafeSpeed = 100;
   double strafeStickMultiplier =
-      0.6; // Strafe slowdown multiplier applied to sticks
+      1; // Strafe slowdown multiplier applied to sticks
   double strafeWeighting =
       1; // Larger strafeWeighting increases front speed, decreases rear speed. 1 is equal
 

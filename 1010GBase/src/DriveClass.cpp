@@ -178,7 +178,7 @@ void DriveClass::intake() {
 }
 
 void DriveClass::indexSense() {
-  if (LinePosition1.value(pct) < 60) { // Position 1
+  if (LinePosition1.value(pct) < 70 && LinePosition1.value(pct) > 50) { // Position 1
     position1 = true;
     Brain.Screen.drawCircle(300, 100, 50, green); // Visualisation
   } else {
@@ -186,7 +186,7 @@ void DriveClass::indexSense() {
     Brain.Screen.drawCircle(300, 100, 50, black);
   }
 
-  if (LinePosition2.value(pct) < 55) { // Position 2
+  if (LinePosition2.value(pct) < 30 && LinePosition2.value(pct) > 1) { // Position 2
     position2 = true;
     Brain.Screen.drawCircle(200, 100, 50, green);
   } else {
@@ -194,8 +194,8 @@ void DriveClass::indexSense() {
     Brain.Screen.drawCircle(200, 100, 50, black);
   }
 
-  if (LinePosition3L.value(pct) < 45 ||
-      LinePosition3T.value(pct) < 45) { // Position 3
+  if ((LinePosition3L.value(pct) < 55 && LinePosition3L.value(pct) > 2) ||
+      (LinePosition3T.value(pct) < 55 && LinePosition3T.value(pct) > 2)) { // Position 3
     position3 = true;
     Brain.Screen.drawCircle(100, 100, 50, green);
   } else {
@@ -253,6 +253,7 @@ void DriveClass::score() {
   if (scoreNum == 1) {
     if (IndexerTop.position(degrees) < indexRotation + 600) {
       IndexerTop.spin(forward, 100, pct);
+      IndexerLow.stop(hold);
       enableIndex = false;
     } else {
       enableIndex = true;
@@ -264,6 +265,7 @@ void DriveClass::score() {
     // Run single shot
     if (IndexerTop.position(degrees) < indexRotation + 500) {
       IndexerTop.spin(forward, 100, pct);
+      IndexerLow.stop(hold);
       enableIndex = false;
     } else if (!position3) {
       // cIndex until position3

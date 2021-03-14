@@ -173,6 +173,21 @@ void AutoFunctions::autoForward(double degrees, double iDeg, double fDeg,
   doIntake = false; // Stop the intaking
 }
 
+void AutoFunctions::timeOutDrive(double t, double speed) {
+  double newT = Brain.timer(sec) + t;
+  while (Brain.timer(sec) < newT) {
+  DriveFL.spin(forward, speed, pct);
+  DriveFR.spin(forward, speed, pct);
+  DriveBL.spin(forward, speed, pct);
+  DriveBR.spin(forward, speed, pct);
+  wait(10, msec);
+  }
+  DriveFL.stop();
+  DriveFR.stop();
+  DriveBL.stop();
+  DriveBR.stop();
+}
+
 void AutoFunctions::dumbForward(double degrees, double iDeg, double fDeg,
                                 double speed) {
   resetDriveEncoders();
@@ -557,7 +572,7 @@ void AutoFunctions::cIndex() {
 }
 
 void AutoFunctions::indexSense() {
-  if (LinePosition1.value(pct) < 58) { // Position 1
+  if (LinePosition1.value(pct) < 70 && LinePosition1.value(pct) > 50) { // Position 1
     position1 = true;
     Brain.Screen.drawCircle(300, 100, 50, green); // Visualisation
   } else {
@@ -565,7 +580,7 @@ void AutoFunctions::indexSense() {
     Brain.Screen.drawCircle(300, 100, 50, black);
   }
 
-  if (LinePosition2.value(pct) < 60) { // Position 2
+  if (LinePosition2.value(pct) < 30 && LinePosition2.value(pct) > 1) { // Position 2
     position2 = true;
     Brain.Screen.drawCircle(200, 100, 50, green);
   } else {
@@ -573,8 +588,8 @@ void AutoFunctions::indexSense() {
     Brain.Screen.drawCircle(200, 100, 50, black);
   }
 
-  if (LinePosition3L.value(pct) < 45 ||
-      LinePosition3T.value(pct) < 45) { // Position 3
+  if ((LinePosition3L.value(pct) < 55 && LinePosition3L.value(pct) > 2) ||
+      (LinePosition3T.value(pct) < 55 && LinePosition3T.value(pct) > 2)) { // Position 3
     position3 = true;
     Brain.Screen.drawCircle(100, 100, 50, green);
   } else {
@@ -584,7 +599,7 @@ void AutoFunctions::indexSense() {
 }
 
 void AutoFunctions::shoot() {
-  double rotTo = IndexerTop.position(deg) + 1000;
+  double rotTo = IndexerTop.position(deg) + 650;
   while (IndexerTop.position(deg) < rotTo) {
     IndexerTop.spin(forward, 100, vex::pct);
     wait(10, msec);
@@ -648,6 +663,6 @@ void AutoFunctions::alignTurnLeft(double speed, double degrees) {
 }
 
 void AutoFunctions::flipout() {
-  IndexerLow.rotateFor(60, deg, 200, rpm, true);
-  IndexerLow.rotateFor(-180, deg, 200, rpm, true);
+  IndexerLow.rotateFor(30, deg, 200, rpm, true);
+  IndexerLow.rotateFor(-60, deg, 200, rpm, true);
 }
