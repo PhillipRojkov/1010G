@@ -41,19 +41,8 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
   double turnIntegral = 0;
   double prevDeltaH = deltaH;
 
-  double integral = 0;
-
   // Run when the robot is far away from desired point and heading
   while (distanceLeft > positionError || fabs(dH - h) > turnError) {
-    integral += distanceLeft;
-    speed = distanceLeft * drivekP + integral * drivekI;
-    if (speed > maxSpeed) { //clamp speed between maxSpeed and minSpeed
-      speed = maxSpeed;
-    } 
-    if (speed < minDriveSpeed) {
-      speed = minDriveSpeed;
-    }
-
     h = IMU.rotation() * (PI / 180);
     deltaX = dX - x;
     deltaY = dY - y;
@@ -95,6 +84,15 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
         DirectionOfMovement = PI + atan(deltaX / deltaY);
       }
       DirectionOfMovement -= h; // Make local to robot orientation
+    }
+
+    //Set speed
+    speed = distanceLeft * (fabs(cos(h - DirectionOfMovement)) * drivekP + fabs(sin(h - DirectionOfMovement) * defaultStrafekP));
+    if (speed > maxSpeed) { //clamp speed between maxSpeed and minSpeed
+      speed = maxSpeed;
+    } 
+    if (speed < minDriveSpeed) {
+      speed = minDriveSpeed;
     }
 
     double P1 = -cos(DirectionOfMovement + 3 * PI / 4) / cos(PI / 4); //Diagonal set 1 percentage

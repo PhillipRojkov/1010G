@@ -30,6 +30,8 @@ public:
   double drivekD = 0;
   double drivekI = 0;
 
+  double defaultStrafekP = 10;
+
   void setXY();
 
   void printCoordinates();

@@ -90,8 +90,8 @@ void autonomous(void) {
   thread odomThread(odometryThread); //Start odometry thread
 
   if (selection == 0) {
-    autoMasters.rightHome();
-    //autoMasters.skills();
+    //autoMasters.rightHome();
+    autoMasters.skills();
   } else if (selection == 1) {
     autoMasters.rightTwoAndMiddle();
   } else if (selection == 2) {
@@ -107,7 +107,7 @@ void usercontrol(void) {
   double timeToIndex = 2;
   double t = 0;
 
-  if (selection == 1) { //Run Flipout for driver skills
+  if (selection == 0) { //Run Flipout for driver skills
     autoMasters.runFlipout();
     wait(300, msec);
   }

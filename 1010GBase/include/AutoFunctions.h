@@ -108,6 +108,7 @@ public:
   void autoStrafeRight(double degrees, double iDeg, double fDeg, double speed); // Strafe right auto function. degrees > iDeg + fDeg
   void intake(double speed); // Run intakes at speed
   void openDegrees(double speed, double degrees);
+  void openOneIntake(double speed, double degrees, int side); //Open right if side = 1, left if side = -1
   void autoIntake(); // Automatically intake balls using vision
   void openIntakeDepreciated(); // Open intakes OLD
   void openIntake();

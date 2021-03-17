@@ -440,6 +440,15 @@ void AutoFunctions::openDegrees(double speed, double degrees) {
   IntakeR.rotateFor(-degrees, deg, speed, rpm, false);
 }
 
+void AutoFunctions::openOneIntake(double speed, double degrees, int side) {
+  if (side == 1) { //Open right intake
+    IntakeR.rotateFor(-degrees, deg, speed, rpm, false);
+  }
+  if (side == -1) { //Open left intake
+    IntakeL.rotateFor(-degrees, deg, speed, rpm, false);
+  }
+}
+
 void AutoFunctions::autoIntake() {
   // Red code
   for (int i = 0; i < 2; i++) {
@@ -678,5 +687,4 @@ void AutoFunctions::alignTurnLeft(double speed, double degrees) {
 
 void AutoFunctions::flipout() {
   IndexerLow.rotateFor(30, deg, 200, rpm, true);
-  IndexerLow.rotateFor(-60, deg, 200, rpm, true);
 }
