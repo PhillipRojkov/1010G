@@ -22,7 +22,7 @@ void Odometry::printCoordinates() {
 }
 
  //Turn Completion point: At what point in the translation should the turn be completed (1 is for at the end, 2 is for at the midpoint, 4 is at the quarterpoint, etc.)
-void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, double minDriveSpeed, double turnCompletionPoint, double drivekP, double positionError, double turnError) {
+void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, double minDriveSpeed, double turnCompletionPoint, double drivekP, double strafekP, double positionError, double turnError) {
   dH *= (PI / 180); //Convert to radians
 
   double h = IMU.rotation() * (PI / 180); //heading in radians
@@ -87,6 +87,7 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
     }
 
     //Set speed
+    //THIS ALGORITHM IS MEGA BROKE
     speed = distanceLeft * (fabs(cos(h - DirectionOfMovement)) * drivekP + fabs(sin(h - DirectionOfMovement) * defaultStrafekP));
     if (speed > maxSpeed) { //clamp speed between maxSpeed and minSpeed
       speed = maxSpeed;
@@ -129,9 +130,9 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
 }
 
 void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed) {
-  driveToPoint(dX, dY, dH, maxSpeed, defaultMinDriveSpeed, defaultTurnCompletionPoint, defaultDrivekP, defaultPositionError, defaultTurnError);
+  driveToPoint(dX, dY, dH, maxSpeed, defaultMinDriveSpeed, defaultTurnCompletionPoint, defaultDrivekP, defaultStrafekP, defaultPositionError, defaultTurnError);
 }
 
 void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, double minDriveSpeed, double turnCompletionPoint, double drivekP) {
-  driveToPoint(dX, dY, dH, maxSpeed, minDriveSpeed, turnCompletionPoint, drivekP, defaultPositionError, defaultTurnError);
+  driveToPoint(dX, dY, dH, maxSpeed, minDriveSpeed, turnCompletionPoint, drivekP, defaultStrafekP, defaultPositionError, defaultTurnError);
 }
