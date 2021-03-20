@@ -87,8 +87,7 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
     }
 
     //Set speed
-    //THIS ALGORITHM IS MEGA BROKE
-    speed = distanceLeft * (fabs(cos(h - DirectionOfMovement)) * drivekP + fabs(sin(h - DirectionOfMovement) * defaultStrafekP));
+    speed = distanceLeft * (drivekP + (strafekP - drivekP) * fabs(sin(h - DirectionOfMovement)));
     if (speed > maxSpeed) { //clamp speed between maxSpeed and minSpeed
       speed = maxSpeed;
     } 
