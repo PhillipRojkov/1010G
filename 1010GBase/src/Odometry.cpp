@@ -18,7 +18,7 @@ void Odometry::printCoordinates() {
   Brain.Screen.print(y);
   // Print IMU rotation
   Brain.Screen.setCursor(1, 18);
-  Brain.Screen.print(IMU.rotation());
+  Brain.Screen.print(IMU.rotation() * constantOfBadGyro);
 }
 
  //Turn Completion point: At what point in the translation should the turn be completed (1 is for at the end, 2 is for at the midpoint, 4 is at the quarterpoint, etc.)
@@ -43,7 +43,7 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
 
   // Run when the robot is far away from desired point and heading
   while (distanceLeft > positionError || fabs(dH - h) > turnError) {
-    h = IMU.rotation() * (PI / 180);
+    h = (IMU.rotation() * constantOfBadGyro) * (PI / 180);
     deltaX = dX - x;
     deltaY = dY - y;
 

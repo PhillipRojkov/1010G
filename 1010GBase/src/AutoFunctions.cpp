@@ -586,11 +586,11 @@ void AutoFunctions::cIndex() {
   indexerBrake();
   indexSense();
   if (!position3) {
-    IndexerTop.spin(forward, 40, pct);
+    IndexerTop.spin(forward, 50, pct);
     IndexerLow.spin(forward, 70, pct);
   }
   if (position3 && !position2) {
-    IndexerLow.spin(forward, 70, pct);
+    IndexerLow.spin(forward, 80, pct);
   }
 }
 

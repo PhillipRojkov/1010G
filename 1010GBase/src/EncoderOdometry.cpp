@@ -7,13 +7,13 @@ void EncoderOdometry::computeLocation() {
 
   deltaL = (encoderLValue - prevEncoderL) / 180 * PI * wheelRadius;
   deltaR = (encoderRValue - prevEncoderR) / 180 * PI * wheelRadius;
-  deltaS = (encoderSValue - prevEncoderS) / 180 * PI * wheelRadius;
+  deltaS = (encoderSValue - prevEncoderS) / 180 * PI * middleWheelRadius;
 
   prevEncoderL = encoderLValue;
   prevEncoderR = encoderRValue;
   prevEncoderS = encoderSValue;
 
-  theta = IMU.rotation(deg) * (PI / 180);
+  theta = (IMU.rotation(deg) * constantOfBadGyro) * (PI / 180);
   deltaTheta = theta - prevTheta;
 
   double arcRadius = 0; // radius of the motion of the robot modeled as an arc

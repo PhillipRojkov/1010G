@@ -4,15 +4,18 @@
 
 class EncoderOdometry {
 public:
+  double constantOfBadGyro = 1.006; //what?
+
   double PI = 3.14159265359;
 
   double encoderX;
   double encoderY;
 
-  double wheelRadius = 2.75 / 2;
-  double offsetL = 4.375; //distance from tracking centre to left odometry wheel
-  double offsetR = 4.375; //distance from tracking centre to right odometry wheel
-  double offsetS = 1.5; //distance from trakcing centre to middle odometry wheel
+  double wheelRadius = 2.8 / 2;
+  double middleWheelRadius = 2.83/2;
+  double offsetL = 4.4; //distance from tracking centre to left odometry wheel 4.375
+  double offsetR = 4.4; //distance from tracking centre to right odometry wheel
+  double offsetS = 1.5; //distance from trakcing centre to middle odometry wheel 1.5
   double theta = 0;
 
   double prevEncoderS = 0;
