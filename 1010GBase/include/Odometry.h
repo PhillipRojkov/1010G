@@ -10,7 +10,10 @@ public:
   double x;
   double y;
 
-  double constantOfBadGyro = 1.006; //what?
+// Essentially VEX Inertial sensor is kinda garbage, ours picks up ~5 
+// deg of error for every 720 degrees of rotation. Multiply IMU heading
+// by this variable to remove the undershoot
+  double constantOfBadGyro = 1.006;
 
   double PI = 3.14159265359;
 
