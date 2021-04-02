@@ -25,7 +25,7 @@ void Odometry::printCoordinates() {
 void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, double minDriveSpeed, double turnCompletionPoint, double drivekP, double strafekP, double positionError, double turnError) {
   dH *= (PI / 180); //Convert to radians
 
-  double h = IMU.rotation() * (PI / 180); //heading in radians
+  double h = (IMU.rotation() * constantOfBadGyro) * (PI / 180); //heading in radians
 
   double deltaX = dX - x;
   double deltaY = dY - y;
@@ -43,6 +43,7 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
 
   // Run when the robot is far away from desired point and heading
   while (distanceLeft > positionError || fabs(dH - h) > turnError) {
+    //h = (IMU.rotation() * constantOfBadGyro) * (PI / 180);
     h = (IMU.rotation() * constantOfBadGyro) * (PI / 180);
     deltaX = dX - x;
     deltaY = dY - y;

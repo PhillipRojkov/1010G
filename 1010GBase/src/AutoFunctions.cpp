@@ -595,7 +595,7 @@ void AutoFunctions::cIndex() {
 }
 
 void AutoFunctions::indexSense() {
-  if (LinePosition1.value(pct) < 70 && LinePosition1.value(pct) > 50) { // Position 1
+  if (LinePosition1.objectDistance(mm) < 35) { // Position 1
     position1 = true;
     Brain.Screen.drawCircle(300, 100, 50, green); // Visualisation
   } else {
@@ -611,8 +611,8 @@ void AutoFunctions::indexSense() {
     Brain.Screen.drawCircle(200, 100, 50, black);
   }
 
-  if ((LinePosition3L.value(pct) < 55 && LinePosition3L.value(pct) > 2) ||
-      (LinePosition3T.value(pct) < 55 && LinePosition3T.value(pct) > 2)) { // Position 3
+  if ((LinePosition3L.value(pct) < 45 && LinePosition3L.value(pct) > 2) ||
+      (LinePosition3T.value(pct) < 45 && LinePosition3T.value(pct) > 2)) { // Position 3
     position3 = true;
     Brain.Screen.drawCircle(100, 100, 50, green);
   } else {
@@ -622,7 +622,7 @@ void AutoFunctions::indexSense() {
 }
 
 void AutoFunctions::shoot() {
-  double rotTo = IndexerTop.position(deg) + 650;
+  double rotTo = IndexerTop.position(deg) + 500;
   while (IndexerTop.position(deg) < rotTo) {
     IndexerTop.spin(forward, 100, vex::pct);
     wait(10, msec);
@@ -631,14 +631,17 @@ void AutoFunctions::shoot() {
 }
 
 void AutoFunctions::doubleShot() {
-  // Run single shot
-  shoot();
-  while (!position3) {
-    // cIndex until position3
-    cIndex();
+  double indexRotation = IndexerTop.position(degrees);
+  while (IndexerTop.position(deg) < indexRotation + 800) {
+    IndexerTop.spin(forward, 100, pct);
+    if (IndexerTop.position(degrees) > indexRotation + 200 && IndexerTop.position(degrees) < indexRotation + 500) {
+      IndexerLow.spin(forward, 80, pct);
+    } else {
+      IndexerLow.stop(hold);
+    }
     wait(10, msec);
   }
-  shoot();
+  indexerBrake();
 }
 
 // Params

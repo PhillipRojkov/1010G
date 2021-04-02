@@ -178,7 +178,7 @@ void DriveClass::intake() {
 }
 
 void DriveClass::indexSense() {
-  if (LinePosition1.value(pct) < 70 && LinePosition1.value(pct) > 50) { // Position 1
+  if (LinePosition1.objectDistance(mm) < 35) { // Position 1
     position1 = true;
     Brain.Screen.drawCircle(300, 100, 50, green); // Visualisation
   } else {
@@ -194,8 +194,8 @@ void DriveClass::indexSense() {
     Brain.Screen.drawCircle(200, 100, 50, black);
   }
 
-  if ((LinePosition3L.value(pct) < 55 && LinePosition3L.value(pct) > 2) ||
-      (LinePosition3T.value(pct) < 55 && LinePosition3T.value(pct) > 2)) { // Position 3
+  if ((LinePosition3L.value(pct) < 45 && LinePosition3L.value(pct) > 2) ||
+      (LinePosition3T.value(pct) < 45 && LinePosition3T.value(pct) > 2)) { // Position 3
     position3 = true;
     Brain.Screen.drawCircle(100, 100, 50, green);
   } else {
@@ -250,8 +250,8 @@ void DriveClass::score() {
     indexRotation = IndexerTop.position(degrees);
   }
 
-  if (scoreNum == 1) {
-    if (IndexerTop.position(degrees) < indexRotation + 600) {
+  if (scoreNum == 1) { //Single shot
+    if (IndexerTop.position(degrees) < indexRotation + 300) {
       IndexerTop.spin(forward, 100, pct);
       IndexerLow.stop(hold);
       enableIndex = false;
@@ -261,21 +261,18 @@ void DriveClass::score() {
     }
   }
 
-  if (scoreNum == 2) {
-    // Run single shot
-    if (IndexerTop.position(degrees) < indexRotation + 500) {
+  if (scoreNum == 2) { //Double shot
+    if (IndexerTop.position(degrees) < indexRotation + 300 + 300) {
       IndexerTop.spin(forward, 100, pct);
-      IndexerLow.stop(hold);
       enableIndex = false;
-    } else if (!position3) {
-      // cIndex until position3
+    } else {
+      scoreNum = 0;
       enableIndex = true;
-      cIndex();
-    } else if (position3) {
-      // Reset indexRotation
-      indexRotation = IndexerTop.position(degrees);
-      // Run single shot again
-      scoreNum--;
+    }
+    if (IndexerTop.position(degrees) < indexRotation + 150) {
+      IndexerLow.stop(hold);
+    } else {
+      IndexerLow.spin(forward, 80, pct);
     }
   }
 }

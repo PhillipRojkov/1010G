@@ -12,8 +12,11 @@ public:
 
 // Essentially VEX Inertial sensor is kinda garbage, ours picks up ~5 
 // deg of error for every 720 degrees of rotation. Multiply IMU heading
-// by this variable to remove the undershoot
-  double constantOfBadGyro = 1.006;
+// by this variable to remove the undershoot. Why can't vex just calibrate
+// the sensor from the factory? beats me.
+// APRIL 1 2020, this value is now 1 because changing the mounting
+// orientation of the sensor fixed it. Imagine having good sensors
+  double constantOfBadGyro = 1.005;
 
   double PI = 3.14159265359;
 

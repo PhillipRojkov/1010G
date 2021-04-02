@@ -4,18 +4,25 @@
 
 class EncoderOdometry {
 public:
-  double constantOfBadGyro = 1.006; //what?
+// Essentially VEX Inertial sensor is kinda garbage, ours picks up ~5 
+// deg of error for every 720 degrees of rotation. Multiply IMU heading
+// by this variable to remove the undershoot. Why can't vex just calibrate
+// the sensor from the factory? beats me.
+// APRIL 1 2020, this value is now 1 because changing the mounting
+// orientation of the sensor fixed it. Imagine having good sensors
+  double constantOfBadGyro = 1.005;
 
   double PI = 3.14159265359;
 
   double encoderX;
   double encoderY;
 
-  double wheelRadius = 2.8 / 2;
-  double middleWheelRadius = 2.83/2;
-  double offsetL = 4.4; //distance from tracking centre to left odometry wheel 4.375
-  double offsetR = 4.4; //distance from tracking centre to right odometry wheel
-  double offsetS = 1.5; //distance from trakcing centre to middle odometry wheel 1.5
+  double wheelRadiusL = 2.75 / 2; //Not used
+  double wheelRadiusR = 2.79 / 2;
+  double middleWheelRadius = 2.83 / 2;
+  double offsetL = 4.4375; //distance from tracking centre to left odometry wheel
+  double offsetR = 4.4375; //distance from tracking centre to right odometry wheel
+  double offsetS = 1.5; //distance from trakcing centre to middle odometry wheel
   double theta = 0;
 
   double prevEncoderS = 0;

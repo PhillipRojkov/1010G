@@ -5,8 +5,8 @@ void EncoderOdometry::computeLocation() {
   double encoderRValue = encoderR.position(deg);
   double encoderSValue = encoderS.position(deg);
 
-  deltaL = (encoderLValue - prevEncoderL) / 180 * PI * wheelRadius;
-  deltaR = (encoderRValue - prevEncoderR) / 180 * PI * wheelRadius;
+  deltaL = (encoderLValue - prevEncoderL) / 180 * PI * wheelRadiusL;
+  deltaR = (encoderRValue - prevEncoderR) / 180 * PI * wheelRadiusR;
   deltaS = (encoderSValue - prevEncoderS) / 180 * PI * middleWheelRadius;
 
   prevEncoderL = encoderLValue;
