@@ -634,7 +634,7 @@ void AutoFunctions::doubleShot() {
   double indexRotation = IndexerTop.position(degrees);
   while (IndexerTop.position(deg) < indexRotation + 800) {
     IndexerTop.spin(forward, 100, pct);
-    if (IndexerTop.position(degrees) > indexRotation + 200 && IndexerTop.position(degrees) < indexRotation + 500) {
+    if (IndexerTop.position(degrees) > indexRotation + 200 && IndexerTop.position(degrees) < indexRotation + 600) {
       IndexerLow.spin(forward, 80, pct);
     } else {
       IndexerLow.stop(hold);
