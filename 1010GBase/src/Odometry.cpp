@@ -43,8 +43,7 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
 
   // Run when the robot is far away from desired point and heading
   while (distanceLeft > positionError || fabs(dH - h) > turnError) {
-    //h = (IMU.rotation() * constantOfBadGyro) * (PI / 180);
-    h = (IMU.rotation() * constantOfBadGyro) * (PI / 180);
+    h = ((IMU.rotation() + IMU2.rotation())/2 * constantOfBadGyro) * (PI / 180);
     deltaX = dX - x;
     deltaY = dY - y;
 

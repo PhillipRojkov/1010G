@@ -11,6 +11,7 @@ controller Controller1 = controller(primary);
 controller Controller2 = controller(partner);
 // Sensors
 inertial IMU = inertial(PORT1);
+inertial IMU2 = inertial(PORT11);
 distance LinePosition1 = distance(PORT5);
 line LinePosition2 = line(Brain.ThreeWirePort.G);
 line LinePosition3L = line(Brain.ThreeWirePort.C);

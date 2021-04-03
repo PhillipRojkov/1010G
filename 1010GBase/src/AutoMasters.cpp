@@ -65,91 +65,92 @@ void AutoMasters::skills() {
   wait(400, msec);
   odometry.driveToPoint(-4.3, 17.6, -45, 100); //Drive to ball
   timeToIntake += 15;
-  wait(700, msec);
+  wait(500, msec);
   odometry.driveToPoint(-28.6, 33.7, -90, 90); //Drive to goal
-  autoFunctions.timeOutDrive(0.3, 100);
+  autoFunctions.timeOutDrive(0.35, 100);
   runIndexer = false;
   autoFunctions.shoot();
   //Descore
+  autoFunctions.index(20);
   autoFunctions.dumbBackward(5, 1, 1, 100);
   autoFunctions.dumbForward(5, 1, 1, 100);
-  autoFunctions.dumbBackward(110, 40, 40, 100);
   timeToIntake = 0;
   wait(10, msec);
-  autoFunctions.outdex(100);
+  autoFunctions.outdex(80);
   autoFunctions.openDegrees(100, 135);
+  autoFunctions.dumbBackward(150, 30, 20, 100);
   //Goal 2
   odometry.driveToPoint(3.9, 57.6, 43, 100, 12, 4, 10, 14, 1, 0.07); //Drive to ball
   runIndexer = true;
-  timeToIntake += 1.5;
+  timeToIntake += 15;
   wait(100, msec);
   odometry.driveToPoint(12.5, 68.8, -45, 100); //Drive to goal
-  autoFunctions.timeOutDrive(0.3, 100);
+  autoFunctions.timeOutDrive(0.2, 100);
   runIndexer = false;
   autoFunctions.shoot();
   runIndexer = true;
+  //Goal 3
+  odometry.driveToPoint(14, 66.6, -70, 100, 12, 4, 4, 12, 1.5, 0.1); //Turn for descore
   //Descore
-  timeToIntake += 1;
-  autoFunctions.autoBackward(90, 1, 1, 20);
   timeToIntake = 0;
   runIndexer = false;
   wait(10, msec);
-  autoFunctions.outdex(100);
+  autoFunctions.outdex(80);
   autoFunctions.openDegrees(100, 135);
-  //Goal 3
-  odometry.driveToPoint(14, 66.6, -70, 100, 12, 4, 4, 12, 1.5, 0.1); //Turn for descore
-  odometry.driveToPoint(46.8, 81, 45, 100); //On top of ball
+  //
+  odometry.driveToPoint(45.7, 85.3, 45, 100, 10, 10, 5); //On top of ball
   runIndexer = true;
   timeToIntake += 15;
   wait(100, msec);
-  odometry.driveToPoint(49.2, 98.2, 0, 100); //Line up on goal
+  odometry.driveToPoint(46.7, 105, 0, 100); //Line up on goal
   autoFunctions.timeOutDrive(0.6, 100); //Drive to goal
   runIndexer = false;
   autoFunctions.shoot();
   //Descore
+  autoFunctions.index(20);
   autoFunctions.dumbBackward(5, 1, 1, 100);
   autoFunctions.dumbForward(5, 1, 1, 100);
-  autoFunctions.dumbBackward(90, 40, 40, 100);
+  autoFunctions.dumbBackward(90, 30, 20, 100);
   timeToIntake = 0;
   wait(10, msec);
-  autoFunctions.outdex(100);
+  autoFunctions.outdex(80);
   autoFunctions.openDegrees(100, 135);
   //Goal 4
   autoFunctions.dumbBackward(100, 10, 10, 100);
-  odometry.driveToPoint(57, 56, 135, 100); //On top of ball
+  odometry.driveToPoint(57, 56, 135, 100, 10, 8, 4); //On top of ball
   runIndexer = true;
-  timeToIntake += 1.8;
+  timeToIntake += 15;
   wait(100, msec);
   odometry.driveToPoint(79.7, 64.5, 45, 100); //Line up on goal
   autoFunctions.timeOutDrive(0.4, 190); //Drive to goal
   runIndexer = false;
   autoFunctions.shoot();
   runIndexer = true;
+  //Goal 5
+  odometry.driveToPoint(79.7, 64.5, 20, 100, 12, 4, 4, 12, 1.5, 0.1); //Turn for descore
   //Descore
-  timeToIntake += 1;
-  autoFunctions.dumbBackward(90, 1, 1, 20);
   timeToIntake = 0;
   runIndexer = false;
   wait(10, msec);
-  autoFunctions.outdex(100);
+  autoFunctions.outdex(80);
   autoFunctions.openDegrees(100, 135);
-  //Goal 5
-  odometry.driveToPoint(79.7, 64.5, 20, 100, 12, 4, 4, 12, 1.5, 0.1); //Turn for descore
-  odometry.driveToPoint(97.9, 51.2, 135, 100); //On top of ball
+  //
+  odometry.driveToPoint(97.9, 51.2, 135, 100, 10, 8, 4); //On top of ball
   runIndexer = true;
   timeToIntake += 15;
   wait(100, msec);
-  odometry.driveToPoint(118.2, 31.3, 90, 100, 13, 4, 2, 9, 1, 0.07); //Line up on goal
+  odometry.driveToPoint(116, 33.7, 90, 100, 13, 4, 2, 9, 1, 0.07); //Line up on goal
   autoFunctions.timeOutDrive(0.6, 100); //Drive to goal
   runIndexer = false;
   autoFunctions.shoot();
   //Descore
+  autoFunctions.index(20);
   autoFunctions.dumbBackward(5, 1, 1, 100);
   autoFunctions.dumbForward(5, 1, 1, 100);
-  autoFunctions.dumbBackward(90, 40, 40, 100);
+  autoFunctions.dumbBackward(90, 30, 20, 100);
   timeToIntake = 0;
   wait(10, msec);
-  autoFunctions.outdex(100);
+  autoFunctions.outdex(80);
   autoFunctions.openDegrees(100, 135);
   //Goal 6
   autoFunctions.dumbBackward(150, 20, 20, 80); //Back up from goal
@@ -168,7 +169,8 @@ void AutoMasters::skills() {
   timeToIntake = 0;
   runIndexer = false;
   wait(10, msec);
-  autoFunctions.outdex(100);
+  autoFunctions.autoBackward(60, 20, 20, 100);
+  autoFunctions.outdex(80);
   autoFunctions.openDegrees(100, 135);
   //Goal centre
   odometry.driveToPoint(78, 2.8, -45, 100, 12, 10, 4); //On top of ball
@@ -178,7 +180,7 @@ void AutoMasters::skills() {
   odometry.driveToPoint(63.2, 21.9, -45, 100); //Line up first poke
   autoFunctions.autoForward(130, 1, 1, 100); //First poke
   odometry.driveToPoint(63.2, 21.9, -45, 100); //Line up second poke
-  autoFunctions.autoForward(130, 1, 1, 100); //Second poke
+  autoFunctions.autoForward(140, 1, 1, 100); //Second poke
   autoFunctions.autoBackward(60, 1, 1, 100);
   odometry.driveToPoint(62.3, 20.5, -45, 100);//Line up shoot
   timeToIntake = 0;
@@ -207,8 +209,9 @@ void AutoMasters::skills() {
   runIndexer = false;
   autoFunctions.shoot();
   //Descore
-  autoFunctions.dumbBackward(5, 1, 1, 100);
-  autoFunctions.dumbForward(5, 1, 1, 100);
+  autoFunctions.index(10);
+  autoFunctions.dumbBackward(4, 1, 1, 100);
+  autoFunctions.dumbForward(4, 1, 1, 100);
   autoFunctions.dumbBackward(120, 40, 40, 100);
 
   autoIndexThread.interrupt();

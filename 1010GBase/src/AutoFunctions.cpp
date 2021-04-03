@@ -611,7 +611,7 @@ void AutoFunctions::indexSense() {
     Brain.Screen.drawCircle(200, 100, 50, black);
   }
 
-  if ((LinePosition3L.value(pct) < 45 && LinePosition3L.value(pct) > 2) ||
+  if ((LinePosition3L.value(pct) < 48 && LinePosition3L.value(pct) > 2) ||
       (LinePosition3T.value(pct) < 45 && LinePosition3T.value(pct) > 2)) { // Position 3
     position3 = true;
     Brain.Screen.drawCircle(100, 100, 50, green);
@@ -622,7 +622,7 @@ void AutoFunctions::indexSense() {
 }
 
 void AutoFunctions::shoot() {
-  double rotTo = IndexerTop.position(deg) + 500;
+  double rotTo = IndexerTop.position(deg) + 400;
   while (IndexerTop.position(deg) < rotTo) {
     IndexerTop.spin(forward, 100, vex::pct);
     wait(10, msec);

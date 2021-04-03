@@ -19,7 +19,7 @@ public:
 // APRIL 2 2020, the previous sensore completely crapped out,
 // 15 degrees of error over 360 degrees of rotation. Replaced sensor
 // It now works
-  double constantOfBadGyro = 1.0045;
+  double constantOfBadGyro = 1.0061;
 
   double PI = 3.14159265359;
 
@@ -27,22 +27,22 @@ public:
   //(180/PI) is included because the terms on which these coefficients operate are in radians
   //Changing to degrees makes for parity between other turn functions
   double turnkP = 1 * (180/PI);
-  double turnkD = 1.2 * (180/PI);
+  double turnkD = 1 * (180/PI);
   double turnkI = 0 * (180/PI);
 
   double defaultTurnCompletionPoint = 4;
-  double defaultMinDriveSpeed = 10;
-  double defaultMinStrafeSpeed = 35;
+  double defaultMinDriveSpeed = 12;
+  double defaultMinStrafeSpeed = 25;
 
   double defaultPositionError = 1.1; //Distance (inches) the robot needs to be from target position to end function
   double defaultTurnError = 0.07; //Rotation (rad) the robot needs to be from target heading to end function
 
   //Drive PID
-  double defaultDrivekP = 5;
+  double defaultDrivekP = 6.5;
   double drivekD = 0;
   double drivekI = 0;
 
-  double defaultStrafekP = 15;
+  double defaultStrafekP = 14;
 
   void setXY();
 
