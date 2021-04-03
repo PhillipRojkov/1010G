@@ -10,7 +10,10 @@ public:
 // the sensor from the factory? beats me.
 // APRIL 1 2020, this value is now 1 because changing the mounting
 // orientation of the sensor fixed it. Imagine having good sensors
-  double constantOfBadGyro = 1.005;
+// APRIL 2 2020, the previous sensore completely crapped out,
+// 15 degrees of error over 360 degrees of rotation. Replaced sensor
+// It now works
+  double constantOfBadGyro = 1.0045;
 
   double PI = 3.14159265359;
 

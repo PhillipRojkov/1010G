@@ -16,7 +16,10 @@ public:
 // the sensor from the factory? beats me.
 // APRIL 1 2020, this value is now 1 because changing the mounting
 // orientation of the sensor fixed it. Imagine having good sensors
-  double constantOfBadGyro = 1.005;
+// APRIL 2 2020, the previous sensore completely crapped out,
+// 15 degrees of error over 360 degrees of rotation. Replaced sensor
+// It now works
+  double constantOfBadGyro = 1.0045;
 
   double PI = 3.14159265359;
 
@@ -30,15 +33,15 @@ public:
   double defaultTurnCompletionPoint = 4;
   double defaultMinDriveSpeed = 13;
 
-  double defaultPositionError = 1; //Distance (inches) the robot needs to be from target position to end function
-  double defaultTurnError = 0.06; //Rotation (rad) the robot needs to be from target heading to end function
+  double defaultPositionError = 1.2; //Distance (inches) the robot needs to be from target position to end function
+  double defaultTurnError = 0.08; //Rotation (rad) the robot needs to be from target heading to end function
 
   //Drive PID
-  double defaultDrivekP = 4;
+  double defaultDrivekP = 3.3;
   double drivekD = 0;
   double drivekI = 0;
 
-  double defaultStrafekP = 12;
+  double defaultStrafekP = 12.6;
 
   void setXY();
 
