@@ -10,8 +10,8 @@ brain Brain;
 controller Controller1 = controller(primary);
 controller Controller2 = controller(partner);
 // Sensors
-inertial IMU = inertial(PORT1);
-inertial IMU2 = inertial(PORT11);
+inertial IMUL = inertial(PORT11);
+inertial IMUR = inertial(PORT1);
 distance LinePosition1 = distance(PORT5);
 line LinePosition2 = line(Brain.ThreeWirePort.G);
 line LinePosition3L = line(Brain.ThreeWirePort.C);

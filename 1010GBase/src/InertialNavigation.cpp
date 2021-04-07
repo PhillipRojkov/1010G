@@ -1,20 +1,20 @@
 #include "InertialNavigation.h"
 
 void InertialNavigation::computeLocation() {
-  accelX = -IMU.acceleration(xaxis); // SIDE VECTOR - Right is positive
-  accelY = IMU.acceleration(yaxis); // FORWARD VECTOR - Forward is positive
+  accelX = -IMUL.acceleration(xaxis); // SIDE VECTOR - Right is positive
+  accelY = IMUL.acceleration(yaxis); // FORWARD VECTOR - Forward is positive
 
   // Cancel out vertical component from potential tipping
-  accelX = accelX + sin(IMU.pitch() * (PI / 180));
-  accelY = accelY + sin(IMU.roll() * (PI / 180));
+  accelX = accelX + sin(IMUL.pitch() * (PI / 180));
+  accelY = accelY + sin(IMUL.roll() * (PI / 180));
 
   // Convert acceleration to m/s2
   accelX *= g;
   accelY *= g;
 
   // Create global x and y vectors
-  globalAccelX = accelX * cos(IMU.rotation() * (PI / 180)) + accelY * sin(IMU.rotation() * (PI / 180));
-  globalAccelY = accelX * sin(IMU.rotation() * (PI / 180)) - accelY * cos(IMU.rotation() * (PI / 180));
+  globalAccelX = accelX * cos(IMUL.rotation() * (PI / 180)) + accelY * sin(IMUL.rotation() * (PI / 180));
+  globalAccelY = accelX * sin(IMUL.rotation() * (PI / 180)) - accelY * cos(IMUL.rotation() * (PI / 180));
 
   deltaT = Brain.timer(sec) - prevTime; // time between calculations (seconds)
 
@@ -50,7 +50,7 @@ void InertialNavigation::printCoordinates() {
   Brain.Screen.print(inertialY);
   // Print IMU rotation
   Brain.Screen.setCursor(4, 2);
-  Brain.Screen.print(IMU.rotation());
+  Brain.Screen.print(IMUL.rotation());
 }
 
 void InertialNavigation::writeToSD() {
@@ -70,7 +70,7 @@ void InertialNavigation::writeToSD() {
     file << ",";
     file << testY;
     file << ",";
-    file << IMU.rotation();
+    file << IMUL.rotation();
     file << ",";
     file << deltaT; //Write deltaT
     file << "\n";      // Create a new line

@@ -1,6 +1,10 @@
 #include "EncoderOdometry.h"
 
 void EncoderOdometry::computeLocation() {
+  //Used for logging time between computes
+  deltaT = Brain.timer(sec) - prevTime;
+  prevTime = Brain.timer(sec);
+
   double encoderLValue = encoderL.position(deg);
   double encoderRValue = encoderR.position(deg);
   double encoderSValue = encoderS.position(deg);
@@ -13,7 +17,7 @@ void EncoderOdometry::computeLocation() {
   prevEncoderR = encoderRValue;
   prevEncoderS = encoderSValue;
 
-  theta = ((IMU.rotation() + IMU2.rotation())/2 * constantOfBadGyro) * (PI / 180);
+  theta = (IMUL.rotation() * constantOfBadGyroL + IMUR.rotation() * constantOfBadGyroR)/2 * (PI / 180);
   deltaTheta = theta - prevTheta;
 
   double arcRadius = 0; // radius of the motion of the robot modeled as an arc
@@ -37,4 +41,29 @@ void EncoderOdometry::computeLocation() {
   encoderY += deltaY * cos(avgTheta) - deltaX * sin(avgTheta);
 
   prevTheta = theta;
+
+  writeToSD();
+}
+
+void EncoderOdometry::writeToSD() { //Write data to the sd card
+ if (Brain.SDcard.isInserted()) { // Write only if the card is inserted
+    std::ofstream file(
+        "pirate.txt",
+        std::ofstream::app); // Create or open a file called pirate.txt
+    // Write format:
+    // time(sec),x(m),y(m),accelX(m/s^2),deltaT(s)
+    file << Brain.timer(sec); // Write the current time to pirate.txt
+    file << ",";
+    file << encoderX; // Write the current x position
+    file << ",";
+    file << encoderY; // Write the current y position
+    file << ",";
+    file << IMUL.rotation();
+    file << ",";
+    file << IMUR.rotation();
+    file << ",";
+    file << deltaT; //Write deltaT
+    file << "\n";      // Create a new line
+    file.close();      // Close the file
+  }
 }

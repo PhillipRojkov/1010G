@@ -47,8 +47,9 @@ void pre_auton(void) {
 
   Brain.Screen.clearScreen(red);
 
-  // Calibrate inertial sensor
-  IMU.startCalibration();
+  // Calibrate inertial sensors
+  IMUL.startCalibration();
+  IMUR.startCalibration();
   encoderL.resetPosition();
   encoderR.resetPosition();
   encoderS.resetRotation();

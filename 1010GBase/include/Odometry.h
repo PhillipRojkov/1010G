@@ -19,7 +19,8 @@ public:
 // APRIL 2 2020, the previous sensore completely crapped out,
 // 15 degrees of error over 360 degrees of rotation. Replaced sensor
 // It now works
-  double constantOfBadGyro = 1.0061;
+  double constantOfBadGyroL = 1;
+  double constantOfBadGyroR = 1;
 
   double PI = 3.14159265359;
 
@@ -32,7 +33,7 @@ public:
 
   double defaultTurnCompletionPoint = 4;
   double defaultMinDriveSpeed = 12;
-  double defaultMinStrafeSpeed = 25;
+  double defaultMinStrafeSpeed = 20;
 
   double defaultPositionError = 1.1; //Distance (inches) the robot needs to be from target position to end function
   double defaultTurnError = 0.07; //Rotation (rad) the robot needs to be from target heading to end function

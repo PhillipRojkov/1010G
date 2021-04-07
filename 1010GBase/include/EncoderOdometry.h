@@ -13,7 +13,8 @@ public:
 // APRIL 2 2020, the previous sensore completely crapped out,
 // 15 degrees of error over 360 degrees of rotation. Replaced sensor
 // It now works
-  double constantOfBadGyro = 1.0061;
+  double constantOfBadGyroL = 1;
+  double constantOfBadGyroR = 1;
 
   double PI = 3.14159265359;
 
@@ -21,10 +22,10 @@ public:
   double encoderY;
 
   double wheelRadiusL = 2.75 / 2; //Not used
-  double wheelRadiusR = 2.78 / 2;
+  double wheelRadiusR = 2.8 / 2;
   double middleWheelRadius = 2.83 / 2;
-  double offsetL = 4.4375; //distance from tracking centre to left odometry wheel
-  double offsetR = 4.4375; //distance from tracking centre to right odometry wheel
+  double offsetL = 4.4; //distance from tracking centre to left odometry wheel
+  double offsetR = 4.4; //distance from tracking centre to right odometry wheel
   double offsetS = 1.5; //distance from trakcing centre to middle odometry wheel
   double theta = 0;
 
@@ -41,5 +42,10 @@ public:
   double deltaX;
   double deltaY;
 
+  double deltaT;
+  double prevTime = 0;
+
   void computeLocation();
+
+  void writeToSD();   // Write debug data to the sd card
 };

@@ -29,7 +29,7 @@ double AutoFunctions::absAvgDriveEncoder() {
 void AutoFunctions::drive(int dir, double speed) {
   // PID
   // Used to make robot go straight
-  error = IMU.rotation() - h;
+  error = IMUL.rotation() - h;
   derivative = error - prevError;
   totalError += error;
   prevError = error;
@@ -57,7 +57,7 @@ void AutoFunctions::strafe(
     double speed) { // Strafe right (dir = 1) or left (dir = -1)
   // PID
   // Used to make robot go straight
-  error = IMU.rotation() - h;
+  error = IMUL.rotation() - h;
   derivative = error - prevError;
   totalError += error;
   prevError = error;
@@ -90,7 +90,7 @@ void AutoFunctions::brakeDrive() {
 void AutoFunctions::autoForward(double degrees, double iDeg, double fDeg,
                                 double speed) {
   resetDriveEncoders();
-  h = IMU.rotation();
+  h = IMUL.rotation();
   while (avgDriveEncoder() <
          iDeg) { // Accelerate for the initial degrees (iDeg)
     double accelerate = speed * avgDriveEncoder() / iDeg;
@@ -131,7 +131,7 @@ void AutoFunctions::autoForward(double degrees, double iDeg, double fDeg,
 void AutoFunctions::autoForward(double degrees, double iDeg, double fDeg,
                                 bool intake, double speed) {
   resetDriveEncoders();
-  h = IMU.rotation();
+  h = IMUL.rotation();
   while (avgDriveEncoder() <
          iDeg) { // Accelerate for the initial degrees (iDeg)
     double accelerate = speed * avgDriveEncoder() / iDeg;
@@ -191,7 +191,7 @@ void AutoFunctions::timeOutDrive(double t, double speed) {
 void AutoFunctions::dumbForward(double degrees, double iDeg, double fDeg,
                                 double speed) {
   resetDriveEncoders();
-  h = IMU.rotation();
+  h = IMUL.rotation();
   while (avgDriveEncoder() <
          iDeg) { // Accelerate for the initial degrees (iDeg)
     double accelerate = speed * avgDriveEncoder() / iDeg;
@@ -232,7 +232,7 @@ void AutoFunctions::dumbForward(double degrees, double iDeg, double fDeg,
 void AutoFunctions::dumbBackward(double degrees, double iDeg, double fDeg,
                                  double speed) {
   resetDriveEncoders();
-  h = IMU.rotation();
+  h = IMUL.rotation();
   while (fabs(avgDriveEncoder()) <
          iDeg) { // Accelerate for the initial degrees (iDeg)
     double accelerate = speed * absAvgDriveEncoder() / iDeg;
@@ -274,7 +274,7 @@ void AutoFunctions::dumbBackward(double degrees, double iDeg, double fDeg,
 void AutoFunctions::autoBackward(double degrees, double iDeg, double fDeg,
                                  double speed) {
   resetDriveEncoders();
-  h = IMU.rotation();
+  h = IMUL.rotation();
   while (fabs(avgDriveEncoder()) <
          iDeg) { // Accelerate for the initial degrees (iDeg)
     double accelerate = speed * absAvgDriveEncoder() / iDeg;
@@ -317,7 +317,7 @@ void AutoFunctions::autoTurnTo(double degrees) {
   int t = 0;               // Time variable
   while (t < turnMargin) { // break when time exceeds the turnMargin
     // PID
-    error = IMU.rotation() - degrees;
+    error = IMUL.rotation() - degrees;
     derivative = error - prevError;
     totalError += error;
     prevError = error;
@@ -354,7 +354,7 @@ void AutoFunctions::autoTurnTo(double degrees) {
 void AutoFunctions::autoStrafeLeft(double degrees, double iDeg, double fDeg,
                                    double speed) {
   resetDriveEncoders();
-  h = IMU.rotation();
+  h = IMUL.rotation();
   // accelerate from initialSpeed to speed while strafing through iDeg
   while (absAvgDriveEncoder() < iDeg) {
     double accelerate = speed * absAvgDriveEncoder() / iDeg;
@@ -393,7 +393,7 @@ void AutoFunctions::autoStrafeLeft(double degrees, double iDeg, double fDeg,
 void AutoFunctions::autoStrafeRight(double degrees, double iDeg, double fDeg,
                                     double speed) {
   resetDriveEncoders();
-  h = IMU.rotation();
+  h = IMUL.rotation();
   // accelerate from initialSpeed to speed while strafing through iDeg
   while (absAvgDriveEncoder() < iDeg) {
     double accelerate = speed * absAvgDriveEncoder() / iDeg;
@@ -657,7 +657,7 @@ void AutoFunctions::alignTurnRight(double speed, double degrees) {
 
   // Run loop when heading is less than degrees
   // heading increases as robot turns right
-  while (IMU.rotation() < degrees) {
+  while (IMUL.rotation() < degrees) {
     DriveFL.spin(forward, speed, pct);
     DriveBL.spin(forward, speed, pct);
     wait(10, msec);
@@ -679,7 +679,7 @@ void AutoFunctions::alignTurnLeft(double speed, double degrees) {
 
   // Run loop when heading is greater than degrees
   // heading decreases (and goes negative) as robot turns left
-  while (IMU.rotation() > degrees) {
+  while (IMUL.rotation() > degrees) {
     DriveFR.spin(forward, speed, pct);
     DriveBR.spin(forward, speed, pct);
     wait(10, msec);
