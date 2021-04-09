@@ -10,11 +10,16 @@ public:
 // the sensor from the factory? beats me.
 // APRIL 1 2020, this value is now 1 because changing the mounting
 // orientation of the sensor fixed it. Imagine having good sensors
-// APRIL 2 2020, the previous sensore completely crapped out,
+// APRIL 2 2020, the previous sensor completely crapped out,
 // 15 degrees of error over 360 degrees of rotation. Replaced sensor
-// It now works
-  double constantOfBadGyroL = 1;
-  double constantOfBadGyroR = 1;
+// It now works better
+  double constantOfBadGyroL = 1.009;
+  double constantOfBadGyroR = 1.01;
+
+//Variables to counter gyro drift cause vex gyro bad lol
+// Units are degrees / second
+  double gyroDriftL = 0.001;
+  double gyroDriftR = -0.001;
 
   double PI = 3.14159265359;
 
@@ -23,10 +28,10 @@ public:
 
   double wheelRadiusL = 2.75 / 2; //Not used
   double wheelRadiusR = 2.8 / 2;
-  double middleWheelRadius = 2.83 / 2;
-  double offsetL = 4.4; //distance from tracking centre to left odometry wheel
-  double offsetR = 4.4; //distance from tracking centre to right odometry wheel
-  double offsetS = 1.5; //distance from trakcing centre to middle odometry wheel
+  double middleWheelRadius = 2.775 / 2;
+  double offsetL = 4.39; //distance from tracking centre to left odometry wheel
+  double offsetR = 4.39; //distance from tracking centre to right odometry wheel
+  double offsetS = 2.5; //distance from trakcing centre to middle odometry wheel
   double theta = 0;
 
   double prevEncoderS = 0;

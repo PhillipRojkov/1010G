@@ -1,5 +1,6 @@
 #include "Odometry.h"
 
+double theta = 0;
 void Odometry::setXY() {
   encoderOdometry.computeLocation();
   /*inertialNavigation.computeLocation();
@@ -8,6 +9,7 @@ void Odometry::setXY() {
   y = inertialNavigation.inertialY;*/
   x = encoderOdometry.encoderX;
   y = encoderOdometry.encoderY;
+  theta = encoderOdometry.theta;
 }
 
 void Odometry::printCoordinates() {
@@ -18,16 +20,18 @@ void Odometry::printCoordinates() {
   Brain.Screen.print(y);
   // Print IMU rotations
   Brain.Screen.setCursor(1, 18);
-  Brain.Screen.print(IMUL.rotation());
+  Brain.Screen.print((IMUR.rotation() + Brain.timer(sec) * gyroDriftR) * constantOfBadGyroR);
   Brain.Screen.setCursor(2, 18);
-  Brain.Screen.print(IMUR.rotation());
+  Brain.Screen.print((IMUL.rotation() + Brain.timer(sec) * gyroDriftL) * constantOfBadGyroL);
+  Brain.Screen.setCursor(3, 18);
+  Brain.Screen.print(theta * (180/PI));
 }
 
  //Turn Completion point: At what point in the translation should the turn be completed (1 is for at the end, 2 is for at the midpoint, 4 is at the quarterpoint, etc.)
 void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, double minDriveSpeed, double turnCompletionPoint, double drivekP, double strafekP, double positionError, double turnError) {
   dH *= (PI / 180); //Convert to radians
 
-  double h = (IMUL.rotation() * constantOfBadGyroL + IMUR.rotation() * constantOfBadGyroR)/2 * (PI / 180); //heading in radians
+  double h = ((IMUL.rotation() + Brain.timer(sec) * gyroDriftL) * constantOfBadGyroL + (IMUR.rotation() + Brain.timer(sec) * gyroDriftR) * constantOfBadGyroR)/2 * (PI / 180); //heading in radians
 
   double deltaX = dX - x;
   double deltaY = dY - y;
@@ -45,7 +49,7 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
 
   // Run when the robot is far away from desired point and heading
   while (distanceLeft > positionError || fabs(dH - h) > turnError) {
-    h = (IMUL.rotation() * constantOfBadGyroL + IMUR.rotation() * constantOfBadGyroR)/2 * (PI / 180);
+    h = ((IMUL.rotation() + Brain.timer(sec) * gyroDriftL) * constantOfBadGyroL + (IMUR.rotation() + Brain.timer(sec) * gyroDriftR) * constantOfBadGyroR)/2 * (PI / 180);
     deltaX = dX - x;
     deltaY = dY - y;
 

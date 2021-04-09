@@ -17,8 +17,11 @@ void EncoderOdometry::computeLocation() {
   prevEncoderR = encoderRValue;
   prevEncoderS = encoderSValue;
 
-  theta = (IMUL.rotation() * constantOfBadGyroL + IMUR.rotation() * constantOfBadGyroR)/2 * (PI / 180);
+  theta = ((IMUL.rotation() + Brain.timer(sec) * gyroDriftL) * constantOfBadGyroL + (IMUR.rotation() + Brain.timer(sec) * gyroDriftR) * constantOfBadGyroR)/2 * (PI / 180);
   deltaTheta = theta - prevTheta;
+
+  //deltaTheta = (deltaL - deltaR) / (offsetL + offsetR);
+  //theta += deltaTheta;
 
   double arcRadius = 0; // radius of the motion of the robot modeled as an arc
   double strafeRadius =

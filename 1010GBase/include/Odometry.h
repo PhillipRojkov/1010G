@@ -16,11 +16,16 @@ public:
 // the sensor from the factory? beats me.
 // APRIL 1 2020, this value is now 1 because changing the mounting
 // orientation of the sensor fixed it. Imagine having good sensors
-// APRIL 2 2020, the previous sensore completely crapped out,
+// APRIL 2 2020, the previous sensor completely crapped out,
 // 15 degrees of error over 360 degrees of rotation. Replaced sensor
-// It now works
-  double constantOfBadGyroL = 1;
-  double constantOfBadGyroR = 1;
+// It now works better
+  double constantOfBadGyroL = 1.009;
+  double constantOfBadGyroR = 1.01;
+
+//Variables to counter gyro drift cause vex gyro bad lol
+// Units are degrees / second
+  double gyroDriftL = 0.001;
+  double gyroDriftR = -0.001;
 
   double PI = 3.14159265359;
 
@@ -28,7 +33,7 @@ public:
   //(180/PI) is included because the terms on which these coefficients operate are in radians
   //Changing to degrees makes for parity between other turn functions
   double turnkP = 1 * (180/PI);
-  double turnkD = 1 * (180/PI);
+  double turnkD = 0.5 * (180/PI);
   double turnkI = 0 * (180/PI);
 
   double defaultTurnCompletionPoint = 4;
@@ -39,7 +44,7 @@ public:
   double defaultTurnError = 0.07; //Rotation (rad) the robot needs to be from target heading to end function
 
   //Drive PID
-  double defaultDrivekP = 6.5;
+  double defaultDrivekP = 6;
   double drivekD = 0;
   double drivekI = 0;
 

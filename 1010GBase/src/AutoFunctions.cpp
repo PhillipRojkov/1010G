@@ -586,11 +586,11 @@ void AutoFunctions::cIndex() {
   indexerBrake();
   indexSense();
   if (!position3) {
-    IndexerTop.spin(forward, 50, pct);
+    IndexerTop.spin(forward, 35, pct);
     IndexerLow.spin(forward, 70, pct);
   }
   if (position3 && !position2) {
-    IndexerLow.spin(forward, 80, pct);
+    IndexerLow.spin(forward, 70, pct);
   }
 }
 
@@ -612,7 +612,7 @@ void AutoFunctions::indexSense() {
   }
 
   if ((LinePosition3L.value(pct) < 48 && LinePosition3L.value(pct) > 2) ||
-      (LinePosition3T.value(pct) < 45 && LinePosition3T.value(pct) > 2)) { // Position 3
+      (LinePosition3T.value(pct) < 48 && LinePosition3T.value(pct) > 2)) { // Position 3
     position3 = true;
     Brain.Screen.drawCircle(100, 100, 50, green);
   } else {
