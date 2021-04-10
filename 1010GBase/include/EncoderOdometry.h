@@ -16,7 +16,7 @@ public:
   double constantOfBadGyroL = 1.0082;
   double constantOfBadGyroR = 1.0091;
 
-//Variables to counter gyro drift cause vex gyro bad lol
+// Variables to counter gyro drift cause vex gyro bad lol
 // Units are degrees / second
   double gyroDriftL = 0.001;
   double gyroDriftR = -0.0012;

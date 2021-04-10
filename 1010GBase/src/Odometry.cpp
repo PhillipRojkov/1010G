@@ -41,9 +41,9 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
   double distanceLeft = sqrt(pow(deltaX, 2) + pow(deltaY, 2)); //scalar point to point distance remaining
   double initialDistance = distanceLeft; //Calculate only at the beginning of this function call
 
-  double percentTurn =  (initialDistance - distanceLeft) / initialDistance; //Starts at zero, approaches one as the robot gets closer to (dX, dY)
+  double percentMoveCompletion = (initialDistance - distanceLeft) / initialDistance; //Starts at zero, approaches one as the robot gets closer to (dX, dY)
   double initialHeading = h;
-  double newDesiredHeading = initialHeading + (dH - initialHeading) * percentTurn; //gets closer to dH as percentTurn approaches 1
+  double newDesiredHeading = initialHeading + (dH - initialHeading) * percentMoveCompletion; //gets closer to dH as percentTurn approaches 1
   double turnIntegral = 0;
   double prevDeltaH = deltaH;
 
@@ -53,9 +53,9 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
     deltaX = dX - x;
     deltaY = dY - y;
 
-    percentTurn = fabs((initialDistance - distanceLeft) / initialDistance); //Starts at zero, approaches one as the robot gets closer to (dX, dY)
-    percentTurn = fmin(percentTurn, 1 / turnCompletionPoint);
-    newDesiredHeading = initialHeading + (dH - initialHeading) * turnCompletionPoint * percentTurn; //gets closer to dH as percentTurn approaches 1
+    percentMoveCompletion = fabs((initialDistance - distanceLeft) / initialDistance); //Starts at zero, approaches one as the robot gets closer to (dX, dY)
+    percentMoveCompletion = fmin(percentMoveCompletion, 1 / turnCompletionPoint);
+    newDesiredHeading = initialHeading + (dH - initialHeading) * turnCompletionPoint * percentMoveCompletion; //gets closer to dH as percentTurn approaches 1
     deltaH = newDesiredHeading - h; //Turn error
     turnIntegral += deltaH;
     double turnDerivative = deltaH - prevDeltaH;
