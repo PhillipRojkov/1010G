@@ -81,7 +81,7 @@ void pre_auton(void) {
 void odometryThread(){
   while(true) {
   autoMasters.runOdometry();
-  wait(5, msec);
+  wait(4, msec);
   }
 }
 

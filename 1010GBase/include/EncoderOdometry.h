@@ -13,13 +13,16 @@ public:
 // APRIL 2 2020, the previous sensor completely crapped out,
 // 15 degrees of error over 360 degrees of rotation. Replaced sensor
 // It now works better
-  double constantOfBadGyroL = 1.009;
-  double constantOfBadGyroR = 1.01;
+  double constantOfBadGyroL = 1.0082;
+  double constantOfBadGyroR = 1.0091;
 
 //Variables to counter gyro drift cause vex gyro bad lol
 // Units are degrees / second
   double gyroDriftL = 0.001;
-  double gyroDriftR = -0.001;
+  double gyroDriftR = -0.0012;
+
+  double coefficientOfLmao = 0.045; //Offset applied to deltaX and deltaY when the robot is travelling
+  //at 45 degrees relative to local forward
 
   double PI = 3.14159265359;
 
@@ -27,7 +30,7 @@ public:
   double encoderY;
 
   double wheelRadiusL = 2.75 / 2; //Not used
-  double wheelRadiusR = 2.8 / 2;
+  double wheelRadiusR = 2.775 / 2;
   double middleWheelRadius = 2.775 / 2;
   double offsetL = 4.39; //distance from tracking centre to left odometry wheel
   double offsetR = 4.39; //distance from tracking centre to right odometry wheel

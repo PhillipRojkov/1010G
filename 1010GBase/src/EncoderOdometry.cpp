@@ -36,6 +36,17 @@ void EncoderOdometry::computeLocation() {
 
     deltaX = 2 * sin(deltaTheta / 2) * strafeRadius;
     deltaY = 2 * sin(deltaTheta / 2) * arcRadius;
+
+    double dirOfMovement = PI/2;
+    if (deltaY != 0) {
+      dirOfMovement = atan2(deltaX, deltaY); //Direction of movement relative to orientation
+    // 0 would be travelling forward, pi/2 would be travelling right, etc.
+    }
+  
+    double multiplier = coefficientOfLmao * sin(4 * dirOfMovement - PI/2)/2 + 1 + coefficientOfLmao/2; //Ranges from 1 to 1 + coefficientOfLmao
+    //Used to slightly increase deltaX and deltaY when travelling at 45 degrees to counter wheel slip
+    deltaX *= multiplier;
+    deltaY *= multiplier;
   }
 
   double avgTheta = (theta + prevTheta) / 2;

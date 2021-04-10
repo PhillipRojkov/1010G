@@ -194,8 +194,8 @@ void DriveClass::indexSense() {
     Brain.Screen.drawCircle(200, 100, 50, black);
   }
 
-  if ((LinePosition3L.value(pct) < 48 && LinePosition3L.value(pct) > 2) ||
-      (LinePosition3T.value(pct) < 48 && LinePosition3T.value(pct) > 2)) { // Position 3
+  if ((LinePosition3L.value(pct) < 50 && LinePosition3L.value(pct) > 2) ||
+      (LinePosition3T.value(pct) < 50 && LinePosition3T.value(pct) > 2)) { // Position 3
     position3 = true;
     Brain.Screen.drawCircle(100, 100, 50, green);
   } else {

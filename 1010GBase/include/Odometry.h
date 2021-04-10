@@ -19,13 +19,13 @@ public:
 // APRIL 2 2020, the previous sensor completely crapped out,
 // 15 degrees of error over 360 degrees of rotation. Replaced sensor
 // It now works better
-  double constantOfBadGyroL = 1.009;
-  double constantOfBadGyroR = 1.01;
+  double constantOfBadGyroL = 1.0082;
+  double constantOfBadGyroR = 1.0091;
 
 //Variables to counter gyro drift cause vex gyro bad lol
 // Units are degrees / second
   double gyroDriftL = 0.001;
-  double gyroDriftR = -0.001;
+  double gyroDriftR = -0.0012;
 
   double PI = 3.14159265359;
 
