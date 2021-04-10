@@ -29,19 +29,20 @@ void Odometry::printCoordinates() {
 
  //Turn Completion point: At what point in the translation should the turn be completed (1 is for at the end, 2 is for at the midpoint, 4 is at the quarterpoint, etc.)
 void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, double minDriveSpeed, double turnCompletionPoint, double drivekP, double strafekP, double positionError, double turnError) {
-  dH *= (PI / 180); //Convert to radians
+  dH *= (PI / 180); //Convert dH to radians
 
   double h = ((IMUL.rotation() + Brain.timer(sec) * gyroDriftL) * constantOfBadGyroL + (IMUR.rotation() + Brain.timer(sec) * gyroDriftR) * constantOfBadGyroR)/2 * (PI / 180); //heading in radians
 
+  //Set up delta values
   double deltaX = dX - x;
   double deltaY = dY - y;
   double deltaH = dH - h;
 
   double speed;
   double distanceLeft = sqrt(pow(deltaX, 2) + pow(deltaY, 2)); //scalar point to point distance remaining
-  double initialDistance = distanceLeft; //Calculate only at the beginning of this function call
+  double initialDistanceLeft = distanceLeft; //Calculated only at the beginning of this function call
 
-  double percentMoveCompletion = (initialDistance - distanceLeft) / initialDistance; //Starts at zero, approaches one as the robot gets closer to (dX, dY)
+  double percentMoveCompletion = (initialDistanceLeft - distanceLeft) / initialDistanceLeft; //Starts at zero, approaches one as the robot gets closer to (dX, dY)
   double initialHeading = h;
   double newDesiredHeading = initialHeading + (dH - initialHeading) * percentMoveCompletion; //gets closer to dH as percentTurn approaches 1
   double turnIntegral = 0;
@@ -49,13 +50,14 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
 
   // Run when the robot is far away from desired point and heading
   while (distanceLeft > positionError || fabs(dH - h) > turnError) {
-    h = ((IMUL.rotation() + Brain.timer(sec) * gyroDriftL) * constantOfBadGyroL + (IMUR.rotation() + Brain.timer(sec) * gyroDriftR) * constantOfBadGyroR)/2 * (PI / 180);
+    h = ((IMUL.rotation() + Brain.timer(sec) * gyroDriftL) * constantOfBadGyroL + (IMUR.rotation() + Brain.timer(sec) * gyroDriftR) * constantOfBadGyroR)/2 * (PI / 180); //heading in radians
     deltaX = dX - x;
     deltaY = dY - y;
 
-    percentMoveCompletion = fabs((initialDistance - distanceLeft) / initialDistance); //Starts at zero, approaches one as the robot gets closer to (dX, dY)
+    percentMoveCompletion = fabs((initialDistanceLeft - distanceLeft) / initialDistanceLeft); //Starts at 0, approaches 1 as the robot gets closer to its desired position
     percentMoveCompletion = fmin(percentMoveCompletion, 1 / turnCompletionPoint);
     newDesiredHeading = initialHeading + (dH - initialHeading) * turnCompletionPoint * percentMoveCompletion; //gets closer to dH as percentTurn approaches 1
+    // Turning PID values
     deltaH = newDesiredHeading - h; //Turn error
     turnIntegral += deltaH;
     double turnDerivative = deltaH - prevDeltaH;
@@ -63,9 +65,10 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
 
     distanceLeft = sqrt(pow(deltaX, 2) + pow(deltaY, 2)); //scalar point to point distance remaining
 
+    // Calculate local direction of movement
+    // Traveling straight is 0 degrees, travelling to the right is 90 degrees, etc.
     double DirectionOfMovement;
-
-    //If statements avoid divide by zero problem for moving along the x and y axis
+    //If statements avoid divide by zero problem for moving directly along the x and y axis
     if (fabs(deltaX) == 0) {
       if (deltaY > 0) {
         DirectionOfMovement = 0;
@@ -109,6 +112,7 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
     double P2 = -cos(DirectionOfMovement + 5 * PI / 4) / cos(PI / 4); //Diagonal set 2 percentage
 
     double s = fmax(fabs(P1), fabs(P2)) / speed; //speed limiter
+    //Set motor speeds
     double fL = P1/s + deltaH * turnkP + turnIntegral * turnkI + turnDerivative * turnkD;
     double fR = P2/s - deltaH * turnkP - turnIntegral * turnkI - turnDerivative * turnkD;
     double bL = P2/s + deltaH * turnkP + turnIntegral * turnkI + turnDerivative * turnkD;
@@ -119,6 +123,7 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
     DriveBL.spin(forward, bL, pct);
     DriveBR.spin(forward, bR, pct);
 
+    //Brake motors if they are travelling very slow (assists with 45 degree directionOfMovement)
     if (fabs(fL) < 2) {
       DriveFL.stop(brake);
     }
@@ -131,7 +136,7 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
     if (fabs(bR) < 2) {
       DriveBR.stop(brake);
     }
-  }
+  } //End of while loop
   DriveFL.stop(brake);
   DriveFR.stop(brake);
   DriveBL.stop(brake);
