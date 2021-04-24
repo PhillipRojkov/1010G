@@ -22,7 +22,7 @@ void EncoderOdometry::computeLocation() {
   theta = ((IMUL.rotation() + Brain.timer(sec) * gyroDriftL) * constantOfBadGyroL + (IMUR.rotation() + Brain.timer(sec) * gyroDriftR) * constantOfBadGyroR)/2 * (PI / 180);
   deltaTheta = theta - prevTheta;
 
-  //Unused heading code using encoders
+  //Heading code using encoders (radians)
   //deltaTheta = (deltaL - deltaR) / (offsetL + offsetR);
   //theta += deltaTheta;
 
@@ -36,6 +36,7 @@ void EncoderOdometry::computeLocation() {
   } else {
     //Calculate local deltaX and deltaY
     arcRadius = deltaR / deltaTheta + offsetR;
+    //arcRadius = (deltaR + deltaL) / 2 / deltaTheta; //OPTIONAL use average of 2 encoders
     strafeRadius = deltaS / deltaTheta + offsetS;
 
     deltaX = 2 * sin(deltaTheta / 2) * strafeRadius;
@@ -50,9 +51,8 @@ void EncoderOdometry::computeLocation() {
       dirOfMovement = atan2(deltaX, deltaY); //Direction of movement relative to orientation
     // 0 would be travelling forward, pi/2 would be travelling right, etc.
     }
-    double multiplier = coefficientOfLmao * sin(4 * dirOfMovement - PI/2)/2 + 1 + coefficientOfLmao/2; //Ranges from 1 to 1 + coefficientOfLmao
-    deltaX *= multiplier;
-    deltaY *= multiplier;
+    deltaX *= diagonalMvmtOffsetX * sin(4 * dirOfMovement - PI/2)/2 + 1 + diagonalMvmtOffsetX/2; //Ranges from 1 to 1 + diagonalMvmtOffsetX
+    deltaY *= diagonalMvmtOffsetY * sin(4 * dirOfMovement - PI/2)/2 + 1 + diagonalMvmtOffsetY/2; //Ranges from 1 to 1 + diagonalMvmtOffsetY
   }
 
   //Average heading in radians

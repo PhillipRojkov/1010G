@@ -18,10 +18,12 @@ public:
 
 // Variables to counter gyro drift cause vex gyro bad lol
 // Units are degrees / second
-  double gyroDriftL = 0.001;
-  double gyroDriftR = -0.0012;
+  double gyroDriftL = 0.002;
+  double gyroDriftR = -0.0014;
 
-  double coefficientOfLmao = 0.045; //Offset applied to deltaX and deltaY when the robot is travelling
+  double diagonalMvmtOffsetX = -0.04; //Offset applied to deltaX when the robot is travelling -0.04
+  //at 45 degrees relative to local forward
+  double diagonalMvmtOffsetY = 0.04; //Offset applied to deltaX when the robot is travelling 0.04
   //at 45 degrees relative to local forward
 
   double PI = 3.14159265359;
@@ -29,11 +31,11 @@ public:
   double encoderX;
   double encoderY;
 
-  double wheelRadiusL = 2.75 / 2; //Not used
+  double wheelRadiusL = 2.775 / 2;
   double wheelRadiusR = 2.775 / 2;
   double middleWheelRadius = 2.775 / 2;
-  double offsetL = 4.39; //distance from tracking centre to left odometry wheel
-  double offsetR = 4.39; //distance from tracking centre to right odometry wheel
+  double offsetL = 4; //distance from tracking centre to left odometry wheel
+  double offsetR = 4; //distance from tracking centre to right odometry wheel
   double offsetS = 2.5; //distance from trakcing centre to middle odometry wheel
   double theta = 0;
 

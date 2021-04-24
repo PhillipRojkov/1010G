@@ -52,6 +52,16 @@ void intakeThread() {
   }
 }
 
+double pX;
+double pY;
+double pH;
+void pursuitThread() {
+  while (true) {
+    odometry.driveToPoint(pX, pY, pH, 100, 6, 3, 4, 10, 0.01, 0.0001);
+    wait(10, msec);
+  }
+}
+
 void cornerDescore() {
   runIndexer = false;
   wait(10, msec);
@@ -208,154 +218,145 @@ void AutoMasters::skills() {
 }
 
 void AutoMasters::rightHome() {
+  
+}
+
+void AutoMasters::leftHome() {
   // Flipout
   autoFunctions.flipout();
   wait(250, msec);
   runIndexer = true;
   thread autoIndexThread(indexThread); //start auto index thread
   thread intakesThread(intakeThread);
+  wait(10, msec);
   //Goal 1
-  odometry.driveToPoint(-16.8, 35, -90, 100, 18, 4, 6); //Drive to ball
-  autoFunctions.autoForward(80, 20, 20, 100);
-  timeToIntake += 1.4;
-  wait(1000, msec);
-  autoFunctions.timeOutDrive(0.6, 90); //Drive to goal
-  autoFunctions.openDegrees(100, 45);
+  timeToIntake += 0.45;
+  wait(300, msec);
+  autoFunctions.autoForward(150, 30, 30, 100);
+  odometry.driveToPoint(-27, 31.2, -90, 100, 10, 4, 6, 16, 1.6, 0.2); //On top of ball
+  timeToIntake += 1.2;
+  wait(600, msec);
+  autoFunctions.timeOutDrive(0.4, 100);
+  /*odometry.driveToPoint(-35.5, 30.2, -90, 100, 9, 4, 4, 10, 1, 0.05); //On goal
+  //Pursuit stay at goal
+  pX = -35.5;
+  pY = 30.2;
+  pH = -90;
+  thread pursuitThreadA(pursuitThread); //Yes this is jank AF. Too bad!*/
   runIndexer = false;
   autoFunctions.shoot();
+  /*//Cycle
+  while(!autoFunctions.position3 && (!autoFunctions.position2 || !autoFunctions.position1)) {
+    autoFunctions.indexSense();
+    timeToIntake += 1;
+    runIndexer = true;
+    wait(10, msec);
+  }
+  runIndexer = false;
+  timeToIntake = 0;
+  autoFunctions.shoot();
   runIndexer = true;
-  //Goal 2
-  autoFunctions.autoBackward(200, 70, 70, 100);
-  //autoFunctions.openIntake();
-  // odometry.driveToPoint(-4, 35, -90, 100, 135, 2, 5); //Turn
-  autoFunctions.autoTurnTo(-225);
-  opening = true;
-  odometry.driveToPoint(44, -30, -225, 100, 18, 2, 5); //Drive to ball
-  odometry.driveToPoint(44, -34.7, -180, 100, 18, 2, 5); //Drive to ball
-  autoFunctions.autoForward(20, 10, 10, 100);
-  opening = false;
+  pursuitThreadA.interrupt();*/
+  //Back out
+  autoFunctions.openDegrees(100, 180);
+  autoFunctions.dumbBackward(200, 50, 50, 100);
+  autoFunctions.outdex(100);
+  //Goal 3
+  odometry.driveToPoint(44.5, -24, -225, 100, 12, 10, 6, 6, 1.8, 0.2); //Drive across field
+  odometry.driveToPoint(44.5, -43.8, -180, 100, 10, 10, 5); //On top of ball
   timeToIntake += 1.5;
-  autoFunctions.autoForward(40, 20, 20, 100);
-  wait(800, msec);
-  autoFunctions.timeOutDrive(0.5, 90); //Drive to goal
-  intakesThread.interrupt();
-  autoFunctions.openDegrees(100, 45);
+  wait(1200, msec);
+  autoFunctions.timeOutDrive(0.4, 100);
+  /*odometry.driveToPoint(47.9, -47.8, -180, 100, 9, 4, 4, 10, 1, 0.05); //On top of goal
+  //Pursuit stay at goal
+  pX = 47.9;
+  pY = -47.8;
+  pH = -180;
+  thread pursuitThreadB(pursuitThread); //Now you see why this is jank. Too bad!*/
   runIndexer = false;
   autoIndexThread.interrupt();
+  intakesThread.interrupt();
+  autoFunctions.shoot();
+  /*
+  //Cycle
+  while(!autoFunctions.position3 && (!autoFunctions.position2 || !autoFunctions.position1)) {
+    autoFunctions.indexSense();
+    timeToIntake += 1;
+    runIndexer = true;
+    wait(10, msec);
+  }
+  runIndexer = false;
+  timeToIntake = 0;
+  autoFunctions.shoot();
+  pursuitThreadA.interrupt();
+  */
+  //Back out
+  autoFunctions.openDegrees(100, 180);
+  autoFunctions.dumbBackward(100, 40, 40, 100);
+  autoFunctions.outdex(100);
+}
+
+void AutoMasters::leftTwoAndMiddle() {
+  // Flipout
+  autoFunctions.flipout();
+  wait(200, msec);
+  runIndexer = true;
+  thread autoIndexThread(indexThread); //start auto index thread
+  thread intakesThread(intakeThread);
+  wait(10, msec);
+  //Goal 1
+  timeToIntake += 0.45;
+  wait(200, msec);
+  autoFunctions.autoForward(140, 10, 30, 100);
+  odometry.driveToPoint(-27, 31.2, -90, 100, 10, 4, 6, 16, 1.9, 0.2); //On top of ball
+  timeToIntake += 1.2;
+  wait(600, msec);
+  autoFunctions.timeOutDrive(0.4, 100);
+  /*odometry.driveToPoint(-35.5, 30.2, -90, 100, 9, 4, 4, 10, 1, 0.05); //On goal
+  //Pursuit stay at goal
+  pX = -35.5;
+  pY = 30.2;
+  pH = -90;
+  thread pursuitThreadA(pursuitThread); //Yes this is jank AF. Too bad!*/
+  runIndexer = false;
+  autoFunctions.shoot();
+  /*//Cycle
+  while(!autoFunctions.position3 && (!autoFunctions.position2 || !autoFunctions.position1)) {
+    autoFunctions.indexSense();
+    timeToIntake += 1;
+    runIndexer = true;
+    wait(10, msec);
+  }
+  runIndexer = false;
+  timeToIntake = 0;
   autoFunctions.shoot();
   runIndexer = true;
-  autoFunctions.autoBackward(150, 50, 50, 90);
-}
-
-void AutoMasters::leftHome() {
-  // Flipout
-  autoFunctions.flipout();
-  // Goal 1
-  autoFunctions.intake(100);
-  wait(200, msec);
-  autoFunctions.autoForward(90, 30, 30, 50);
-  autoFunctions.autoTurnTo(-45);
-  autoFunctions.intakeBrake();
-  autoFunctions.autoForward(50, 10, 10, 50);
+  pursuitThreadA.interrupt();*/
+  //Back out
+  timeToIntake = 0;
+  autoFunctions.openDegrees(100, 180);
+  autoFunctions.dumbBackward(200, 30, 10, 100);
+  autoFunctions.outdex(100);
+  //Grab middle ball
+  odometry.driveToPoint(13.4, 52.2, 45, 100, 10, 4, 5, 10, 1.5, 0.2); //Align for ball
+  runIndexer = true;
+  timeToIntake += 1;
+  wait(100, msec);
+  //Middle
+  odometry.driveToPoint(30.8, 34.7, 45, 100); //Strafe to push ball
+  //Side
+  autoFunctions.autoBackward(140, 10, 50, 100);
+  timeToIntake += 2;
+  autoFunctions.autoTurnTo(130);
+  odometry.driveToPoint(76.2, -24.4, 45, 100, 10, 1.2, 7, 15, 1.8, 0.2);
+  autoFunctions.timeOutDrive(0.6, 100);
+  runIndexer = false;
+  autoIndexThread.interrupt();
+  intakesThread.interrupt();
   autoFunctions.shoot();
-  // Goal 2
-  autoFunctions.autoBackward(200, 50, 100, 100);
-  autoFunctions.intake(100);
-  autoFunctions.autoTurnTo(0);
-  autoFunctions.autoBackward(340, 100, 100, 100);
-  autoFunctions.intakeBrake();
-  autoFunctions.autoTurnTo(-90);
-  autoFunctions.autoForward(110, 50, 50, 100);
-  wait(400, msec);
-  autoFunctions.shoot();
-  // Goal 3
-  autoFunctions.autoBackward(80, 30, 30, 100);
-  autoFunctions.autoTurnTo(-180);
-  autoFunctions.autoForward(400, 100, 100, 70);
-  wait(30, msec);
-  autoFunctions.autoTurnTo(-135);
-  autoFunctions.intake(100);
-  autoFunctions.autoForward(160, 50, 50, 60);
-  wait(600, msec);
-  autoFunctions.intakeBrake();
-  autoFunctions.autoForward(20, 1, 10, 50);
-  autoFunctions.shoot();
-  autoFunctions.autoBackward(70, 1, 1, 100);
-}
-
-void AutoMasters::rightTwoAndMiddle() {
-  // Flipout
-  autoFunctions.flipout();
-  autoFunctions.openIntake();
-  wait(200, msec);
-  // Goal 1
-  autoFunctions.dumbForward(40, 20, 40, 100);
-  autoFunctions.intake(100);
-  autoFunctions.autoTurnTo(25);
-  autoFunctions.intakeBrake();
-  autoFunctions.autoForward(100, 50, 1, 100);
-  autoFunctions.alignTurnRight(100, 42);
-  autoFunctions.shoot();
-  // Goal 2
-  autoFunctions.autoBackward(600, 50, 100, 100);
-  autoFunctions.autoTurnTo(0);
-  autoFunctions.autoBackward(1100, 50, 100, 100);
-  autoFunctions.autoTurnTo(90);
-  autoFunctions.intakeBrake();
-  autoFunctions.autoForward(350, 50, 150, 100);
-  wait(400, msec);
-  autoFunctions.shoot();
-  // Goal middle
-  autoFunctions.autoBackward(200, 50, 50, 100);
-  autoFunctions.autoTurnTo(0);
-  autoFunctions.autoBackward(600, 100, 100, 100);
-  autoFunctions.autoTurnTo(-90);
-  autoFunctions.autoForward(800, 100, 100, 80);
-  autoFunctions.autoStrafeRight(700, 100, 100, 100);
-  autoFunctions.autoBackward(500, 50, 100, 100);
+  autoFunctions.autoBackward(150, 1, 50, 100);
 }
 
 void AutoMasters::rightTwoAndSide() {
-  // Flipout
-  autoFunctions.flipout();
-  autoFunctions.openIntake();
-  wait(200, msec);
-  // Goal 1
-  autoFunctions.dumbForward(40, 20, 40, 100);
-  autoFunctions.intake(100);
-  autoFunctions.autoTurnTo(25);
-  autoFunctions.intakeBrake();
-  autoFunctions.autoForward(100, 50, 1, 100);
-  autoFunctions.alignTurnRight(100, 42);
-  autoFunctions.shoot();
-  // Goal 2
-  autoFunctions.autoBackward(600, 50, 100, 100);
-  autoFunctions.autoTurnTo(0);
-  autoFunctions.autoBackward(1100, 50, 100, 100);
-  autoFunctions.autoTurnTo(90);
-  autoFunctions.intakeBrake();
-  autoFunctions.autoForward(350, 50, 150, 100);
-  wait(400, msec);
-  autoFunctions.shoot();
-  // Goal side
-  autoFunctions.indexerBrake();
-  autoFunctions.intake(100);
-  wait(700, msec);
-  // dumbBackward(50, 10, 10, 40);
-  while (!autoFunctions.position1 && !autoFunctions.position2 &&
-         !autoFunctions.position3) {
-    autoFunctions.indexSense();
-    wait(10, msec);
-  }
-  autoFunctions.intakeBrake();
-  autoFunctions.autoBackward(350, 50, 50, 100);
-  autoFunctions.intake(100);
-  autoFunctions.autoTurnTo(-15);
-  autoFunctions.intakeBrake();
-  autoFunctions.autoForward(1500, 50, 150, 100);
-  autoFunctions.autoTurnTo(-75);
-  autoFunctions.brakeDrive();
-  autoFunctions.autoForward(500, 100, 100, 100);
-  autoFunctions.shoot();
-  autoFunctions.autoBackward(400, 1, 50, 100);
+  
 }

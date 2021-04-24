@@ -14,6 +14,6 @@ public:
   // Match autos
   void rightHome();
   void leftHome();
-  void rightTwoAndMiddle();
+  void leftTwoAndMiddle();
   void rightTwoAndSide();
 };

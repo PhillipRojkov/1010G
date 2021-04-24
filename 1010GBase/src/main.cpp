@@ -91,14 +91,14 @@ void autonomous(void) {
   thread odomThread(odometryThread); //Start odometry thread
 
   if (selection == 0) {
-    //autoMasters.rightHome();
-    autoMasters.skills();
+    autoMasters.leftTwoAndMiddle();
+    //autoMasters.skills();
   } else if (selection == 1) {
-    autoMasters.rightTwoAndMiddle();
+    autoMasters.leftHome();
   } else if (selection == 2) {
     autoMasters.rightTwoAndSide();
   } else if (selection == 3) {
-    autoMasters.leftHome();
+    autoMasters.rightHome();
   }
   // ..........................................................................
 }
