@@ -230,8 +230,8 @@ void AutoMasters::leftHome() {
   thread intakesThread(intakeThread);
   wait(10, msec);
   //Goal 1
-  timeToIntake += 0.45;
-  wait(300, msec);
+  timeToIntake += 0.52;
+  wait(50, msec);
   autoFunctions.autoForward(150, 30, 30, 100);
   odometry.driveToPoint(-27, 31.2, -90, 100, 10, 4, 6, 16, 1.6, 0.2); //On top of ball
   timeToIntake += 1.2;
@@ -299,18 +299,18 @@ void AutoMasters::leftHome() {
 void AutoMasters::leftTwoAndMiddle() {
   // Flipout
   autoFunctions.flipout();
-  wait(200, msec);
+  wait(100, msec);
   runIndexer = true;
   thread autoIndexThread(indexThread); //start auto index thread
   thread intakesThread(intakeThread);
   wait(10, msec);
   //Goal 1
-  timeToIntake += 0.45;
-  wait(200, msec);
+  timeToIntake += 0.5;
+  wait(50, msec);
   autoFunctions.autoForward(140, 10, 30, 100);
   odometry.driveToPoint(-27, 31.2, -90, 100, 10, 4, 6, 16, 1.9, 0.2); //On top of ball
-  timeToIntake += 1.2;
-  wait(600, msec);
+  timeToIntake += 1.3;
+  wait(500, msec);
   autoFunctions.timeOutDrive(0.4, 100);
   /*odometry.driveToPoint(-35.5, 30.2, -90, 100, 9, 4, 4, 10, 1, 0.05); //On goal
   //Pursuit stay at goal
@@ -334,7 +334,7 @@ void AutoMasters::leftTwoAndMiddle() {
   pursuitThreadA.interrupt();*/
   //Back out
   timeToIntake = 0;
-  autoFunctions.openDegrees(100, 180);
+  autoFunctions.openDegrees(100, 160);
   autoFunctions.dumbBackward(200, 30, 10, 100);
   autoFunctions.outdex(100);
   //Grab middle ball
@@ -343,13 +343,13 @@ void AutoMasters::leftTwoAndMiddle() {
   timeToIntake += 1;
   wait(100, msec);
   //Middle
-  odometry.driveToPoint(30.8, 34.7, 45, 100); //Strafe to push ball
+  odometry.driveToPoint(30.8, 34.7, 45, 100, 12, 4, 6, 16, 1.2, 0.1); //Strafe to push ball
   //Side
-  autoFunctions.autoBackward(140, 10, 50, 100);
+  autoFunctions.autoBackward(150, 30, 10, 100);
   timeToIntake += 2;
   autoFunctions.autoTurnTo(130);
-  odometry.driveToPoint(76.2, -24.4, 45, 100, 10, 1.2, 7, 15, 1.8, 0.2);
-  autoFunctions.timeOutDrive(0.6, 100);
+  odometry.driveToPoint(76.2, -24.4, 45, 100, 10, 1.1, 8, 18, 1.8, 0.2);
+  autoFunctions.timeOutDrive(0.55, 100);
   runIndexer = false;
   autoIndexThread.interrupt();
   intakesThread.interrupt();

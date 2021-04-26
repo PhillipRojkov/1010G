@@ -100,7 +100,7 @@ void DriveClass::cIndex() { // Automatic index
   if (enableIndex) {
     if (!position3) { // Always try to fill position 3
       IndexerTop.spin(forward, 35, pct);
-      IndexerLow.spin(forward, 70, pct);
+      IndexerLow.spin(forward, 100, pct);
     }
     if (position3 && !position2) { // If position 3 is filled, fill position2
       IndexerLow.spin(forward, 70, pct);
@@ -194,8 +194,8 @@ void DriveClass::indexSense() {
     Brain.Screen.drawCircle(200, 100, 50, black);
   }
 
-  if ((LinePosition3L.value(pct) < 50 && LinePosition3L.value(pct) > 2) ||
-      (LinePosition3T.value(pct) < 50 && LinePosition3T.value(pct) > 2)) { // Position 3
+  if ((LinePosition3L.value(pct) < 51 && LinePosition3L.value(pct) > 2) ||
+      (LinePosition3T.value(pct) < 51 && LinePosition3T.value(pct) > 2)) { // Position 3
     position3 = true;
     Brain.Screen.drawCircle(100, 100, 50, green);
   } else {

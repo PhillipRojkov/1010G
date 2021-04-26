@@ -587,7 +587,7 @@ void AutoFunctions::cIndex() {
   indexSense();
   if (!position3) {
     IndexerTop.spin(forward, 35, pct);
-    IndexerLow.spin(forward, 70, pct);
+    IndexerLow.spin(forward, 100, pct);
   }
   if (position3 && !position2) {
     IndexerLow.spin(forward, 70, pct);
@@ -611,8 +611,8 @@ void AutoFunctions::indexSense() {
     Brain.Screen.drawCircle(200, 100, 50, black);
   }
 
-  if ((LinePosition3L.value(pct) < 48 && LinePosition3L.value(pct) > 2) ||
-      (LinePosition3T.value(pct) < 48 && LinePosition3T.value(pct) > 2)) { // Position 3
+  if ((LinePosition3L.value(pct) < 51 && LinePosition3L.value(pct) > 2) ||
+      (LinePosition3T.value(pct) < 51 && LinePosition3T.value(pct) > 2)) { // Position 3
     position3 = true;
     Brain.Screen.drawCircle(100, 100, 50, green);
   } else {
@@ -625,6 +625,8 @@ void AutoFunctions::shoot() {
   double rotTo = IndexerTop.position(deg) + 400;
   while (IndexerTop.position(deg) < rotTo) {
     IndexerTop.spin(forward, 100, vex::pct);
+    //REMOVE AFTER TOURNAMENT
+    IndexerLow.spin(forward, 100, vex::pct);
     wait(10, msec);
   }
   indexerBrake();
