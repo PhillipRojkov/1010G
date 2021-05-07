@@ -15,7 +15,7 @@ void DriveClass::runTankBase() {
   if (abs(Controller1.Axis2.value()) > controllerDeadZone) {
     DriveBR.spin(vex::directionType::fwd, Controller1.Axis2.value(),
                  vex::velocityUnits::pct);
-    DriveFR.spin(vex::directionType::fwd, Controller1.Axis2.value(),
+    DriveFR.spin(vex::directionType::rev, Controller1.Axis2.value(),
                  vex::velocityUnits::pct);
   } else {
     DriveFR.stop(brake);

@@ -46,13 +46,13 @@ void pre_auton(void) {
   vexcodeInit();
 
   Brain.Screen.clearScreen(red);
-
+/*
   // Calibrate inertial sensors
   IMUL.startCalibration();
   IMUR.startCalibration();
   encoderL.resetPosition();
   encoderR.resetPosition();
-  encoderS.resetRotation();
+  encoderS.resetRotation();*/
   wait(1500, msec);
   Brain.Screen.clearScreen(green);
   wait(500, msec);
@@ -107,27 +107,28 @@ void usercontrol(void) {
   bool indexWait = true;
   double timeToIndex = 2;
   double t = 0;
-
+/*
   if (selection == 0) { //Run Flipout for driver skills
     autoMasters.runFlipout();
     wait(300, msec);
-  }
+  }*/
 
   // User control code here, inside the loop
   while (1) {
+    Brain.Screen.clearScreen(blue);
     // ........................................................................
     //driveClass.enableIndex = false;
-    driveClass.enableIndex = true;
-    driveClass.score();
+  /*  driveClass.enableIndex = true;
+    driveClass.score();*/
     driveClass.runTankBase();
-    driveClass.indexSense();
+    /*driveClass.indexSense();
     driveClass.index();
-    driveClass.intake();
+    driveClass.intake();*/
     /*if (Controller2.ButtonA.pressing()) {
       driveClass.resetScoreNum();
       driveClass.enableIndex = true;
     }*/
-    driveClass.score();
+    //driveClass.score();
     //driveClass.checkPosition1();
 
 /*
@@ -143,7 +144,7 @@ void usercontrol(void) {
     } else if (t > Brain.timer(sec)) {
       driveClass.enableIndex = true;
     }*/
-    driveClass.intake();
+    //driveClass.intake();
     // ........................................................................
     wait(10, msec); // Sleep the task for a short amount of time to prevent
                     // wasted resources.

@@ -100,7 +100,7 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
     speed = distanceLeft * ((drivekP + strafekP)/2 - (strafekP - drivekP)/2 * cos(2*DirectionOfMovement));
     if (speed > maxSpeed) { //clamp speed between maxSpeed and minSpeed
       speed = maxSpeed;
-    } 
+    }
     //Set minDriveSpeed
     //Average average minSpeed - (strafe - drive)/2 * cos(2x)
     double minSpeed = (minDriveSpeed + defaultMinStrafeSpeed)/2 - (defaultMinStrafeSpeed - minDriveSpeed)/2 * cos(2*DirectionOfMovement);
