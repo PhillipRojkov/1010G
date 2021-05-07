@@ -92,8 +92,8 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
       } else { //Quadrant 4
         DirectionOfMovement = PI + atan(deltaX / deltaY);
       }
-      DirectionOfMovement -= h; // Make local to robot orientation
     }
+    DirectionOfMovement -= h; // Make local to robot orientation
 
     //Set speed
     //Average kP - (strafe - drive)/2 * cos(2x)
