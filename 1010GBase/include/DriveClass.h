@@ -48,12 +48,15 @@ public:
   bool leftIntakeLogic = false;
   bool rightIntakeLogic = false;
 
-  void runTankBase(); // Linear tank drive with mecanum on bumpers
-  void runArcadeBase(); // Linear mecanum drive in arcade style
+  void runTankMecanumBase(); // Linear tank drive with mecanum on bumpers
+  void runArcadeMecanumBase(); // Linear mecanum drive in arcade style
+  void runTankBase(); // Linear tank drive
+  void runArcadeBase(bool dualStick); // Linear drive - Use both sticks if dualStick
   void index(); // Indexer override on partner left bumpers
   void cIndex(); // Automatic index
   void openIntake(); // Open intakes on partner bottom right bumper
   void intake(); // Intake/ open/ auto intake, on top right bumper/ bottom right bumper/ up button
+  void newIntake();
   void indexSense(); // Sets index ball position variables
   void intakeSense(); // Automatically intake balls
   void score(); // Score macros for one and two balls (driver bottom left bumper, bottom right bumper)

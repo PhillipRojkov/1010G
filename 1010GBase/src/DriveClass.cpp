@@ -1,6 +1,6 @@
 #include "DriveClass.h"
 
-void DriveClass::runTankBase() {
+void DriveClass::runTankMecanumBase() {
   // Left stick
   if (abs(Controller1.Axis3.value()) > controllerDeadZone) {
     DriveFL.spin(vex::directionType::fwd, Controller1.Axis3.value(),
@@ -54,14 +54,14 @@ void DriveClass::runTankBase() {
                  strafeSpeed * (2 - strafeWeighting) +
                      Controller1.Axis2.value() * strafeStickMultiplier,
                  velocityUnits::pct);
-    DriveFR.spin(directionType::rev,
+    DriveFR.spin(directionType::fwd,
                  strafeSpeed * strafeWeighting -
                      Controller1.Axis2.value() * strafeStickMultiplier,
                  velocityUnits::pct);
   }
 }
 
-void DriveClass::runArcadeBase() {
+void DriveClass::runArcadeMecanumBase() {
   DriveFL.spin(forward,
                Controller1.Axis2.value() + Controller1.Axis1.value() +
                    Controller1.Axis4.value(),
@@ -78,6 +78,27 @@ void DriveClass::runArcadeBase() {
                Controller1.Axis2.value() - Controller1.Axis1.value() +
                    Controller1.Axis4.value(),
                vex::pct);
+}
+
+void DriveClass::runTankBase() {
+  DriveFL.spin(forward, Controller1.Axis3.value(), vex::pct);
+  DriveBL.spin(forward, Controller1.Axis3.value(), vex::pct);
+  DriveFR.spin(forward, Controller1.Axis2.value(), vex::pct);
+  DriveBR.spin(forward, Controller1.Axis2.value(), vex::pct);
+}
+
+void DriveClass::runArcadeBase(bool dualStick) {
+  if (dualStick) { //Forward/backward on right stick, turn on left stick
+    DriveFL.spin(forward, Controller1.Axis2.value() + Controller1.Axis4.value(), vex::pct);
+    DriveBL.spin(forward, Controller1.Axis2.value() + Controller1.Axis4.value(), vex::pct);
+    DriveFR.spin(forward, Controller1.Axis2.value() - Controller1.Axis4.value(), vex::pct);
+    DriveBR.spin(forward, Controller1.Axis2.value() - Controller1.Axis4.value(), vex::pct);
+  } else { //All movement on right stick
+    DriveFL.spin(forward, Controller1.Axis2.value() + Controller1.Axis1.value(), vex::pct);
+    DriveBL.spin(forward, Controller1.Axis2.value() + Controller1.Axis1.value(), vex::pct);
+    DriveFR.spin(forward, Controller1.Axis2.value() - Controller1.Axis1.value(), vex::pct);
+    DriveBR.spin(forward, Controller1.Axis2.value() - Controller1.Axis1.value(), vex::pct);
+  }
 }
 
 void DriveClass::index() {
@@ -143,6 +164,20 @@ void DriveClass::openIntake() {
   enableIndex = false;
 }
 
+void DriveClass::newIntake() {
+  if (Controller2.ButtonR1.pressing()) { // Intake on partner top right bumper
+    IntakeL.spin(forward, 100, vex::pct);
+    IntakeR.spin(forward, 100, vex::pct);
+    enableIndex = true; //Auto index
+  } else if (Controller2.ButtonR2.pressing()) { // Open on partner bottom right bumper
+    IntakeL.spin(reverse, 100, pct);
+    IntakeR.spin(reverse, 100, pct);
+  } else {
+    IntakeL.stop(hold); //Hold the intakes in the open position
+    IntakeR.stop(hold);
+  }
+}
+
 void DriveClass::intake() {
   if (Controller2.ButtonR1.pressing()) { // Intake on partner top right bumper
     IntakeL.spin(forward, 100, vex::pct);
@@ -204,7 +239,7 @@ void DriveClass::indexSense() {
   }
 }
 
-void DriveClass::intakeSense() {
+void DriveClass::intakeSense() { //Auto intake
   // Red code
   for (int i = 0; i < 2; i++) {
     if (i == 0) {

@@ -25,12 +25,12 @@ rotation encoderL = rotation(PORT16, false);
 rotation encoderR = rotation(PORT6, true);
 // Drive motors
 motor DriveFL = motor(PORT13, ratio18_1, false); // Front left drive
-motor DriveFR = motor(PORT18, ratio18_1, false); // Front right drive - Reversed
+motor DriveFR = motor(PORT18, ratio18_1, true); // Front right drive - Reversed
 motor DriveBL = motor(PORT11, ratio36_1, true); // Back left drive - Reversed
 motor DriveBR = motor(PORT20, ratio36_1, false); // Back right drive
 // Intake motors
-motor IntakeL = motor(PORT13, ratio18_1, false); // Left intake
-motor IntakeR = motor(PORT2, ratio18_1, true);   // Right intake - Reversed
+motor IntakeL = motor(PORT4, ratio18_1, false); // Left intake
+motor IntakeR = motor(PORT6, ratio18_1, true);   // Right intake - Reversed
 // Indexer motors
 motor IndexerTop = motor(PORT18, ratio18_1, false); // Top indexer
 motor IndexerLow = motor(PORT8, ratio18_1, true);  // Lower indexer - Reversed

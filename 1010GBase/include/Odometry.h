@@ -48,11 +48,23 @@ public:
   double drivekD = 0;
   double drivekI = 0;
 
+  //Tracking PID
+  double defaultTrackingkP = 1;
+  double trackingkD = 0;
+  double trackingkI = 0;
+
   double defaultStrafekP = 14;
+
+  double radius = 15;
 
   void setXY();
 
   void printCoordinates();
+
+  //Drive to the set point
+  void pursuit(double dX, double dY, double speed);
+  void pursuit(double dX, double dY, double speed, double drivekP);
+  void pursuit(double dX, double dY, double speed, double drivekP, double positionError, double turnError);
 
   void driveToPoint(double dX, double dY, double dH, double maxSpeed, double minDriveSpeed, double turnCompletionPoint, double drivekP, double strafekP, double positionError, double turnError);
   void driveToPoint(double dX, double dY, double dH, double maxSpeed, double minDriveSpeed, double turnCompletionPoint, double drivekP);

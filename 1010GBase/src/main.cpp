@@ -90,6 +90,8 @@ void autonomous(void) {
   // .........................................................................
   thread odomThread(odometryThread); //Start odometry thread
 
+  autoMasters.LRTAuto();
+
   if (selection == 0) {
     autoMasters.leftTwoAndMiddle();
     //autoMasters.skills();
@@ -121,6 +123,7 @@ void usercontrol(void) {
   /*  driveClass.enableIndex = true;
     driveClass.score();*/
     driveClass.runTankBase();
+    driveClass.newIntake();
     /*driveClass.indexSense();
     driveClass.index();
     driveClass.intake();*/

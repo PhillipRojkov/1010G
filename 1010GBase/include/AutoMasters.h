@@ -11,6 +11,8 @@ public:
   void runFlipout();
   // Skills autos
   void skills();
+  // LRT autos
+  void LRTAuto();
   // Match autos
   void rightHome();
   void leftHome();

@@ -57,5 +57,7 @@ public:
 
   void computeLocation();
 
+  void printCoordinates();
+
   void writeToSD();   // Write debug data to the sd card
 };

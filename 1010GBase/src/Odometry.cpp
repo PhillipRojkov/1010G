@@ -3,28 +3,100 @@
 double theta = 0;
 void Odometry::setXY() {
   encoderOdometry.computeLocation();
-  /*inertialNavigation.computeLocation();
 
-  x = inertialNavigation.inertialX;
-  y = inertialNavigation.inertialY;*/
   x = encoderOdometry.encoderX;
   y = encoderOdometry.encoderY;
   theta = encoderOdometry.theta;
 }
 
-void Odometry::printCoordinates() {
-  // Print X and Y field position
-  Brain.Screen.setCursor(1, 2);
-  Brain.Screen.print(x);
-  Brain.Screen.setCursor(1, 9);
-  Brain.Screen.print(y);
-  // Print IMU rotations
-  Brain.Screen.setCursor(1, 18);
-  Brain.Screen.print((IMUR.rotation() + Brain.timer(sec) * gyroDriftR) * constantOfBadGyroR);
-  Brain.Screen.setCursor(2, 18);
-  Brain.Screen.print((IMUL.rotation() + Brain.timer(sec) * gyroDriftL) * constantOfBadGyroL);
-  Brain.Screen.setCursor(3, 18);
-  Brain.Screen.print(theta * (180/PI));
+void Odometry::pursuit(double dX, double dY, double speed, double drivekP, double positionError, double turnError) {
+  //Set up delta values
+  double deltaX = dX - x;
+  double deltaY = dY - y;
+
+  //Initial position
+  double initialX = x;
+  double initialY = y;
+  
+  double distanceLeft = sqrt(pow(deltaX, 2) + pow(deltaY, 2)); //scalar point to point distance remaining
+    //Desired heading for driving to point
+    double DirectionOfMovement;
+    //If statements avoid divide by zero problem for moving directly along the x and y axis
+    if (fabs(deltaX) == 0) {
+      if (deltaY > 0) {
+        DirectionOfMovement = 0;
+      } else {
+        DirectionOfMovement = PI;
+      }
+    } else if (fabs(deltaY) == 0) {
+      if (deltaX > 0) {
+        DirectionOfMovement = PI/2;
+      } else {
+        DirectionOfMovement = -PI/2;
+      }
+    } else {
+      //Calculate Direction of Movement using inverse tan
+      if (deltaX > 0 && deltaY > 0) { //Quadrant 1
+        DirectionOfMovement = atan(deltaX / deltaY);
+      } else if (deltaX < 0 && deltaY > 0) { //Quadrant 2
+        DirectionOfMovement = atan(deltaX / deltaY);
+      } else if (deltaX < 0 && deltaY < 0) { //Quadrant 3
+        DirectionOfMovement = -PI + atan(deltaX / deltaY);
+      } else { //Quadrant 4
+        DirectionOfMovement = PI + atan(deltaX / deltaY);
+      }
+    }
+
+  double prevError = 0;
+  double turnIntegral = 0;
+  //Turn to face desired position
+  while (fabs(DirectionOfMovement - theta) > turnError) {
+    double error = DirectionOfMovement - theta;
+    double derivative = error - prevError;
+    turnIntegral += error;
+
+    DriveFL.spin(fwd, error * turnkP + derivative * turnkD + turnIntegral * turnkI, pct);
+    DriveBL.spin(fwd, error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP, pct);
+    DriveFR.spin(fwd, -(error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP), pct);
+    DriveBR.spin(fwd, -(error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP), pct);
+  }
+  //Find slope of line from initial position to desired position
+  double iSlope = (dY - initialY) / (dX - initialX);
+  double s = speed;
+  double prevTrackingError = 0;
+  double trackingIntegral = 0;
+  while (distanceLeft > positionError) {
+    //Slope of line from current position to desired position
+    double fSlope = (dY - y) / (dX - x);
+    double trackingError = (fSlope - iSlope);
+    double trackingDerivative = trackingError - prevTrackingError;
+    prevTrackingError = trackingError;
+    trackingIntegral += trackingError;
+    
+    if (fabs(distanceLeft * drivekP) > speed) {
+      s = speed;
+    } else {
+      s = distanceLeft * drivekP;
+    }
+
+    double trackingkP = defaultTrackingkP;
+    DriveFL.spin(forward, s + trackingError * trackingkP + trackingDerivative * trackingkD + trackingIntegral * trackingkI, pct);
+    DriveBL.spin(forward, s + trackingError * trackingkP + trackingDerivative * trackingkD + trackingIntegral * trackingkP, pct);
+    DriveBR.spin(forward, s - (trackingError * trackingkP + trackingDerivative * trackingkD + trackingIntegral * trackingkI), pct);
+    DriveBL.spin(forward, s - (trackingError * trackingkP + trackingDerivative * trackingkD + trackingIntegral * trackingkI), pct);
+  }
+  DriveFL.stop(brake);
+  DriveBL.stop(brake);
+  DriveFR.stop(brake);
+  DriveBR.stop(brake);
+}
+
+void Odometry::pursuit(double dX, double dY, double speed, double drivekP) {
+  pursuit(dX, dY, speed, drivekP, defaultPositionError, defaultTurnError);
+}
+
+void Odometry::pursuit(double dX, double dY, double speed) {
+  pursuit(dX, dY, speed, defaultDrivekP, defaultPositionError, defaultTurnError);
 }
 
  //Turn Completion point: At what point in the translation should the turn be completed (1 is for at the end, 2 is for at the midpoint, 4 is at the quarterpoint, etc.)
@@ -150,3 +222,4 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed) {
 void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, double minDriveSpeed, double turnCompletionPoint, double drivekP) {
   driveToPoint(dX, dY, dH, maxSpeed, minDriveSpeed, turnCompletionPoint, drivekP, defaultStrafekP, defaultPositionError, defaultTurnError);
 }
+

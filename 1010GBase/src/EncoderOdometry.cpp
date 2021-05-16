@@ -66,6 +66,21 @@ void EncoderOdometry::computeLocation() {
   writeToSD(); //Write debug data to SD card
 }
 
+void EncoderOdometry::printCoordinates() {
+  // Print X and Y field position
+  Brain.Screen.setCursor(1, 2);
+  Brain.Screen.print(encoderX);
+  Brain.Screen.setCursor(1, 9);
+  Brain.Screen.print(encoderY);
+  // Print IMU rotations
+  Brain.Screen.setCursor(1, 18);
+  Brain.Screen.print((IMUR.rotation() + Brain.timer(sec) * gyroDriftR) * constantOfBadGyroR);
+  Brain.Screen.setCursor(2, 18);
+  Brain.Screen.print((IMUL.rotation() + Brain.timer(sec) * gyroDriftL) * constantOfBadGyroL);
+  Brain.Screen.setCursor(3, 18);
+  Brain.Screen.print(theta * (180/PI));
+}
+
 void EncoderOdometry::writeToSD() { //Write data to the sd card
  if (Brain.SDcard.isInserted()) { // Write only if the card is inserted
     std::ofstream file(
