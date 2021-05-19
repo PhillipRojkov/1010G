@@ -81,10 +81,22 @@ void DriveClass::runArcadeMecanumBase() {
 }
 
 void DriveClass::runTankBase() {
-  DriveFL.spin(forward, Controller1.Axis3.value(), vex::pct);
-  DriveBL.spin(forward, Controller1.Axis3.value(), vex::pct);
-  DriveFR.spin(forward, Controller1.Axis2.value(), vex::pct);
-  DriveBR.spin(forward, Controller1.Axis2.value(), vex::pct);
+  // Left stick
+  if (abs(Controller1.Axis3.value()) > controllerDeadZone) {
+    DriveFL.spin(fwd, Controller1.Axis3.value(), pct);
+    DriveBL.spin(fwd, Controller1.Axis3.value(), pct);
+  } else {
+    DriveFL.stop(brake);
+    DriveBL.stop(brake);
+  }
+  // Right stick
+  if (abs(Controller1.Axis2.value()) > controllerDeadZone) {
+    DriveBR.spin(fwd, Controller1.Axis2.value(), pct);
+    DriveFR.spin(fwd, Controller1.Axis2.value(), pct);
+  } else {
+    DriveFR.stop(brake);
+    DriveBR.stop(brake);
+  }
 }
 
 void DriveClass::runArcadeBase(bool dualStick) {
@@ -113,6 +125,7 @@ void DriveClass::index() {
     IndexerLow.spin(reverse, 100, vex::pct);
     enableIndex = false; // disable auto indexing
   } else { //Auto index
+    enableIndex = true;
     cIndex();
   }
 }
@@ -213,14 +226,6 @@ void DriveClass::intake() {
 }
 
 void DriveClass::indexSense() {
-  if (LinePosition1.objectDistance(mm) < 35) { // Position 1
-    position1 = true;
-    Brain.Screen.drawCircle(300, 100, 50, green); // Visualisation
-  } else {
-    position1 = false;
-    Brain.Screen.drawCircle(300, 100, 50, black);
-  }
-
   if (LinePosition2.value(pct) < 30 && LinePosition2.value(pct) > 1) { // Position 2
     position2 = true;
     Brain.Screen.drawCircle(200, 100, 50, green);
@@ -229,8 +234,7 @@ void DriveClass::indexSense() {
     Brain.Screen.drawCircle(200, 100, 50, black);
   }
 
-  if ((LinePosition3L.value(pct) < 51 && LinePosition3L.value(pct) > 2) ||
-      (LinePosition3T.value(pct) < 51 && LinePosition3T.value(pct) > 2)) { // Position 3
+  if (LinePosition3.objectDistance(mm) < 20) { // Position 3
     position3 = true;
     Brain.Screen.drawCircle(100, 100, 50, green);
   } else {

@@ -50,33 +50,60 @@ void Odometry::pursuit(double dX, double dY, double speed, double drivekP, doubl
   double prevError = 0;
   double turnIntegral = 0;
   //Turn to face desired position
-  while (fabs(DirectionOfMovement - theta) > turnError) {
-    double error = DirectionOfMovement - theta;
-    double derivative = error - prevError;
-    turnIntegral += error;
+  if (speed > 0) { //Driving forwards
+    while (fabs(DirectionOfMovement - theta) > turnError) {
+      double error = DirectionOfMovement - theta;
+      double derivative = error - prevError;
+      turnIntegral += error;
 
-    DriveFL.spin(fwd, error * turnkP + derivative * turnkD + turnIntegral * turnkI, pct);
-    DriveBL.spin(fwd, error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP, pct);
-    DriveFR.spin(fwd, -(error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP), pct);
-    DriveBR.spin(fwd, -(error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP), pct);
+      DriveFL.spin(fwd, error * turnkP + derivative * turnkD + turnIntegral * turnkI, pct);
+      DriveBL.spin(fwd, error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP, pct);
+      DriveFR.spin(fwd, -(error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP), pct);
+      DriveBR.spin(fwd, -(error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP), pct);
+    }
+  } else { //Driving backwards
+    while (fabs(DirectionOfMovement - (theta + PI)) > turnError) {
+      double error = DirectionOfMovement - (theta + PI);
+      double derivative = error - prevError;
+      turnIntegral += error;
+
+      DriveFL.spin(fwd, error * turnkP + derivative * turnkD + turnIntegral * turnkI, pct);
+      DriveBL.spin(fwd, error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP, pct);
+      DriveFR.spin(fwd, -(error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP), pct);
+      DriveBR.spin(fwd, -(error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP), pct);
+    }
   }
   //Find slope of line from initial position to desired position
-  double iSlope = (dY - initialY) / (dX - initialX);
+  double iSlope = 0;
+  if (dX != initialX) {
+    iSlope = (dY - initialY) / (dX - initialX);
+  }
   double s = speed;
   double prevTrackingError = 0;
   double trackingIntegral = 0;
   while (distanceLeft > positionError) {
     //Slope of line from current position to desired position
-    double fSlope = (dY - y) / (dX - x);
+    double fSlope = 0;
+    if (dX != x) {
+      fSlope = (dY - y) / (dX - x);
+    }
     double trackingError = (fSlope - iSlope);
     double trackingDerivative = trackingError - prevTrackingError;
     prevTrackingError = trackingError;
     trackingIntegral += trackingError;
     
-    if (fabs(distanceLeft * drivekP) > speed) {
-      s = speed;
-    } else {
-      s = distanceLeft * drivekP;
+    if (speed > 0) { //Driving forwards
+      if (fabs(distanceLeft * drivekP) > speed) {
+        s = speed;
+      } else {
+        s = distanceLeft * drivekP;
+      }
+    } else { //Driving backwards
+      if (-fabs(distanceLeft * drivekP) < speed) {
+        s = speed;
+      } else {
+        s = -distanceLeft * drivekP;
+      }
     }
 
     double trackingkP = defaultTrackingkP;

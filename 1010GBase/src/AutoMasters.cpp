@@ -100,7 +100,23 @@ void AutoMasters::LRTAuto() {
   thread intakesThread(intakeThread);
   wait(10, msec);
 
-  odometry.pursuit(20, 20, 80);
+  //Goal 1
+  odometry.pursuit(0.1, 40, 100);
+  autoFunctions.intake(100);
+  odometry.pursuit(-40, 40, 100);
+  autoFunctions.intakeBrake();
+  autoFunctions.shoot();
+
+  //Middle
+  odometry.pursuit(40, 30, -100);
+  odometry.pursuit(50, 35, -100);
+
+  //Goal 2
+  autoFunctions.intake(100);
+  odometry.pursuit(50, -50, 100);
+  autoFunctions.intakeBrake();
+  autoFunctions.shoot();
+  autoFunctions.autoBackward(100, 10, 200, 100);
 
   autoIndexThread.interrupt();
   intakesThread.interrupt();

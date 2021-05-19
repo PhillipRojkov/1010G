@@ -9,17 +9,15 @@ extern controller Controller2;
 // Sensors
 extern inertial IMUL;
 extern inertial IMUR;
-extern distance LinePosition1;
 extern line LinePosition2;
-extern line LinePosition3L;
-extern line LinePosition3T;
+extern distance LinePosition3;
 extern line IntakeLineL;
 extern line IntakeLineR;
 extern distance DistanceSensor;
 extern limit selector;
 extern encoder encoderS;
-extern rotation encoderL;
-extern rotation encoderR;
+extern encoder encoderL;
+extern encoder encoderR;
 // Drive
 extern motor DriveFL;
 extern motor DriveFR;

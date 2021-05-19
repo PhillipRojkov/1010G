@@ -117,24 +117,22 @@ void usercontrol(void) {
 
   // User control code here, inside the loop
   while (1) {
-    Brain.Screen.clearScreen(blue);
     // ........................................................................
     //driveClass.enableIndex = false;
   /*  driveClass.enableIndex = true;
     driveClass.score();*/
     driveClass.runTankBase();
-    driveClass.newIntake();
-    /*driveClass.indexSense();
+    driveClass.indexSense();
     driveClass.index();
-    driveClass.intake();*/
-    /*if (Controller2.ButtonA.pressing()) {
+    driveClass.newIntake();
+
+    if (Controller2.ButtonA.pressing()) {
       driveClass.resetScoreNum();
       driveClass.enableIndex = true;
-    }*/
-    //driveClass.score();
-    //driveClass.checkPosition1();
+    }
+    driveClass.score();
 
-/*
+ /*
     if (driveClass.enableIndex) {
       indexWait = false;
     }

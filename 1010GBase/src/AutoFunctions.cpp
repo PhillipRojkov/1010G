@@ -595,14 +595,6 @@ void AutoFunctions::cIndex() {
 }
 
 void AutoFunctions::indexSense() {
-  if (LinePosition1.objectDistance(mm) < 35) { // Position 1
-    position1 = true;
-    Brain.Screen.drawCircle(300, 100, 50, green); // Visualisation
-  } else {
-    position1 = false;
-    Brain.Screen.drawCircle(300, 100, 50, black);
-  }
-
   if (LinePosition2.value(pct) < 30 && LinePosition2.value(pct) > 1) { // Position 2
     position2 = true;
     Brain.Screen.drawCircle(200, 100, 50, green);
@@ -611,8 +603,7 @@ void AutoFunctions::indexSense() {
     Brain.Screen.drawCircle(200, 100, 50, black);
   }
 
-  if ((LinePosition3L.value(pct) < 51 && LinePosition3L.value(pct) > 2) ||
-      (LinePosition3T.value(pct) < 51 && LinePosition3T.value(pct) > 2)) { // Position 3
+  if (LinePosition3.objectDistance(mm) < 20) { // Position 3
     position3 = true;
     Brain.Screen.drawCircle(100, 100, 50, green);
   } else {
