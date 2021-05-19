@@ -106,9 +106,6 @@ void autonomous(void) {
 }
 
 void usercontrol(void) {
-  bool indexWait = true;
-  double timeToIndex = 2;
-  double t = 0;
 /*
   if (selection == 0) { //Run Flipout for driver skills
     autoMasters.runFlipout();
@@ -118,9 +115,6 @@ void usercontrol(void) {
   // User control code here, inside the loop
   while (1) {
     // ........................................................................
-    //driveClass.enableIndex = false;
-  /*  driveClass.enableIndex = true;
-    driveClass.score();*/
     driveClass.runTankBase();
     driveClass.indexSense();
     driveClass.index();
@@ -131,21 +125,6 @@ void usercontrol(void) {
       driveClass.enableIndex = true;
     }
     driveClass.score();
-
- /*
-    if (driveClass.enableIndex) {
-      indexWait = false;
-    }
-    // If enableIndex is false for less than three seconds in a row
-    // set enableIndex = true
-    // Start counting up
-    if (!driveClass.enableIndex && t <= Brain.timer(sec) && !indexWait) {
-      t = timeToIndex + Brain.timer(sec);
-      indexWait = true;
-    } else if (t > Brain.timer(sec)) {
-      driveClass.enableIndex = true;
-    }*/
-    //driveClass.intake();
     // ........................................................................
     wait(10, msec); // Sleep the task for a short amount of time to prevent
                     // wasted resources.

@@ -37,19 +37,19 @@ void AutoFunctions::drive(int dir, double speed) {
   DriveBL.spin(forward,
                speed * dir - error * drivekP - totalError * drivekI -
                    derivative * drivekD,
-               vex::pct);
+               pct);
   DriveBR.spin(forward,
                speed * dir + error * drivekP + totalError * drivekI +
                    derivative * drivekD,
-               vex::pct);
+               pct);
   DriveFL.spin(forward,
                speed * dir - error * drivekP - totalError * drivekI -
                    derivative * drivekD,
-               vex::pct);
+               pct);
   DriveFR.spin(forward,
                speed * dir + error * drivekP + totalError * drivekI +
                    derivative * drivekD,
-               vex::pct);
+               pct);
 }
 
 void AutoFunctions::strafe(
@@ -65,19 +65,19 @@ void AutoFunctions::strafe(
   DriveBL.spin(forward,
                speed * -dir - error * strafekP - totalError * strafekI -
                    derivative * strafekD,
-               vex::pct);
+               pct);
   DriveBR.spin(forward,
                speed * dir + error * strafekP + totalError * strafekI +
                    derivative * strafekD,
-               vex::pct);
+               pct);
   DriveFL.spin(forward,
                speed * dir * strafeConstant - error * strafekP -
                    totalError * strafekI - derivative * strafekD,
-               vex::pct);
+               pct);
   DriveFR.spin(forward,
                speed * -dir * strafeConstant + error * strafekP +
                    totalError * strafekI + derivative * strafekD,
-               vex::pct);
+               pct);
 }
 
 void AutoFunctions::brakeDrive() {
@@ -325,16 +325,16 @@ void AutoFunctions::autoTurnTo(double degrees) {
     // Run motors according to PID values
     DriveBL.spin(forward,
                  -error * turnkP - totalError * turnkI - derivative * turnkD,
-                 vex::pct);
+                 pct);
     DriveBR.spin(forward,
                  error * turnkP + totalError * turnkI + derivative * turnkD,
-                 vex::pct);
+                 pct);
     DriveFL.spin(forward,
                  -error * turnkP - totalError * turnkI - derivative * turnkD,
-                 vex::pct);
+                 pct);
     DriveFR.spin(forward,
                  error * turnkP + totalError * turnkI + derivative * turnkD,
-                 vex::pct);
+                 pct);
     cIndex();             // Auto index during turn
     wait(loopTime, msec); // Wait to prevent wasted resources
     // Exit the turn function once the robot is pointing in the correct
@@ -431,8 +431,8 @@ void AutoFunctions::autoStrafeRight(double degrees, double iDeg, double fDeg,
 }
 
 void AutoFunctions::intake(double speed) {
-  IntakeL.spin(forward, speed, vex::pct);
-  IntakeR.spin(forward, speed, vex::pct);
+  IntakeL.spin(forward, speed, pct);
+  IntakeR.spin(forward, speed, pct);
 }
 
 void AutoFunctions::openDegrees(double speed, double degrees) {
@@ -470,8 +470,8 @@ void AutoFunctions::autoIntake() {
         doIntake = false;
       }
       if (doIntake) {
-        IntakeL.spin(forward, 100, vex::pct);
-        IntakeR.spin(forward, 100, vex::pct);
+        IntakeL.spin(forward, 100, pct);
+        IntakeR.spin(forward, 100, pct);
         leftIntakeTotalError = 0;
         rightIntakeTotalError = 0;
         cIndex();
@@ -544,8 +544,8 @@ void AutoFunctions::intakeBrake() {
 }
 
 void AutoFunctions::index(double speed) {
-  IndexerTop.spin(forward, speed, vex::pct);
-  IndexerLow.spin(forward, speed, vex::pct);
+  IndexerTop.spin(forward, speed, pct);
+  IndexerLow.spin(forward, speed, pct);
 }
 
 void AutoFunctions::pIndex(double speed, double degrees) {
@@ -561,8 +561,8 @@ void AutoFunctions::pIndex(double speed, double degrees) {
 }
 
 void AutoFunctions::outdex(double speed) {
-  IndexerTop.spin(reverse, speed, vex::pct);
-  IndexerLow.spin(reverse, speed, vex::pct);
+  IndexerTop.spin(reverse, speed, pct);
+  IndexerLow.spin(reverse, speed, pct);
 }
 
 void AutoFunctions::pOutdex(double speed, double degrees) {
@@ -615,9 +615,9 @@ void AutoFunctions::indexSense() {
 void AutoFunctions::shoot() {
   double rotTo = IndexerTop.position(deg) + 400;
   while (IndexerTop.position(deg) < rotTo) {
-    IndexerTop.spin(forward, 100, vex::pct);
+    IndexerTop.spin(forward, 100, pct);
     //REMOVE AFTER TOURNAMENT
-    IndexerLow.spin(forward, 100, vex::pct);
+    IndexerLow.spin(forward, 100, pct);
     wait(10, msec);
   }
   indexerBrake();

@@ -3,23 +3,20 @@
 double theta = 0;
 void Odometry::setXY() {
   encoderOdometry.computeLocation();
+  encoderOdometry.printCoordinates();
 
   x = encoderOdometry.encoderX;
   y = encoderOdometry.encoderY;
-  theta = encoderOdometry.theta;
+  theta = encoderOdometry.theta; // In radians
 }
 
 void Odometry::pursuit(double dX, double dY, double speed, double drivekP, double positionError, double turnError) {
   //Set up delta values
   double deltaX = dX - x;
   double deltaY = dY - y;
-
-  //Initial position
-  double initialX = x;
-  double initialY = y;
   
-  double distanceLeft = sqrt(pow(deltaX, 2) + pow(deltaY, 2)); //scalar point to point distance remaining
-    //Desired heading for driving to point
+  double distanceLeft = sqrt(pow(deltaX, 2) + pow(deltaY, 2)); //Scalar point to point distance remaining
+    //Desired heading in radians for driving to point (dX, dY)
     double DirectionOfMovement;
     //If statements avoid divide by zero problem for moving directly along the x and y axis
     if (fabs(deltaX) == 0) {
@@ -50,10 +47,12 @@ void Odometry::pursuit(double dX, double dY, double speed, double drivekP, doubl
   double prevError = 0;
   double turnIntegral = 0;
   //Turn to face desired position
-  if (speed > 0) { //Driving forwards
+  if (speed > 0) { //Driving forwards, robot turns to directionOfMovement
     while (fabs(DirectionOfMovement - theta) > turnError) {
+      //Turning PID
       double error = DirectionOfMovement - theta;
       double derivative = error - prevError;
+      prevError = error;
       turnIntegral += error;
 
       DriveFL.spin(fwd, error * turnkP + derivative * turnkD + turnIntegral * turnkI, pct);
@@ -61,10 +60,12 @@ void Odometry::pursuit(double dX, double dY, double speed, double drivekP, doubl
       DriveFR.spin(fwd, -(error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP), pct);
       DriveBR.spin(fwd, -(error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP), pct);
     }
-  } else { //Driving backwards
+  } else { //Driving backwards, robot faces in opposite direction of directionOfMovement
     while (fabs(DirectionOfMovement - (theta + PI)) > turnError) {
+      //Turning PID
       double error = DirectionOfMovement - (theta + PI);
       double derivative = error - prevError;
+      prevError = error;
       turnIntegral += error;
 
       DriveFL.spin(fwd, error * turnkP + derivative * turnkD + turnIntegral * turnkI, pct);
@@ -73,33 +74,46 @@ void Odometry::pursuit(double dX, double dY, double speed, double drivekP, doubl
       DriveBR.spin(fwd, -(error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP), pct);
     }
   }
-  //Find slope of line from initial position to desired position
+  //Find slope of the line from initial position to desired position on the global cartesian plane
+  //Usually relative to x, ie. ∆Y/∆X but can be relative to y, ie. ∆X/∆Y if ∆X = 0
+  //If iSlope is relative to y, swapAxis = true, therefore fSlope will also be relative to y
   double iSlope = 0;
-  if (dX != initialX) {
-    iSlope = (dY - initialY) / (dX - initialX);
+  bool swapAxis = dX == x; //True if dX = x (divide by zero problem exists)
+  if (!swapAxis) { //Avoid divide by zero
+    iSlope = (dY - y) / (dX - x);
   }
-  double s = speed;
+  // iSlope is 0 (relative to y) when dX == x, so no else statement needed
+
+  double s = speed; //Speed variable
   double prevTrackingError = 0;
   double trackingIntegral = 0;
-  while (distanceLeft > positionError) {
+  while (distanceLeft > positionError) { //Movement loop
     //Slope of line from current position to desired position
-    double fSlope = 0;
-    if (dX != x) {
-      fSlope = (dY - y) / (dX - x);
+    double fSlope = 0; //If checks below fail, fSlope = 0
+    if (!swapAxis) { //iSlope is relative to x
+      if (dX != x) { //Avoid divide by zero
+        fSlope = (dY - y) / (dX - x);
+      }
+    } else { //iSlope is relative to y
+      if (dY != y) { //avoid divide by zero
+        fSlope = (dX - x) / (dY - y);
+      }
     }
-    double trackingError = (fSlope - iSlope);
+    //Tracking PID
+    double trackingError = (fSlope - iSlope); //How far away is the robot from being on the correct course
     double trackingDerivative = trackingError - prevTrackingError;
     prevTrackingError = trackingError;
     trackingIntegral += trackingError;
     
+    //Set speed varible s
     if (speed > 0) { //Driving forwards
-      if (fabs(distanceLeft * drivekP) > speed) {
+      if (fabs(distanceLeft * drivekP) > speed && distanceLeft * drivekP > 0) {
         s = speed;
       } else {
         s = distanceLeft * drivekP;
       }
     } else { //Driving backwards
-      if (-fabs(distanceLeft * drivekP) < speed) {
+      if (-fabs(distanceLeft * drivekP) < speed && distanceLeft * drivekP > 0) {
         s = speed;
       } else {
         s = -distanceLeft * drivekP;

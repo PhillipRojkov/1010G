@@ -10,28 +10,35 @@ brain Brain;
 controller Controller1 = controller(primary);
 controller Controller2 = controller(partner);
 // Sensors
-inertial IMUL = inertial(PORT11);
-inertial IMUR = inertial(PORT1);
+// Inertials
+inertial IMUL = inertial(PORT16);
+inertial IMUR = inertial(PORT17);
+// Auto indexing
 line LinePosition2 = line(Brain.ThreeWirePort.E);
 distance LinePosition3 = distance(PORT8);
-line IntakeLineL = line(Brain.ThreeWirePort.F); //Deprecated
-line IntakeLineR = line(Brain.ThreeWirePort.F); //Deprecated
-distance DistanceSensor = distance(PORT1); //Deprecated
-limit selector = limit(Brain.ThreeWirePort.F); //Deprecated
+// Position tracking
 encoder encoderS = encoder(Brain.ThreeWirePort.C);
 encoder encoderL = encoder(Brain.ThreeWirePort.A);
 encoder encoderR = encoder(Brain.ThreeWirePort.G);
-// Drive motors
+// Unused
+line IntakeLineL = line(Brain.ThreeWirePort.F);
+line IntakeLineR = line(Brain.ThreeWirePort.F);
+distance DistanceSensor = distance(PORT1);
+limit selector = limit(Brain.ThreeWirePort.F);
+
+// Motors
+// Drive
 motor DriveFL = motor(PORT13, ratio18_1, false); // Front left drive
 motor DriveFR = motor(PORT18, ratio18_1, true); // Front right drive - Reversed
 motor DriveBL = motor(PORT11, ratio18_1, true); // Back left drive - Reversed
 motor DriveBR = motor(PORT20, ratio18_1, false); // Back right drive
-// Intake motors
+// Intake
 motor IntakeL = motor(PORT5, ratio18_1, false); // Left intake
 motor IntakeR = motor(PORT6, ratio18_1, true);   // Right intake - Reversed
-// Indexer motors
+// Indexer
 motor IndexerTop = motor(PORT7, ratio18_1, true); // Top indexer - Reversed
 motor IndexerLow = motor(PORT4, ratio18_1, false);  // Lower indexer
+
 // Vision
 vex::vision::signature SIG_1 =
     vex::vision::signature(1, -3073, -1003, -2038, 853, 11915, 6384, 1, 0);
