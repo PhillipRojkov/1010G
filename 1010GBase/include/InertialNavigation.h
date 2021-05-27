@@ -11,7 +11,7 @@ public:
 
   // Constants
   double g = 9.80665; // graviational constant
-  double PI = 3.14159265359;
+  double PI = M_PI;
 
   // Odometery return variables
   double h = 0; // Heading in degrees. Rotation clockwise is positive, does not

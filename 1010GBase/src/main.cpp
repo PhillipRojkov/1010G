@@ -124,6 +124,14 @@ void usercontrol(void) {
       driveClass.resetScoreNum();
       driveClass.enableIndex = true;
     }
+    if (Controller2.ButtonB.pressing()) {
+      IndexerLow.stop(hold);
+    }
+    if (Controller2.ButtonUp.pressing()) {
+      IndexerTop.spin(forward, 20, pct);
+    } else if (Controller2.ButtonDown.pressing()) {
+      IndexerTop.spin(reverse, 20, pct);
+    }
     driveClass.score();
     // ........................................................................
     wait(10, msec); // Sleep the task for a short amount of time to prevent

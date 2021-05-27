@@ -46,39 +46,76 @@ void Odometry::pursuit(double dX, double dY, double speed, double drivekP, doubl
 
   double prevError = 0;
   double turnIntegral = 0;
+  double t = 0;
   //Turn to face desired position
   if (speed > 0) { //Driving forwards, robot turns to directionOfMovement
-    while (fabs(DirectionOfMovement - theta) > turnError) {
+    while (t < turnMargin) {
       //Turning PID
       double error = DirectionOfMovement - theta;
       double derivative = error - prevError;
       prevError = error;
       turnIntegral += error;
 
-      DriveFL.spin(fwd, error * turnkP + derivative * turnkD + turnIntegral * turnkI, pct);
-      DriveBL.spin(fwd, error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP, pct);
-      DriveFR.spin(fwd, -(error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP), pct);
-      DriveBR.spin(fwd, -(error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP), pct);
+      //double kD = ((slowTurnkP + turnkP)/2 - (turnkP - slowTurnkP)/2 * cos(2*error)); 
+      double kD = 0;
+      if (fabs(error) < 50 * (PI/180)) {
+        kD = shortTurnkD;
+      } else {
+        kD = turnkD;
+      }
+
+      DriveFL.spin(fwd, error * turnkP + derivative * kD + turnIntegral * turnkI, pct);
+      DriveBL.spin(fwd, error * turnkP + derivative * kD + turnIntegral * turnkI, pct);
+      DriveFR.spin(fwd, -(error * turnkP + derivative * kD + turnIntegral * turnkI), pct);
+      DriveBR.spin(fwd, -(error * turnkP + derivative * kD + turnIntegral * turnkI), pct);
+
+      if (fabs(DirectionOfMovement - theta) <= turnError) {
+        t += 10;
+      } else {
+        t = 0;
+      }
+      wait(10, msec);
     }
   } else { //Driving backwards, robot faces in opposite direction of directionOfMovement
-    while (fabs(DirectionOfMovement - (theta + PI)) > turnError) {
+    while (t < turnMargin) {
       //Turning PID
       double error = DirectionOfMovement - (theta + PI);
       double derivative = error - prevError;
       prevError = error;
       turnIntegral += error;
 
-      DriveFL.spin(fwd, error * turnkP + derivative * turnkD + turnIntegral * turnkI, pct);
-      DriveBL.spin(fwd, error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP, pct);
-      DriveFR.spin(fwd, -(error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP), pct);
-      DriveBR.spin(fwd, -(error * turnkP + derivative * turnkD + turnIntegral * turnkI * turnkP), pct);
+      double kD;
+      if (fabs(error) < 50 * (PI/180)) {
+        kD = shortTurnkD;
+      } else {
+        kD = turnkD;
+      }
+
+      DriveFL.spin(fwd, error * turnkP + derivative * kD + turnIntegral * turnkI, pct);
+      DriveBL.spin(fwd, error * turnkP + derivative * kD + turnIntegral * turnkI * turnkP, pct);
+      DriveFR.spin(fwd, -(error * turnkP + derivative * kD + turnIntegral * turnkI * turnkP), pct);
+      DriveBR.spin(fwd, -(error * turnkP + derivative * kD + turnIntegral * turnkI * turnkP), pct);
+
+      if (fabs(DirectionOfMovement - (theta + PI)) <= turnError) {
+        t += 10;
+      } else {
+        t = 0;
+      }
+      wait(10, msec);
     }
   }
+  DriveFL.stop(brake);
+  DriveBL.stop(brake);
+  DriveFR.stop(brake);
+  DriveBR.stop(brake);
+
+  wait(100, msec);
+
   //Find slope of the line from initial position to desired position on the global cartesian plane
   //Usually relative to x, ie. ∆Y/∆X but can be relative to y, ie. ∆X/∆Y if ∆X = 0
   //If iSlope is relative to y, swapAxis = true, therefore fSlope will also be relative to y
   double iSlope = 0;
-  bool swapAxis = dX == x; //True if dX = x (divide by zero problem exists)
+  bool swapAxis = dX == x; //True if dX == x (divide by zero problem exists)
   if (!swapAxis) { //Avoid divide by zero
     iSlope = (dY - y) / (dX - x);
   }
@@ -87,24 +124,52 @@ void Odometry::pursuit(double dX, double dY, double speed, double drivekP, doubl
   double s = speed; //Speed variable
   double prevTrackingError = 0;
   double trackingIntegral = 0;
-  while (distanceLeft > positionError) { //Movement loop
+  /*distanceLeft = sqrt(pow(deltaX, 2) + pow(deltaY, 2)); //Scalar point to point distance remaining
+  double prevDistanceLeft = distanceLeft;
+  double distanceDerivative = distanceLeft - prevDistanceLeft;*/
+
+  double c;
+  double d;
+  double perpDistanceLeft = 10;
+
+  while (perpDistanceLeft > positionError) { //Movement loop
+    /*double deltaX = dX - x;
+    double deltaY = dY - y;
+    distanceLeft = sqrt(pow(deltaX, 2) + pow(deltaY, 2)); //Scalar point to point distance remaining
+    distanceDerivative = distanceLeft - prevDistanceLeft; //Derivative of distance used to stop robot when it passes a point on a line perpindicular to iSlope, interesecting dX, dY
+    prevDistanceLeft = distanceLeft;*/
+
     //Slope of line from current position to desired position
     double fSlope = 0; //If checks below fail, fSlope = 0
     if (!swapAxis) { //iSlope is relative to x
       if (dX != x) { //Avoid divide by zero
         fSlope = (dY - y) / (dX - x);
-      }
+      } 
     } else { //iSlope is relative to y
       if (dY != y) { //avoid divide by zero
         fSlope = (dX - x) / (dY - y);
       }
     }
+
+    if (fSlope == 0 && swapAxis) {
+      c = x;
+      d = dY;
+    } else if (fSlope == 0 && !swapAxis) {
+      c = dX;
+      d = y;
+    } else {
+      d = (-y/fSlope + x - fSlope * dY - dX) / (-fSlope + 1/fSlope);
+      c = (d - y + fSlope * x) / fSlope;
+    }
+
+    perpDistanceLeft = sqrt(pow(c - x, 2) + pow(d - y, 2));
+
     //Tracking PID
     double trackingError = (fSlope - iSlope); //How far away is the robot from being on the correct course
     double trackingDerivative = trackingError - prevTrackingError;
     prevTrackingError = trackingError;
     trackingIntegral += trackingError;
-    
+
     //Set speed varible s
     if (speed > 0) { //Driving forwards
       if (fabs(distanceLeft * drivekP) > speed && distanceLeft * drivekP > 0) {
@@ -121,11 +186,14 @@ void Odometry::pursuit(double dX, double dY, double speed, double drivekP, doubl
     }
 
     double trackingkP = defaultTrackingkP;
-    DriveFL.spin(forward, s + trackingError * trackingkP + trackingDerivative * trackingkD + trackingIntegral * trackingkI, pct);
-    DriveBL.spin(forward, s + trackingError * trackingkP + trackingDerivative * trackingkD + trackingIntegral * trackingkP, pct);
+    DriveFL.spin(forward, s + (trackingError * trackingkP + trackingDerivative * trackingkD + trackingIntegral * trackingkI), pct);
+    DriveBL.spin(forward, s + (trackingError * trackingkP + trackingDerivative * trackingkD + trackingIntegral * trackingkP), pct);
+    DriveFR.spin(forward, s - (trackingError * trackingkP + trackingDerivative * trackingkD + trackingIntegral * trackingkI), pct);
     DriveBR.spin(forward, s - (trackingError * trackingkP + trackingDerivative * trackingkD + trackingIntegral * trackingkI), pct);
-    DriveBL.spin(forward, s - (trackingError * trackingkP + trackingDerivative * trackingkD + trackingIntegral * trackingkI), pct);
+
+    wait(10, msec);
   }
+
   DriveFL.stop(brake);
   DriveBL.stop(brake);
   DriveFR.stop(brake);

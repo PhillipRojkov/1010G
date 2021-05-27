@@ -69,16 +69,16 @@ void EncoderOdometry::computeLocation() {
 void EncoderOdometry::printCoordinates() {
   // Print X and Y field position
   Brain.Screen.setCursor(1, 2);
-  Brain.Screen.print(encoderX);
-  Brain.Screen.setCursor(1, 9);
-  Brain.Screen.print(encoderY);
+  Brain.Screen.print("x=%lf ", encoderX);
+  Brain.Screen.setCursor(1, 8);
+  Brain.Screen.print("y=%lf", encoderY);
   // Print IMU rotations
-  Brain.Screen.setCursor(1, 18);
-  Brain.Screen.print((IMUR.rotation() + Brain.timer(sec) * gyroDriftR) * constantOfBadGyroR);
-  Brain.Screen.setCursor(2, 18);
-  Brain.Screen.print((IMUL.rotation() + Brain.timer(sec) * gyroDriftL) * constantOfBadGyroL);
-  Brain.Screen.setCursor(3, 18);
-  Brain.Screen.print(theta * (180/PI));
+  Brain.Screen.setCursor(1, 20);
+  Brain.Screen.print("rRot=%lf", (IMUR.rotation() + Brain.timer(sec) * gyroDriftR) * constantOfBadGyroR);
+  Brain.Screen.setCursor(2, 20);
+  Brain.Screen.print("lRot=%lf", (IMUL.rotation() + Brain.timer(sec) * gyroDriftL) * constantOfBadGyroL);
+  Brain.Screen.setCursor(3, 20);
+  Brain.Screen.print("Rot=%lf", theta * (180/PI));
 }
 
 void EncoderOdometry::writeToSD() { //Write data to the sd card

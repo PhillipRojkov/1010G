@@ -595,29 +595,31 @@ void AutoFunctions::cIndex() {
 }
 
 void AutoFunctions::indexSense() {
-  if (LinePosition2.value(pct) < 30 && LinePosition2.value(pct) > 1) { // Position 2
+  if (LinePosition2.value(pct) < 60 && LinePosition2.value(pct) > 1) { // Position 2
     position2 = true;
-    Brain.Screen.drawCircle(200, 100, 50, green);
+    //Brain.Screen.drawCircle(200, 100, 50, green); // Vertical screen
+    Brain.Screen.drawCircle(240, 208, 40, green); // Horizontal screen
   } else {
     position2 = false;
-    Brain.Screen.drawCircle(200, 100, 50, black);
+    //Brain.Screen.drawCircle(200, 100, 50, black); // Vertical screen
+    Brain.Screen.drawCircle(240, 208, 40, black); // Horizontal screen
   }
 
-  if (LinePosition3.objectDistance(mm) < 20) { // Position 3
+  if (LinePosition3.isObjectDetected() && LinePosition3.objectDistance(mm) < 45) { // Position 3
     position3 = true;
-    Brain.Screen.drawCircle(100, 100, 50, green);
+    //Brain.Screen.drawCircle(100, 100, 50, green); // Vertical screen
+    Brain.Screen.drawCircle(240, 106, 40, green); // Horizontal screen
   } else {
     position3 = false;
-    Brain.Screen.drawCircle(100, 100, 50, black);
+    //Brain.Screen.drawCircle(100, 100, 50, black); // Vertical screen
+    Brain.Screen.drawCircle(240, 106, 40, black); // Horizontal screen
   }
 }
 
 void AutoFunctions::shoot() {
-  double rotTo = IndexerTop.position(deg) + 400;
+  double rotTo = IndexerTop.position(deg) + 450;
   while (IndexerTop.position(deg) < rotTo) {
     IndexerTop.spin(forward, 100, pct);
-    //REMOVE AFTER TOURNAMENT
-    IndexerLow.spin(forward, 100, pct);
     wait(10, msec);
   }
   indexerBrake();
