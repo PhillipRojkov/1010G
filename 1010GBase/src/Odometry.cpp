@@ -44,6 +44,13 @@ void Odometry::pursuit(double dX, double dY, double speed, double drivekP, doubl
       }
     }
 
+    //Stop the robot from doing all the 360s by calculating the shortest path to the turn
+    if (DirectionOfMovement - theta > PI) {
+      DirectionOfMovement -= PI;
+    } else if (DirectionOfMovement - theta < -PI) {
+      DirectionOfMovement += 2 * PI;
+    }
+
   double prevError = 0;
   double turnIntegral = 0;
   double t = 0;

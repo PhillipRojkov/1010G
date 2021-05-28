@@ -89,7 +89,6 @@ void AutoMasters::LRTAuto() {
 */
   //Goal 1
   runIndexer = false;
-  odometry.pursuit(20, 20, 40);
   odometry.pursuit(0, 35, 100);
   //autoFunctions.intake(100);
   odometry.pursuit(-35.3, 31.3, 100, 2.25, 1.5, 0.03);
