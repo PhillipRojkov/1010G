@@ -167,11 +167,51 @@ void AutoMasters::leftTwoAndMiddle() {
   wait(250, msec);
   runIndexer = true;
   thread autoIndexThread(indexThread); //start auto index thread
-  thread intakesThread(intakeThread);
+  //thread intakesThread(intakeThread);
   wait(10, msec);
 
+  autoFunctions.intake(100);
+  autoFunctions.autoForward(90, 40, 40, 80);
+  DriveFR.spin(fwd, 80, pct);
+  DriveBR.spin(fwd, 80, pct);
+  wait(300, msec);
+  autoFunctions.brakeDrive();
+
+  wait(500, msec);
+  runIndexer = false;
+  autoFunctions.shoot();
+  runIndexer = true;
+  wait(800, msec);
+  autoFunctions.intakeBrake();
+  runIndexer = false;
+  autoFunctions.doubleShot();
+  autoFunctions.autoBackward(200, 100, 100, 100);
+  autoFunctions.outdex(100);
+  autoFunctions.intake(-100);
+  wait(500, msec);
+  autoFunctions.indexerBrake();
+  runIndexer = true;
+  autoFunctions.intake(100);
+
+  odometry.pursuit(51.9, -5.1, 65);
+  wait(400, msec);
+  // odometry.pursuit(17, -5.1, -90);
+  odometry.pursuit(52.5, -32.2, 100);
+  autoFunctions.autoBackward(120, 50, 50, 80);
+  odometry.pursuit(15, -47.5, 70);
+  autoFunctions.timeOutDrive(1, 70);
+
+  wait(600, msec);
+  autoFunctions.intakeBrake();
+  runIndexer = false;
+  autoFunctions.doubleShot();
+  autoFunctions.intake(-50);
+
+  autoFunctions.autoBackward(180, 1, 100, 100);
+
+
   autoIndexThread.interrupt();
-  intakesThread.interrupt();
+  //intakesThread.interrupt();
 }
 
 void AutoMasters::rightTwoAndSide() {

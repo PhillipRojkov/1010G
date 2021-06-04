@@ -299,7 +299,7 @@ void DriveClass::score() {
 
   if (scoreNum == 1) { //Single shot
     if (IndexerTop.position(degrees) < indexRotation + 300) {
-      IndexerTop.spin(forward, 100, pct);
+      IndexerTop.spin(forward, 420, pct);
       IndexerLow.stop(hold);
       enableIndex = false;
     } else {
@@ -309,8 +309,8 @@ void DriveClass::score() {
   }
 
   if (scoreNum == 2) { //Double shot
-    if (IndexerTop.position(degrees) < indexRotation + 300 + 350) {
-      IndexerTop.spin(forward, 100, pct);
+    if (IndexerTop.position(degrees) < indexRotation + 300 + 450) {
+      IndexerTop.spin(forward, 420, pct);
       enableIndex = false;
     } else {
       scoreNum = 0;

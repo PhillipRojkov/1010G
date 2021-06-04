@@ -14,8 +14,6 @@ void Odometry::pursuit(double dX, double dY, double speed, double drivekP, doubl
   //Set up delta values
   double deltaX = dX - x;
   double deltaY = dY - y;
-  
-  double distanceLeft = sqrt(pow(deltaX, 2) + pow(deltaY, 2)); //Scalar point to point distance remaining
     //Desired heading in radians for driving to point (dX, dY)
     double DirectionOfMovement;
     //If statements avoid divide by zero problem for moving directly along the x and y axis
@@ -43,7 +41,6 @@ void Odometry::pursuit(double dX, double dY, double speed, double drivekP, doubl
         DirectionOfMovement = PI + atan(deltaX / deltaY);
       }
     }
-
     //Stop the robot from doing all the 360s by calculating the shortest path to the turn
     if (DirectionOfMovement - theta > PI) {
       DirectionOfMovement -= PI;
@@ -135,17 +132,11 @@ void Odometry::pursuit(double dX, double dY, double speed, double drivekP, doubl
   double prevDistanceLeft = distanceLeft;
   double distanceDerivative = distanceLeft - prevDistanceLeft;*/
 
-  double c;
-  double d;
+  double c = 0;
+  double d = 0;
   double perpDistanceLeft = 10;
 
   while (perpDistanceLeft > positionError) { //Movement loop
-    /*double deltaX = dX - x;
-    double deltaY = dY - y;
-    distanceLeft = sqrt(pow(deltaX, 2) + pow(deltaY, 2)); //Scalar point to point distance remaining
-    distanceDerivative = distanceLeft - prevDistanceLeft; //Derivative of distance used to stop robot when it passes a point on a line perpindicular to iSlope, interesecting dX, dY
-    prevDistanceLeft = distanceLeft;*/
-
     //Slope of line from current position to desired position
     double fSlope = 0; //If checks below fail, fSlope = 0
     if (!swapAxis) { //iSlope is relative to x
@@ -158,18 +149,18 @@ void Odometry::pursuit(double dX, double dY, double speed, double drivekP, doubl
       }
     }
 
-    if (fSlope == 0 && swapAxis) {
-      c = x;
+    if (iSlope == 0 && swapAxis) {
+      c = x + 0.001; //Janky fix so that the pow() function doesnt break
       d = dY;
-    } else if (fSlope == 0 && !swapAxis) {
+    } else if (iSlope == 0 && !swapAxis) {
       c = dX;
-      d = y;
+      d = y + 0.001; //Janky fix so that the pow() function doesnt break
     } else {
-      d = (-y/fSlope + x - fSlope * dY - dX) / (-fSlope + 1/fSlope);
-      c = (d - y + fSlope * x) / fSlope;
+      d = (-y/iSlope + x - iSlope * dY - dX) / (-iSlope - 1/iSlope);
+      c = (d - y + iSlope * x) / iSlope;
     }
 
-    perpDistanceLeft = sqrt(pow(c - x, 2) + pow(d - y, 2));
+    perpDistanceLeft = sqrt(pow((c - x), 2) + pow((d - y), 2));
 
     //Tracking PID
     double trackingError = (fSlope - iSlope); //How far away is the robot from being on the correct course
@@ -179,16 +170,16 @@ void Odometry::pursuit(double dX, double dY, double speed, double drivekP, doubl
 
     //Set speed varible s
     if (speed > 0) { //Driving forwards
-      if (fabs(distanceLeft * drivekP) > speed && distanceLeft * drivekP > 0) {
+      if (fabs(perpDistanceLeft * drivekP) > speed && perpDistanceLeft * drivekP > 0) {
         s = speed;
       } else {
-        s = distanceLeft * drivekP;
+        s = perpDistanceLeft * drivekP;
       }
     } else { //Driving backwards
-      if (-fabs(distanceLeft * drivekP) < speed && distanceLeft * drivekP > 0) {
+      if (-fabs(perpDistanceLeft * drivekP) < speed && perpDistanceLeft * drivekP > 0) {
         s = speed;
       } else {
-        s = -distanceLeft * drivekP;
+        s = -perpDistanceLeft * drivekP;
       }
     }
 
@@ -198,7 +189,7 @@ void Odometry::pursuit(double dX, double dY, double speed, double drivekP, doubl
     DriveFR.spin(forward, s - (trackingError * trackingkP + trackingDerivative * trackingkD + trackingIntegral * trackingkI), pct);
     DriveBR.spin(forward, s - (trackingError * trackingkP + trackingDerivative * trackingkD + trackingIntegral * trackingkI), pct);
 
-    wait(10, msec);
+    wait(5, msec);
   }
 
   DriveFL.stop(brake);

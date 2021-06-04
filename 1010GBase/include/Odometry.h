@@ -43,7 +43,7 @@ public:
   double defaultMinDriveSpeed = 12;
   double defaultMinStrafeSpeed = 20;
 
-  double defaultPositionError = 2; // Distance (inches) the robot needs to be
+  double defaultPositionError = 1.2; // Distance (inches) the robot needs to be
                                      // from target position to end function
   double defaultTurnError = 0.035; // Rotation (rad) the robot needs to be from
                                   // target heading to end function
@@ -51,7 +51,7 @@ public:
       100; // Time in msec for which turn needs to be at the correct angle
 
   // Drive PID
-  double defaultDrivekP = 2.25; //6 for mecanum
+  double defaultDrivekP = 2.1; //6 for mecanum
   double drivekD = 0;
   double drivekI = 0;
 

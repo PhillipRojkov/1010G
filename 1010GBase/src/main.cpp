@@ -46,13 +46,13 @@ void pre_auton(void) {
   vexcodeInit();
 
   Brain.Screen.clearScreen(red);
-/*
+
   // Calibrate inertial sensors
   IMUL.startCalibration();
   IMUR.startCalibration();
-  encoderL.resetPosition();
-  encoderR.resetPosition();
-  encoderS.resetRotation();*/
+  encoderL.resetRotation();
+  encoderR.resetRotation();
+  encoderS.resetRotation();
   wait(1500, msec);
   Brain.Screen.clearScreen(green);
   wait(500, msec);
@@ -89,8 +89,6 @@ void autonomous(void) {
   Brain.Screen.clearScreen(); // Clear the auto selection text
   // .........................................................................
   thread odomThread(odometryThread); //Start odometry thread
-
-  autoMasters.LRTAuto();
 
   if (selection == 0) {
     autoMasters.leftTwoAndMiddle();
