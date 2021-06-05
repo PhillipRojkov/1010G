@@ -154,11 +154,40 @@ void AutoMasters::leftHome() {
   wait(250, msec);
   runIndexer = true;
   thread autoIndexThread(indexThread); //start auto index thread
-  thread intakesThread(intakeThread);
+  //thread intakesThread(intakeThread);
   wait(10, msec);
   
+  //Goal 1
+  odometry.pursuit(0, 35, 100);
+  autoFunctions.intake(100);
+  odometry.pursuit(-35.3, 31.3, 100, 2.25, 1.5, 0.03);
+  wait(50, msec);
+  autoFunctions.intakeBrake();
+  autoFunctions.timeOutDrive(0.25, 90);
+  autoFunctions.intake(-5);
+  runIndexer = false;
+  autoFunctions.shoot();
+
+  //Goal 3
+  autoFunctions.dumbBackward(200, 100, 100, 100);
+  runIndexer = true;
+  autoFunctions.intake(100);
+  autoFunctions.autoTurnTo(135);
+  odometry.pursuit(52, -24, 100, 2.5, 4, 0.05);
+  autoFunctions.autoTurnTo(180);
+  autoFunctions.autoForward(300, 100, 100, 80);
+  wait(400, msec);
+  autoFunctions.intake(-5);
+  autoFunctions.timeOutDrive(0.2, 80);
+  autoFunctions.dumbDrive(1, 5);
+  runIndexer = false;
+  autoFunctions.shoot();
+
+  autoFunctions.intake(-50);
+  autoFunctions.autoBackward(200, 10, 100, 100);
+
   autoIndexThread.interrupt();
-  intakesThread.interrupt();
+  //intakesThread.interrupt();
 }
 
 void AutoMasters::leftTwoAndMiddle() {
@@ -172,43 +201,53 @@ void AutoMasters::leftTwoAndMiddle() {
 
   autoFunctions.intake(100);
   autoFunctions.autoForward(90, 40, 40, 80);
-  DriveFR.spin(fwd, 80, pct);
-  DriveBR.spin(fwd, 80, pct);
-  wait(300, msec);
-  autoFunctions.brakeDrive();
+  DriveFR.spin(fwd, 90, pct);
+  DriveBR.spin(fwd, 90, pct);
+  wait(70, msec);
 
-  wait(500, msec);
+  autoFunctions.dumbDrive(1, 40);
+  wait(400, msec);
+  autoFunctions.dumbDrive(1, 2);
   runIndexer = false;
   autoFunctions.shoot();
   runIndexer = true;
-  wait(800, msec);
+  wait(500, msec);
   autoFunctions.intakeBrake();
   runIndexer = false;
-  autoFunctions.doubleShot();
-  autoFunctions.autoBackward(200, 100, 100, 100);
+  autoFunctions.doubleShot(900);
+  wait(10, msec);
   autoFunctions.outdex(100);
+  autoFunctions.intake(-5);
+  autoFunctions.dumbBackward(200, 100, 100, 100);
   autoFunctions.intake(-100);
-  wait(500, msec);
+  wait(200, msec);
   autoFunctions.indexerBrake();
   runIndexer = true;
   autoFunctions.intake(100);
 
-  odometry.pursuit(51.9, -5.1, 65);
-  wait(400, msec);
-  // odometry.pursuit(17, -5.1, -90);
-  odometry.pursuit(52.5, -32.2, 100);
-  autoFunctions.autoBackward(120, 50, 50, 80);
-  odometry.pursuit(15, -47.5, 70);
-  autoFunctions.timeOutDrive(1, 70);
+  odometry.pursuit(51.9, -5.1, 100, 2.1, 1.5, 0.05);
+  autoFunctions.dumbBackward(9, 4, 5, 100);
+  odometry.pursuit(58, -27.8, 100, 2.5, 2, 0.045, 0.49 * (180 / M_PI));
 
-  wait(600, msec);
-  autoFunctions.intakeBrake();
+  DriveFR.spin(fwd, -65, pct);
+  DriveBR.spin(fwd, -65, pct);
+  DriveFL.spin(fwd, -100, pct);
+  DriveBL.spin(fwd, -100, pct);
+  wait(200, msec);
+  autoFunctions.brakeDrive();
+
+  odometry.pursuit(17, -47.5, 100, 4, 5, 0.055);
+  autoFunctions.autoTurnTo(265);
+
+  autoFunctions.dumbDrive(1, 70);
+  wait(200, msec);
+  autoFunctions.dumbDrive(1, 4);
+  wait(200, msec);
   runIndexer = false;
-  autoFunctions.doubleShot();
+  autoFunctions.doubleShot(1050);
   autoFunctions.intake(-50);
 
   autoFunctions.autoBackward(180, 1, 100, 100);
-
 
   autoIndexThread.interrupt();
   //intakesThread.interrupt();

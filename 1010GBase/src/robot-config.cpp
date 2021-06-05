@@ -20,6 +20,8 @@ distance LinePosition3 = distance(PORT8);
 encoder encoderS = encoder(Brain.ThreeWirePort.C);
 encoder encoderL = encoder(Brain.ThreeWirePort.A);
 encoder encoderR = encoder(Brain.ThreeWirePort.G);
+//Auto selector
+optical colourSelector = optical(PORT21); //Yes, I am using optical sensor for auto selecting
 // Unused
 line IntakeLineL = line(Brain.ThreeWirePort.F);
 line IntakeLineR = line(Brain.ThreeWirePort.F);

@@ -10,7 +10,7 @@ void Odometry::setXY() {
   theta = encoderOdometry.theta; // In radians
 }
 
-void Odometry::pursuit(double dX, double dY, double speed, double drivekP, double positionError, double turnError) {
+void Odometry::pursuit(double dX, double dY, double speed, double drivekP, double positionError, double turnError, double turnkP) {
   //Set up delta values
   double deltaX = dX - x;
   double deltaY = dY - y;
@@ -41,6 +41,7 @@ void Odometry::pursuit(double dX, double dY, double speed, double drivekP, doubl
         DirectionOfMovement = PI + atan(deltaX / deltaY);
       }
     }
+  
     //Stop the robot from doing all the 360s by calculating the shortest path to the turn
     if (DirectionOfMovement - theta > PI) {
       DirectionOfMovement -= PI;
@@ -189,7 +190,7 @@ void Odometry::pursuit(double dX, double dY, double speed, double drivekP, doubl
     DriveFR.spin(forward, s - (trackingError * trackingkP + trackingDerivative * trackingkD + trackingIntegral * trackingkI), pct);
     DriveBR.spin(forward, s - (trackingError * trackingkP + trackingDerivative * trackingkD + trackingIntegral * trackingkI), pct);
 
-    wait(5, msec);
+    wait(10, msec);
   }
 
   DriveFL.stop(brake);
@@ -198,12 +199,16 @@ void Odometry::pursuit(double dX, double dY, double speed, double drivekP, doubl
   DriveBR.stop(brake);
 }
 
+void Odometry::pursuit(double dX, double dY, double speed, double drivekP, double positionError, double turnError) {
+  pursuit(dX, dY, speed, drivekP, defaultPositionError, turnError, defaultTurnkP);
+}
+
 void Odometry::pursuit(double dX, double dY, double speed, double drivekP) {
-  pursuit(dX, dY, speed, drivekP, defaultPositionError, defaultTurnError);
+  pursuit(dX, dY, speed, drivekP, defaultPositionError, defaultTurnError, defaultTurnkP);
 }
 
 void Odometry::pursuit(double dX, double dY, double speed) {
-  pursuit(dX, dY, speed, defaultDrivekP, defaultPositionError, defaultTurnError);
+  pursuit(dX, dY, speed, defaultDrivekP, defaultPositionError, defaultTurnError, defaultTurnkP);
 }
 
  //Turn Completion point: At what point in the translation should the turn be completed (1 is for at the end, 2 is for at the midpoint, 4 is at the quarterpoint, etc.)
@@ -292,10 +297,10 @@ void Odometry::driveToPoint(double dX, double dY, double dH, double maxSpeed, do
 
     double s = fmax(fabs(P1), fabs(P2)) / speed; //speed limiter
     //Set motor speeds
-    double fL = P1/s + deltaH * turnkP + turnIntegral * turnkI + turnDerivative * turnkD;
-    double fR = P2/s - deltaH * turnkP - turnIntegral * turnkI - turnDerivative * turnkD;
-    double bL = P2/s + deltaH * turnkP + turnIntegral * turnkI + turnDerivative * turnkD;
-    double bR = P1/s - deltaH * turnkP - turnIntegral * turnkI - turnDerivative * turnkD; 
+    double fL = P1/s + deltaH * defaultTurnkP + turnIntegral * turnkI + turnDerivative * turnkD;
+    double fR = P2/s - deltaH * defaultTurnkP - turnIntegral * turnkI - turnDerivative * turnkD;
+    double bL = P2/s + deltaH * defaultTurnkP + turnIntegral * turnkI + turnDerivative * turnkD;
+    double bR = P1/s - deltaH * defaultTurnkP - turnIntegral * turnkI - turnDerivative * turnkD; 
 
     DriveFL.spin(forward, fL, pct);
     DriveFR.spin(forward, fR, pct);

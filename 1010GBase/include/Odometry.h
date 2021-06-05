@@ -34,7 +34,7 @@ public:
   //(180/PI) is included because the terms on which these coefficients operate
   //are in radians Changing to degrees makes for parity between other turn
   // functions
-  double turnkP = 0.47 * (180 / PI); //.8
+  double defaultTurnkP = 0.48 * (180 / PI); //.8
   double turnkD = 0.09 * (180 / PI); //10
   double shortTurnkD = 0.09 * (180 / PI);//20
   double turnkI = 0 * (180 / PI);
@@ -43,12 +43,12 @@ public:
   double defaultMinDriveSpeed = 12;
   double defaultMinStrafeSpeed = 20;
 
-  double defaultPositionError = 1.2; // Distance (inches) the robot needs to be
+  double defaultPositionError = 1.3; // Distance (inches) the robot needs to be
                                      // from target position to end function
-  double defaultTurnError = 0.035; // Rotation (rad) the robot needs to be from
+  double defaultTurnError = 0.045; // Rotation (rad) the robot needs to be from
                                   // target heading to end function
   int turnMargin =
-      100; // Time in msec for which turn needs to be at the correct angle
+      50; // Time in msec for which turn needs to be at the correct angle
 
   // Drive PID
   double defaultDrivekP = 2.1; //6 for mecanum
@@ -71,6 +71,8 @@ public:
   void pursuit(double dX, double dY, double speed, double drivekP);
   void pursuit(double dX, double dY, double speed, double drivekP,
                double positionError, double turnError);
+  void pursuit(double dX, double dY, double speed, double drivekP,
+               double positionError, double turnError, double turnkP);
 
   void driveToPoint(double dX, double dY, double dH, double maxSpeed,
                     double minDriveSpeed, double turnCompletionPoint,

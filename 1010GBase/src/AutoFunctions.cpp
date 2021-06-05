@@ -52,6 +52,13 @@ void AutoFunctions::drive(int dir, double speed) {
                pct);
 }
 
+void AutoFunctions::dumbDrive(int dir, double speed) {
+  DriveBL.spin(forward, speed * dir, pct);
+  DriveFL.spin(forward, speed * dir, pct);
+  DriveFR.spin(forward, speed * dir, pct);
+  DriveBR.spin(forward, speed * dir, pct);
+}
+
 void AutoFunctions::strafe(
     int dir,
     double speed) { // Strafe right (dir = 1) or left (dir = -1)
@@ -625,12 +632,12 @@ void AutoFunctions::shoot() {
   indexerBrake();
 }
 
-void AutoFunctions::doubleShot() {
+void AutoFunctions::doubleShot(double amount) {
   double indexRotation = IndexerTop.position(degrees);
-  while (IndexerTop.position(deg) < indexRotation + 900) {
+  while (IndexerTop.position(deg) < indexRotation + amount) {
     IndexerTop.spin(forward, 100, pct);
-    if (IndexerTop.position(degrees) > indexRotation + 300 && IndexerTop.position(degrees) < indexRotation + 600) {
-      IndexerLow.spin(forward, 80, pct);
+    if (IndexerTop.position(degrees) > indexRotation + 300 && IndexerTop.position(degrees) < indexRotation + amount - 300) {
+      IndexerLow.spin(forward, 100, pct);
     } else {
       IndexerLow.stop(hold);
     }

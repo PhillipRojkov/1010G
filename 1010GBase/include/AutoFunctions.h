@@ -41,9 +41,9 @@ private:
 
   // Turning
   int turnMargin =
-      40; // Time in msec for which turn needs to be at the correct angle
+      50; // Time in msec for which turn needs to be at the correct angle
       public:
-  double turnRange = 5; // Range (+-degrees) in which the turn needs to be in
+  double turnRange = 4; // Range (+-degrees) in which the turn needs to be in
                           // order to stop method
 
   // Strafing
@@ -62,7 +62,7 @@ private:
   double drivekI = 0; // 0.000005
 
   // Turn
-  double turnkP = 0.45; //1
+  double turnkP = 0.48; //1
   double turnkD = 0.09; //11.4
   double turnkI = 0; //0.002
 
@@ -97,6 +97,7 @@ public:
   double absAvgDriveEncoder(); // Returns average of all drive encoder abs positions
   void timeOutDrive(double t, double speed);
   void drive(int dir, double speed); // Drive forward (dir = 1) or backward (dir = -1). Called every loopTime msec
+  void dumbDrive(int dir, double speed); // Like drive but stupid (doesn't hold heading)
   void strafe(int dir, double speed); // Strafe right (dir = 1) or left (dir = -1)
   void brakeDrive(); // Stop the drive using brake mode brake
   void autoForward(double degrees, double iDeg, double fDeg, double speed); // Forward auto function. degrees > iDeg + fDeg
@@ -123,7 +124,7 @@ public:
   void cIndex(); // Auto index
   void indexSense(); // Set position variables for auto index
   void shoot(); // Shoot 1 ball
-  void doubleShot(); // Shoot 2 balls
+  void doubleShot(double amount); // Shoot 2 balls
   void alignTurnRight(double speed, double degrees); // Turn right into corner goal until param degrees is reached
   void alignTurnLeft(double speed, double degrees); // Turn left into corner goal until param degrees is reached
   void flipout(); // Run hood flipout

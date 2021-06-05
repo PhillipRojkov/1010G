@@ -14,6 +14,7 @@ extern distance LinePosition3;
 extern line IntakeLineL;
 extern line IntakeLineR;
 extern distance DistanceSensor;
+extern optical colourSelector;
 extern limit selector;
 extern encoder encoderS;
 extern encoder encoderL;

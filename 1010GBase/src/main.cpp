@@ -26,7 +26,7 @@ int selection = 0;
  * 2 : Two + right side, right starting position
  * 3 : Skills auto
  */
-int numOfAutos = 4;
+int numOfAutos = 2;
 bool selecting = false;
 
 // define your global instances of motors and other devices here
@@ -41,10 +41,22 @@ bool selecting = false;
 /*  not every time that the robot is disabled.                               */
 /*---------------------------------------------------------------------------*/
 
+double period = 1; //On/off length in seconds
+bool flash = true;
+void lightThread() {
+  while (flash) {
+    colourSelector.setLightPower(100);
+    wait(period, sec);
+    colourSelector.setLightPower(0);
+    wait(period, sec);
+  }
+}
+
 void pre_auton(void) {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
 
+  colourSelector.setLightPower(100);
   Brain.Screen.clearScreen(red);
 
   // Calibrate inertial sensors
@@ -55,25 +67,39 @@ void pre_auton(void) {
   encoderS.resetRotation();
   wait(1500, msec);
   Brain.Screen.clearScreen(green);
+  colourSelector.setLightPower(0);
   wait(500, msec);
   Brain.Screen.clearScreen();
 
+  thread flasher(lightThread);
+
   // Auto selection
   while (true) {
-    if (selector.pressing() && !selecting) {
+    if (colourSelector.hue() < 30 && !selecting) {
       selecting = true;
       if (selection < numOfAutos - 1) {
         selection++;
       } else {
         selection = 0;
       }
-    } else if (!selector.pressing()) {
+    } else if (colourSelector.hue() > 30) {
       selecting = false;
     }
+    Brain.Screen.clearScreen();
     Brain.Screen.setCursor(2, 1);
     Brain.Screen.print("Auto Selection :");
-    Brain.Screen.setCursor(2, 18);
-    Brain.Screen.print(selection);
+    switch(selection) {
+      case 0:
+        period = 1;
+        Brain.Screen.setCursor(2, 18);
+        Brain.Screen.print("Left Two and Middle %d", selection);
+        break;
+      case 1:
+        period = 0.5;
+        Brain.Screen.setCursor(2, 18);
+        Brain.Screen.print("Home row %d", selection);
+        break;
+    }
     wait(20, msec);
   }
 }
@@ -86,19 +112,18 @@ void odometryThread(){
 }
 
 void autonomous(void) {
+  flash = false;
+  colourSelector.setLightPower(0);
   Brain.Screen.clearScreen(); // Clear the auto selection text
   // .........................................................................
   thread odomThread(odometryThread); //Start odometry thread
 
-  if (selection == 0) {
-    autoMasters.leftTwoAndMiddle();
-    //autoMasters.skills();
-  } else if (selection == 1) {
-    autoMasters.leftHome();
-  } else if (selection == 2) {
-    autoMasters.rightTwoAndSide();
-  } else if (selection == 3) {
-    autoMasters.rightHome();
+  switch(selection) {
+    case 0:
+      autoMasters.leftTwoAndMiddle();
+      break;
+    case 1:
+      autoMasters.leftHome();
   }
   // ..........................................................................
 }
