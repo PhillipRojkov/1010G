@@ -26,7 +26,7 @@ int selection = 0;
  * 2 : Two + right side, right starting position
  * 3 : Skills auto
  */
-int numOfAutos = 2;
+int numOfAutos = 3;
 bool selecting = false;
 
 // define your global instances of motors and other devices here
@@ -99,6 +99,11 @@ void pre_auton(void) {
         Brain.Screen.setCursor(2, 18);
         Brain.Screen.print("Home row %d", selection);
         break;
+      case 2:
+        period = 0.25;
+        Brain.Screen.setCursor(2, 18);
+        Brain.Screen.print("Left two %d", selection);
+        break;
     }
     wait(20, msec);
   }
@@ -124,6 +129,10 @@ void autonomous(void) {
       break;
     case 1:
       autoMasters.leftHome();
+      break;
+    case 2:
+      autoMasters.leftTwo();
+      break;
   }
   // ..........................................................................
 }

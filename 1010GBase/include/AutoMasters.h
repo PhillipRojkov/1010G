@@ -17,5 +17,5 @@ public:
   void rightHome();
   void leftHome();
   void leftTwoAndMiddle();
-  void rightTwoAndSide();
+  void leftTwo();
 };
